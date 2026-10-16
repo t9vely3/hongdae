@@ -1325,6 +1325,15 @@ body{background:var(--bg)!important}
 .mc-grid.painting .mc-c.redday[data-pop]:hover,.mc-grid.painting .mc-c.satday[data-pop]:hover{box-shadow:inset 0 0 0 2px var(--ink)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mc-c.redday,:root:not([data-theme="light"]) .wday.redday{background:color-mix(in srgb,#e5484d 9%,var(--surface))}:root:not([data-theme="light"]) .mc-c.satday,:root:not([data-theme="light"]) .wday.satday{background:color-mix(in srgb,#2f6fdf 9%,var(--surface))}}
 
+.dlg.sm{max-width:380px}
+
+/* --- 조 통째로 바꾸기 --- */
+.rs-g .gdrag{display:inline-flex;align-items:center;gap:4px;border:0;cursor:grab;font:inherit;font-size:12.5px;font-weight:700;padding:3px 9px 3px 5px;width:auto}
+.rs-g .gdrag .i{width:13px;height:13px;opacity:.75}
+.rs-g .gdrag:hover{filter:brightness(1.08);box-shadow:0 0 0 2px color-mix(in srgb,var(--g) 30%,transparent)}
+.rs-row.gpick{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.rs-row.gpick .gdrag{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1749,6 +1758,7 @@ function selDate(k){
 }
 const peopleList=()=>`<datalist id="peopleList">${allPeople().map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`;
 const HOL=/휴일|휴무|연휴|공휴|한글날|추석|설날|대체/;
+const GAP=4;
 function autoFill(k,opt){
   const cal=S.doc.cal,mem=cal[GK[k].mem],[a,z]=periodDays();
   const hol=x=>HOL.test(cal.memo?.[x]||'');
@@ -1761,7 +1771,9 @@ function autoFill(k,opt){
   const prevG=x=>{for(let i=1;i<=3;i++){const y=addDays(x,-i);if(opt.days.includes(parse(y).getDay()))return groupOf(cal[k][y])}return null};
   if(opt.mode==='all')dates.forEach(x=>{delete cal[k][x];delete mem[x]});
   for(const x of dates){const wd=parse(x).getDay(),pg=prevG(x);
-    const best=opt.groups.map(g=>[cnt[g]*100+wdc[g][wd]*10+(g===pg?60:0)+Math.random()*5,g]).sort((p,q)=>p[0]-q[0])[0][1];
+    /* 같은 조는 앞뒤 3일 안에 다시 넣지 않음 → 최소 4일 간격 */
+    const near=g=>{for(let i=1;i<=GAP-1;i++){if(groupOf(cal[k][addDays(x,-i)])===g||groupOf(cal[k][addDays(x,i)])===g)return GAP-i}return 0};
+    const best=opt.groups.map(g=>[near(g)*1e6+cnt[g]*100+wdc[g][wd]*10+(g===pg?60:0)+Math.random()*5,g]).sort((p,q)=>p[0]-q[0])[0][1];
     cal[k][x]=best+'조';delete mem[x];cnt[best]++;wdc[best][wd]++}
   let wk=0;
   if(opt.weekend)for(let x=a;x<=z;x=addDays(x,1)){const wd=parse(x).getDay();if((wd===0||wd===6)&&!opt.days.includes(wd)&&(opt.mode==='all'||!cal[k][x])){cal[k][x]='지원';delete mem[x];wk++}}
@@ -1777,7 +1789,7 @@ function autoPanel(k){
     <div class="row"><b>돌릴 조</b>${gChk}</div>
     <div class="row"><b>방식</b><div class="seg"><button type="button" data-aumode="empty" class="${o.mode==='empty'?'on':''}">빈 날만 채우기</button><button type="button" data-aumode="all" class="${o.mode==='all'?'on':''}">전부 새로 짜기</button></div></div>
     <div class="row"><b>옵션</b><label class="chk"><input type="checkbox" id="au-hol" ${o.skipHol?'checked':''}>휴일·연휴(메모) 날짜는 건너뛰기</label>${k==='duty'?`<label class="chk"><input type="checkbox" id="au-wk" ${o.weekend?'checked':''}>토·일은 ‘지원’으로 채우기</label>`:''}</div>
-    <div class="row"><button type="button" class="btn blue" data-autogo="${k}">배치하기</button><button type="button" class="btn" data-auto="${k}">닫기</button><span class="muted">조별 횟수가 고르게, 같은 조가 연달아 서지 않게 무작위로 섞습니다. 마음에 안 들면 다시 누르세요.</span></div></div>`;
+    <div class="row"><button type="button" class="btn blue" data-autogo="${k}">배치하기</button><button type="button" class="btn" data-auto="${k}">닫기</button><span class="muted">조별 횟수가 고르게, 같은 조는 최소 4일 간격으로 무작위로 섞습니다. 마음에 안 들면 다시 누르세요.</span></div></div>`;
 }
 /* ================= month calendar (v8) ================= */
 const CHEV_L='<svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>',CHEV_R='<svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>';
@@ -1888,10 +1900,11 @@ function placePop(){
 function randHtml(){
   if(!S.rand||!S.doc)return '';const k=S.rand,[a,z]=periodDays();
   return `<div class="ovl" id="ovl"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="dlg-ic">${icx('shuffle')}</div><h3 id="dlgT">${GK[k].label}표 랜덤 배치</h3>
-    <p>${md(a)} ~ ${md(z)} 평일을 A~E조에 고르게 나눠 무작위로 채웁니다. 같은 조가 연달아 걸리지 않게 섞고, 메모에 연휴·공휴일로 적힌 날은 건너뜁니다.${k==='duty'?' 토·일은 ‘지원’으로 채웁니다.':''}</p>
+    <p>${md(a)} ~ ${md(z)} 평일을 A~E조에 고르게 나눠 무작위로 채웁니다. 같은 조는 최소 4일 간격을 두고, 메모에 연휴·공휴일로 적힌 날은 건너뜁니다.${k==='duty'?' 토·일은 ‘지원’으로 채웁니다.':''}</p>
     <p class="dlg-s">결과가 마음에 들지 않으면 다시 누르면 새로 섞입니다. 저장을 누르기 전까지는 확정되지 않습니다.</p>
     <div class="dlg-b"><button type="button" class="btn" data-randx="1">취소</button><button type="button" class="btn" data-randgo="${k}|empty">빈 날만 채우기</button><button type="button" class="btn primary" data-randgo="${k}|all">${SHUF}전체 새로 섞기</button></div></div></div>`;
 }
+function swapGroups(k,i,g1,g2){S.gswap=null;S.edit=true;mutate(()=>{const gr=S.doc.rosters[k][i].groups;const t=gr[g1]||[];gr[g1]=gr[g2]||[];gr[g2]=t},`${g1}조 ↔ ${g2}조 조원을 바꿨습니다`)}
 function rosterSetup(k){
   const cfg=GK[k],sel=selDate(k),vs=versions(k);
   if(S.rv[k]==null||!S.doc.rosters[k][S.rv[k]])S.rv[k]=vs.filter(([v])=>!v.from||v.from<=sel).pop()?.[1]??vs[0][1];
@@ -1905,9 +1918,11 @@ function rosterSetup(k){
   const rows=GROUPS.map(g=>{const L=cur.groups[g]||[];
     const mem=S.edit?L.map(n=>`<span class="pchip" data-drag="rmem|${k}|${vi}|${g}|${esc(n)}">${esc(n)}<button type="button" class="px" aria-label="${esc(n)} 빼기" data-grem="${k}|${vi}|${g}|${esc(n)}">${icx('x')}</button></span>`).join('')+`<span class="addp"><input type="text" id="gadd-${g}" list="peopleList" placeholder="이름"><button type="button" class="btn sm" data-gadd="${k}|${vi}|${g}">추가</button></span>`
       :(L.length?L.map(n=>`<span class="rs-n">${esc(n)}</span>`).join(''):'<span class="muted">조원이 없습니다</span>');
-    return `<div class="rs-row"><div class="rs-g"><span class="ev g-${g}">${g}조</span><small>${L.length}명 · 이번 달 ${cnt[g]}회</small></div><div class="rs-m"${S.edit?` data-drop="rgrp|${k}|${vi}|${g}"`:''}>${mem}</div></div>`}).join('');
+    const swp=S.gswap&&S.gswap.k===k&&S.gswap.vi===vi;const pick=swp&&S.gswap.g===g;
+    return `<div class="rs-row${pick?' gpick':''}"><div class="rs-g"${CAN()?` data-drop="rgrp|${k}|${vi}|${g}"`:''}>${CAN()?`<button type="button" class="ev g-${g} gdrag" data-drag="rgsw|${k}|${vi}|${g}" data-gsw="${k}|${vi}|${g}" title="끌어서 다른 조에 놓으면 조원이 통째로 바뀝니다">${icx('grip')}${g}조</button>`:`<span class="ev g-${g}">${g}조</span>`}<small>${L.length}명 · 이번 달 ${cnt[g]}회</small></div><div class="rs-m"${S.edit||CAN()?` data-drop="rgrp|${k}|${vi}|${g}"`:''}>${mem}</div></div>`}).join('');
   const right=S.edit||!CAN()?'':`<button type="button" class="btn sm" data-editon="1">조원 바꾸기</button>`;
-  const note=S.edit?`조원을 넣고 빼면 ${per(cur)} 편성의 모든 날짜에 바로 반영됩니다. 이름을 끌어 다른 조로 옮길 수도 있습니다. 중간에 조원이 바뀌면 ‘이 날부터 조원 바꾸기’를 쓰세요.`:`달력에 들어가는 ${cfg.label}조 구성입니다.`;
+  const swHint=CAN()?(S.gswap&&S.gswap.k===k?` 지금 ${S.gswap.g}조를 골랐습니다. 바꿀 조의 이름표를 누르세요. (취소는 Esc)`:' 조 이름표(A조 등)를 끌어 다른 조에 놓거나, 두 조를 차례로 누르면 조원이 통째로 바뀝니다.'):'';
+  const note=(S.edit?`조원을 넣고 빼면 ${per(cur)} 편성의 모든 날짜에 바로 반영됩니다. 이름을 끌어 다른 조로 옮길 수도 있습니다. 중간에 조원이 바뀌면 ‘이 날부터 조원 바꾸기’를 쓰세요.`:`달력에 들어가는 ${cfg.label}조 구성입니다.`)+swHint;
   return card('rset',`${cfg.label}조 설정`,note,`<div class="rs">${tabs}${rows}</div>`,{right});
 }
 
@@ -2220,7 +2235,7 @@ function render(){
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
   const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
-  const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml();
+  const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
   placePop();buildToc();
 }
@@ -2243,6 +2258,19 @@ function pickDoc(id){
   if(!S.com||!S.dirtyC)pickCommon();
   S.dirty=S.dirtyM||S.dirtyC;
   ls.set('month',id||'');
+}
+function askSave(){
+  if(typeof CAN==='function'&&!CAN())return;
+  if(!S.db)return;
+  if(!S.dirty){toast('바뀐 내용이 없습니다');return}
+  if(S.dirtyC&&!S.revOk){S.revAsk=true;S.keepScroll=true;render();return}
+  S.saveAsk=true;S.keepScroll=true;render();setTimeout(()=>$('#saveYes')?.focus(),0);
+}
+function saveAskHtml(){
+  if(!S.saveAsk)return '';
+  return `<div class="ovl" id="saveOvl"><div class="dlg sm" role="dialog" aria-modal="true" aria-labelledby="saveT"><div class="dlg-ic">${icx('check')}</div><h3 id="saveT">저장하시겠습니까?</h3>
+    <p>${esc(S.doc?.label||'')} 바뀐 내용을 저장합니다. 저장하면 다른 사람 화면에도 바로 반영됩니다.</p>
+    <div class="dlg-b"><button type="button" class="btn" data-saveno="1">아니오</button><button type="button" class="btn primary" id="saveYes" data-saveyes="1">예</button></div><p class="dlg-s">Enter는 예, Esc는 아니오</p></div></div>`;
 }
 async function save(){
   if(!S.db||!S.dirty||!CAN())return;
@@ -2278,10 +2306,13 @@ function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달
 /* ================= actions ================= */
 function act(t){
   const d=t.dataset;
+  if(d.gsw){const [k,vi,g]=sp(d.gsw);if(S.gswap&&S.gswap.k===k&&S.gswap.vi===+vi){if(S.gswap.g===g){S.gswap=null;S.keepScroll=true;render()}else swapGroups(k,+vi,S.gswap.g,g)}else{S.gswap={k,vi:+vi,g};S.keepScroll=true;render()}return true}
   if(d.month){$('#mMenu').hidden=true;$('#mBtn').setAttribute('aria-expanded','false');switchMonth(d.month);return true}
   if(d.brush!=null){const [k,v]=sp(d.brush);if(S.brush&&S.brush.k===k&&S.brush.v===v)S.brush=null;else{S.brush={k,v};S.edit=true;S.pop=null}S.keepScroll=true;render();return true}
   if(d.brushoff){S.brush=null;S.keepScroll=true;render();return true}
   if(d.cview){const [k,v]=sp(d.cview);S.cview=S.cview||{};S.cview[k]=v;S.pop=null;S.keepScroll=true;render();return true}
+  if(d.saveyes){S.saveAsk=false;save();return true}
+  if(d.saveno){S.saveAsk=false;S.keepScroll=true;render();return true}
   if(d.renx){S.renAsk=false;S.keepScroll=true;render();return true}
   if(d.rengo){const lb=$('#renLabel').value.trim(),a=$('#renStart').value,z=$('#renEnd').value;if(!lb){toast('이름을 적어 주세요');return true}if(!a||!z||a>z){toast('시작일과 종료일을 확인해 주세요');return true}
     S.renAsk=false;mutate(()=>{S.doc.label=lb;S.doc.period={start:a,end:z}});save();return true}
@@ -2353,7 +2384,8 @@ function canDrop(src,dst){
   const [st]=src,[dt]=dst;
   if(dt==='trash')return ['dmem','rmem','day'].includes(st);
   if(dt==='rday')return ['grp','day','per','dmem','rmem'].includes(st)&&(st==='per'||src[1]===dst[1])&&!(st==='day'&&src[2]===dst[2]);
-  if(dt==='rgrp')return ['per','dmem','rmem'].includes(st)&&(st==='per'||src[1]===dst[1]);
+  if(dt==='rgrp'&&st==='rgsw')return src[1]===dst[1]&&src[2]===dst[2]&&src[3]!==dst[3];
+  if(dt==='rgrp')return S.edit&&['per','dmem','rmem'].includes(st)&&(st==='per'||src[1]===dst[1]);
   if(dt==='row'||dt==='rowend'){if(st!=='row')return false;const a=blk(src[1]),b=blk(dst[1]);return !!a&&!!b&&(a===b||(a.cols.length===b.cols.length&&a.kind===b.kind))}
   if(dt==='item'||dt==='itemend')return st==='item';
   if(dt==='block'){if(st!=='block'||src[1]===dst[1])return false;const a=blk(src[1]),b=blk(dst[1]);return !!a&&!!b&&a.tab===b.tab&&listOf(a)===listOf(b)}
@@ -2374,6 +2406,7 @@ function doDrop(src,dst,pos){
     if(st==='day'){const y=src[2];mutate(()=>{const m=cal[GK[k].mem];const [v1,v2,o1,o2]=[cal[k][y],cal[k][x],m[y],m[x]];v2!=null?cal[k][y]=v2:delete cal[k][y];v1!=null?cal[k][x]=v1:delete cal[k][x];o2?m[y]=o2:delete m[y];o1?m[x]=o1:delete m[x]},`${md(y)} ↔ ${md(x)} 바꿈`);return}
     const n=st==='per'?src[1]:st==='dmem'?src[3]:src[4];S.rsel[k]=x;
     mutate(()=>{const l=effMembers(k,x).list;if(!l.includes(n))setOverride(k,x,[...l,n]);if(st==='dmem'&&src[2]!==x){const y=src[2];setOverride(k,y,effMembers(k,y).list.filter(z=>z!==n))}},st==='dmem'?`${n}: ${md(src[2])} → ${md(x)}`:`${md(x)}에 ${n} 추가`);return}
+  if(dt==='rgrp'&&st==='rgsw'){swapGroups(dst[1],+dst[2],src[3],dst[3]);return}
   if(dt==='rgrp'){const [,k,i,g]=dst;const n=st==='per'?src[1]:st==='dmem'?src[3]:src[4];
     mutate(()=>{const gr=S.doc.rosters[k][+i].groups;if(st==='rmem'&&+src[2]===+i){const og=src[3];gr[og]=gr[og].filter(y=>y!==n)}gr[g]=gr[g]||[];if(!gr[g].includes(n))gr[g].push(n)},st==='rmem'?`${n} → ${g}조`:`${g}조에 ${n} 추가`);return}
   if(dt==='row'||dt==='rowend'){const a=blk(src[1]),ai=+src[2],b=blk(dst[1]);
@@ -2447,7 +2480,7 @@ document.addEventListener('click',e=>{
     case 'memBtn':S.tab='members';S.pop=null;S.panel=null;S.confirm=null;render();scrollTo(0,0);break;
     case 'impGo':doImport();break;
     case 'editBtn':if(!CAN())break;S.edit=!S.edit;S.confirm=null;S.keepScroll=true;render();toast(S.edit?'편집 모드를 켰습니다':'편집 모드를 껐습니다');break;
-    case 'saveBtn':save();break;
+    case 'saveBtn':askSave();break;
     case 'revertBtn':S.dirtyC=false;pickDoc(S.id);pickCommon();changed();S.msg=null;render();toast('저장하지 않은 변경을 취소했습니다');break;
     case 'undoBtn':undo();break;
     case 'redoBtn':redo();break;
@@ -2467,8 +2500,10 @@ document.addEventListener('keydown',e=>{
     if(G){e.preventDefault();S.edit=true;mutate(()=>{setCal(k,x,G+'조');delete S.doc.cal[GK[k].mem][x]});const n=stepDay(k,x,1);if(n)S.pop={key:k,date:n};S.keepScroll=true;render();return}
     if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();mutate(()=>{setCal(k,x,'');delete S.doc.cal[GK[k].mem][x]});return}
     if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const n=stepDay(k,x,e.key==='ArrowRight'?1:-1);if(n){S.pop={key:k,date:n};S.keepScroll=true;render()}return}}
+  if(e.key==='Escape'&&S.gswap){S.gswap=null;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&(S.pop||S.rand||S.renAsk)){S.pop=null;S.rand=null;S.renAsk=false;S.keepScroll=true;render();return}
-  if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();save();return}
+  if(S.saveAsk){if(e.key==='Escape'){e.preventDefault();S.saveAsk=false;S.keepScroll=true;render();return}if(e.key==='Enter'||(mod&&e.key.toLowerCase()==='s')){e.preventDefault();S.saveAsk=false;save();return}}
+  if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();askSave();return}
   if(mod&&!inField&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
   if(mod&&!inField&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('.cell,.ag,.mc-c,[data-rsel],[data-csel]')&&!inField){e.preventDefault();e.target.click();return}
