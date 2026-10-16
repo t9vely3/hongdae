@@ -1286,6 +1286,21 @@ body{background:var(--bg)!important}
 .ev-line.off,.ev-line.off b{color:#c2410c}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ev.dot.c-biz::before{background:#60a5fa}:root:not([data-theme="light"]) .ev.dot.c-edu::before{background:#2dd4bf}:root:not([data-theme="light"]) .ev-line.off{color:#fb923c}}
 
+/* --- 업무분장: 담당자별 묶음 --- */
+.lgrp{display:flex;flex-direction:column}
+.lg-row{display:grid;grid-template-columns:180px 1fr;gap:20px;padding:18px 24px;border-top:1px solid var(--line)}
+.lg-row:first-child{border-top:0}
+.lg-who{display:flex;flex-direction:column;gap:3px;padding-top:2px}
+.lg-who b{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.lg-who small{font-size:12px;color:var(--muted)}
+.lg-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.lg-list li{display:grid;grid-template-columns:24px 1fr auto;gap:12px;align-items:start}
+.lg-n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--head);color:var(--ink);font-size:12px;font-weight:800;margin-top:1px}
+.lg-tx b{display:block;font-size:14px;font-weight:700;color:var(--ink)}
+.lg-tx p{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+.lg-when{font-size:12.5px;font-weight:600;color:var(--ink2);background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
+@media (max-width:700px){.lg-row{grid-template-columns:1fr;gap:10px;padding:16px}.lg-who{flex-direction:row;align-items:baseline;gap:8px}.lg-list li{grid-template-columns:22px 1fr}.lg-when{grid-column:2;justify-self:start}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1550,9 +1565,16 @@ function blockCard(b,body,opt={}){
   const pre=(S.confirm==='block:'+b.id?`<div class="confirm">${icx('trash','cf-i')}<span>‘${esc(b.title)}’ 카드를 삭제할까요? 되돌리기로 복구할 수 있습니다.</span><button type="button" class="btn sm danger" data-bdelgo="${b.id}">삭제</button><button type="button" class="btn sm" data-cancel="1">취소</button></div>`:'')+(opt.pre||'');
   return card(b.id,b.title,b.note,body,{...opt,head,right,noteHtml,pre,drop:'block|'+b.id});
 }
+function leadView(b,opt={}){
+  const q=(opt.q||'').toLowerCase();const groups=[];const at={};
+  b.rows.forEach(r=>{if(opt.filter&&!opt.filter(r))return;if(q&&!r.join(' ').toLowerCase().includes(q))return;const k=String(r[0]||'').trim()||'(담당 없음)';if(!(k in at)){at[k]=groups.length;groups.push([k,[]])}groups[at[k]][1].push(r)});
+  const body=groups.length?`<div class="lgrp">${groups.map(([k,rs])=>`<section class="lg-row"><div class="lg-who"><b>${esc(k)}</b><small>${rs.length}건</small></div><ol class="lg-list">${rs.map((r,i)=>`<li><span class="lg-n">${i+1}</span><div class="lg-tx"><b>${esc(r[1])}</b>${r[2]?`<p>${esc(r[2])}</p>`:''}</div>${r[3]?`<span class="lg-when">${esc(r[3])}</span>`:''}</li>`).join('')}</ol></section>`).join('')}</div>`:'<div class="empty-state">찾는 업무가 없습니다.</div>';
+  return card(b.id,b.title,b.note,body,{cls:'wide'});
+}
 function tableBlock(b,opt={}){
   const id=b.id,q=opt.q||'',E=S.edit;
   if(b.kind==='seats')return seatsView(b);
+  if(!E&&(b.id==='leadFixed'||b.id==='leadRotate'))return leadView(b,opt);
   if(b.kind==='heads'&&!E)return card(id,b.title,'',`<div class="heads">${b.rows.map(r=>`<div class="hbox"><small>${esc(r[0])}</small><b>${esc(r[1])}</b></div>`).join('')}</div>`,{cls:'wide'});
   if(b.kind==='chips'&&!E)return card(id,b.title,b.note,`<div class="card-bd"><div class="chips">${b.rows.map(r=>`<span class="person">${esc(r[0])}</span>`).join('')}</div></div>`,{cls:'wide'});
   if(b.kind==='teachers'&&!E&&!q)return teachersView(b);
