@@ -1315,6 +1315,16 @@ body{background:var(--bg)!important}
 .gr-m button[aria-selected="true"] small{color:color-mix(in srgb,var(--surface) 70%,transparent)}
 @media (max-width:600px){.gr-t h2{font-size:19px}.gr-m{width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.gr-m button{flex:none}}
 
+/* --- 빨간날 · 토요일 구분 --- */
+.mc-c.redday,.wday.redday{background:color-mix(in srgb,#e5484d 5%,var(--surface));box-shadow:inset 0 3px 0 #e5484d}
+.mc-c.satday,.wday.satday{background:color-mix(in srgb,#2f6fdf 4%,var(--surface));box-shadow:inset 0 3px 0 #2f6fdf}
+.mc-c.redday.sel,.mc-c.redday.painted{box-shadow:inset 0 3px 0 #e5484d,inset 0 0 0 2px var(--ink)}
+.mc-c.satday.sel,.mc-c.satday.painted{box-shadow:inset 0 3px 0 #2f6fdf,inset 0 0 0 2px var(--ink)}
+.mc-c.redday.na,.mc-c.satday.na{background:color-mix(in srgb,#e5484d 4%,var(--sunk))}
+.mc-c.satday.na{background:color-mix(in srgb,#2f6fdf 3%,var(--sunk))}
+.mc-grid.painting .mc-c.redday[data-pop]:hover,.mc-grid.painting .mc-c.satday[data-pop]:hover{box-shadow:inset 0 0 0 2px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mc-c.redday,:root:not([data-theme="light"]) .wday.redday{background:color-mix(in srgb,#e5484d 9%,var(--surface))}:root:not([data-theme="light"]) .mc-c.satday,:root:not([data-theme="light"]) .wday.satday{background:color-mix(in srgb,#2f6fdf 9%,var(--surface))}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1716,7 +1726,7 @@ function viewToday(){
   const sun=addDays(d,-dt.getDay());
   const wk=[0,1,2,3,4,5,6].map(i=>{const x=addDays(sun,i);const du=cal.duty?.[x],as=cal.assign?.[x],me=cal.memo?.[x],ed=cal.edu?.[x],hol=!!me&&HOL.test(me);
     const bar=(v,lab)=>v?(groupOf(v)?`<span class="ev g-${groupOf(v)}">${lab} ${groupOf(v)}조</span>`:`<span class="ev plain">${esc(String(v).split('\n')[0])}</span>`):'';
-    return `<button type="button" class="wday${x===d?' sel':''}${x===todayIso()?' today':''}" data-date="${x}"><span class="wd-h"><span class="wd-w${i===0?' red':i===6?' blue':''}">${WD[i]}</span><span class="mc-n${i===0||hol?' red':i===6?' blue':''}">${parse(x).getDate()}</span></span>${me?`<span class="mc-memo${hol?' red':''}">${esc(me)}</span>`:''}${bar(du,'당직')}${bar(as,'배정')}${ed?`<span class="ev dot">교육 ${eduItems(ed).length}건</span>`:''}</button>`}).join('');
+    return `<button type="button" class="wday${i===0||hol?' redday':i===6?' satday':''}${x===d?' sel':''}${x===todayIso()?' today':''}" data-date="${x}"><span class="wd-h"><span class="wd-w${i===0?' red':i===6?' blue':''}">${WD[i]}</span><span class="mc-n${i===0||hol?' red':i===6?' blue':''}">${parse(x).getDate()}</span></span>${me?`<span class="mc-memo${hol?' red':''}">${esc(me)}</span>`:''}${bar(du,'당직')}${bar(as,'배정')}${ed?`<span class="ev dot">교육 ${eduItems(ed).length}건</span>`:''}</button>`}).join('');
   const [a,z]=periodDays();
   const quick=[['rules','DB 규정','디비턴 · 권한 · 재배정'],['tuition','수강료','과정별 수강료 조회'],['org','조직도','부서 · 강사진 · 자리'],['lead','업무분장','담당 업무 · 순번']];
   const nm=((typeof A!=='undefined'&&A.prof&&A.prof.name)||S.myName||'').trim();
@@ -1784,7 +1794,7 @@ function monthCal(key,o){
     const dd=parse(x),dw=dd.getDay(),off=x<a||x>z,na=!days.includes(dw),memo=S.doc.cal.memo?.[x],hol=!!memo&&HOL.test(memo),live=!off&&!na;
     const sel=S.pop&&S.pop.key===key&&S.pop.date===x;
     const lab=(x===a||dd.getDate()===1)?`${dd.getMonth()+1}/${dd.getDate()}`:dd.getDate();
-    cells+=`<div class="mc-c${off?' off':''}${na&&!off?' na':''}${x===todayIso()?' today':''}${sel?' sel':''}"${live?` data-pop="${key}|${x}" data-drop="${o.drop(x)}" tabindex="0" role="button" aria-label="${dayLabel(x)}"`:''}>
+    cells+=`<div class="mc-c${!off&&(dw===0||hol)?' redday':!off&&dw===6?' satday':''}${off?' off':''}${na&&!off?' na':''}${x===todayIso()?' today':''}${sel?' sel':''}"${live?` data-pop="${key}|${x}" data-drop="${o.drop(x)}" tabindex="0" role="button" aria-label="${dayLabel(x)}"`:''}>
       ${off?'':`<div class="mc-dh"><span class="mc-n${dw===0||hol?' red':dw===6?' blue':''}">${lab}</span>${memo?`<span class="mc-memo${hol?' red':''}">${esc(memo)}</span>`:''}${x===a?'<span class="mc-tag">시작</span>':x===z?'<span class="mc-tag end">종료</span>':''}</div>${live?o.cell(x):''}`}</div>`;
   }
   const label=esc(String(S.doc.label||'').replace(/\s*영업$/,''));
