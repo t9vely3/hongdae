@@ -1028,6 +1028,10 @@ table.kv td{padding:13px 20px}
 .mc-t{flex-wrap:wrap;gap:6px 14px}
 @media (max-width:760px){.mc-tag{display:none}}
 
+.revline{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:10px;font-size:13px;color:var(--muted)}
+.revline b{color:var(--com);font-weight:700}
+.revline .lnk{margin:0}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1075,7 +1079,7 @@ td.act .btn+.btn{margin-left:6px}
     <div class="mpill" id="msw"><button type="button" class="ib" id="mPrev" aria-label="이전 달"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><select id="monthSel" aria-label="월 선택"></select><button type="button" class="ib" id="mNext" aria-label="다음 달"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
     <span class="dchip" id="todayChip"></span>
     <button type="button" class="membtn" id="memBtn" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/></svg><span class="t">회원 관리</span><span class="bd" hidden></span></button>
-    <span class="compill" id="compill" hidden>모든 달 공통</span>
+    <span class="compill" id="compill" hidden>고정 내용</span>
     <button type="button" class="switch" id="editBtn" aria-pressed="false"><span class="k"></span><span class="t">편집</span></button>
     <div class="menu-wrap"><button type="button" class="ib" id="moreBtn" aria-label="더 보기"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
       <div class="dd" id="dd" hidden><button type="button" id="setBtn">이 달 설정 (기간·이름)</button><button type="button" id="newBtn">새 달 만들기</button></div></div>
@@ -1120,7 +1124,7 @@ const PAGES={
   members:{label:'회원 관리',g:'x',desc:'가입 신청을 승인하고, 사람마다 열람·편집 권한을 정합니다.'},
   lead:{label:'업무분장',g:'c',subs:[['fixed','공통·고정 업무'],['rotate','분기 업무'],['order','순번']],desc:''}
 };
-const NAV=[['m','이번 달',['today','duty','assign','edu','ops','sales']],['c','공통 자료',['rules','tuition','org','lead']]];
+const NAV=[['m','운영계획',['today','duty','assign','edu','ops','sales']],['c','내용',['rules','tuition','org','lead']]];
 const COMMON_TABS=new Set(['rules','tuition','org','lead']);
 const SEC_DEFAULT={turnBase:'turn',turnWeekday:'turn',turnDuty:'turn',rights:'rights',rulesInter:'rights',rulesInner:'rights',dismissed:'rights',ndb:'rights',ambVisit:'visit',ambStudent:'visit',ambDouble:'visit',reassignRoom:'reassign',reassign:'reassign',penalty:'penalty',memoRule:'penalty',dutyRule:'duty',assignRule:'duty',groupRule:'group',signers:'group',heads:'dept',dept1:'dept',dept2:'dept',dept3:'dept',dept4:'dept',opsStaff:'staff',teachers:'staff',seats:'seat',leadFixed:'fixed',leadRotate:'rotate',leadRotation:'rotate',leadOrder:'order',turns:'turns',acp:'acp',dbAssign:'assign',dbAssignPrev:'assign',dbLog:'log',reLog:'log',assignOrder:'order',opsRoles:'info',opsOrder:'info',tuitionWeekday:'weekday',tuitionWeekend:'weekend',tuitionVacation:'vacation'};
 const TAB_FIX={assignOrder:'assign',opsRoles:'ops',opsOrder:'ops',dutyGroups:'legacy',assignGroups:'legacy'};
@@ -1231,12 +1235,12 @@ function renderChrome(){
   $('#savebar').hidden=!S.dirty;
   {const t=new Date();const tc=$('#todayChip');if(tc)tc.innerHTML=`${I('<path d="M4 6h16v14H4z"/><path d="M4 10h16M9 3v4M15 3v4"/>')}오늘 ${t.getMonth()+1}월 ${t.getDate()}일 (${WD[t.getDay()]})`;
    const f=$('#sbFoot');if(f){const up=S.doc?.updatedAt?String(S.doc.updatedAt).replace('T',' ').slice(5,16).replace('-','/'):'';f.innerHTML=S.dirty?`<span class="st warn"><i></i>저장하지 않은 변경 있음</span><span>아래 저장 버튼을 눌러 주세요</span>`:`<span class="st"><i></i>모두 저장됨</span>${up?`<span>마지막 저장 ${esc(up)}</span>`:''}`}}
-  $('#saveTxt').textContent=S.dirtyM&&S.dirtyC?`저장하지 않은 변경 · ${S.doc?.label||'이번 달'}, 공통 자료`:S.dirtyC?'저장하지 않은 변경 · 공통 자료 (모든 달에 반영)':`저장하지 않은 변경 · ${S.doc?.label||'이번 달'}`;
+  $('#saveTxt').textContent=S.dirtyM&&S.dirtyC?`저장하지 않은 변경 · ${S.doc?.label||'운영계획'}, 내용`:S.dirtyC?'저장하지 않은 변경 · 내용 (저장할 때 수정 날짜 선택)':`저장하지 않은 변경 · ${S.doc?.label||'이번 달'}`;
 }
 const NAVL={today:'홈',edu:'교육',ops:'운영부',sales:'영업',rules:'규정'};
 function renderNav(){
   const [m,c]=NAV;const it=(k,cls)=>`<button type="button" data-tab="${k}" class="${cls}" aria-current="${S.tab===k}">${PAGES[k].label}</button>`;
-  $('#nav').innerHTML=`<div class="ng"><span class="nl">이번 달</span>${m[2].map(k=>it(k,'m')).join('')}</div><div class="ng c"><span class="nl">자료실</span>${c[2].map(k=>it(k,'c')).join('')}</div>`;
+  $('#nav').innerHTML=`<div class="ng"><span class="nl">운영계획</span>${m[2].map(k=>it(k,'m')).join('')}</div><div class="ng c"><span class="nl">내용</span>${c[2].map(k=>it(k,'c')).join('')}</div>`;
 }
 function subTabs(tab,counts={}){
   const p=PAGES[tab];if(!p.subs)return '';const cur=curSub(tab);
@@ -1244,7 +1248,7 @@ function subTabs(tab,counts={}){
 }
 function pageHead(tab,title,act='',counts=null,noSubs=false){
   const p=PAGES[tab],c=isCommonTab(tab);
-  return `<section class="hero"><div class="wrap hero-in"><div class="hero-row"><div><span class="kicker">${I(ICON[tab])}${tab==='members'?'관리자 전용':c?'자료실 · 모든 달 공통':esc(S.doc?.label||'이번 달')}</span><h1>${title||p.label}</h1>${p.desc?`<p>${p.desc}</p>`:''}</div>${act?`<div class="hero-act">${act}</div>`:''}</div>${p.subs&&!noSubs?subTabs(tab,counts||{}):'<div class="hero-sp"></div>'}</div></section><main class="wrap">%%TOP%%`;
+  return `<section class="hero"><div class="wrap hero-in"><div class="hero-row"><div><span class="kicker">${I(ICON[tab])}${tab==='members'?'관리자 전용':c?'내용 · 고정':'운영계획 · '+esc(S.doc?.label||'')}</span><h1>${title||p.label}</h1>${p.desc?`<p>${p.desc}</p>`:''}${c?revLine(tab):''}</div>${act?`<div class="hero-act">${act}</div>`:''}</div>${p.subs&&!noSubs?subTabs(tab,counts||{}):'<div class="hero-sp"></div>'}</div></section><main class="wrap">%%TOP%%`;
 }
 
 /* ================= cards & blocks ================= */
@@ -1353,7 +1357,7 @@ function blockHtml(b,opt={}){
 const addBlockBar=(tab,sec)=>S.edit?`<div class="addblock"><span>이 화면에 새 카드 추가</span><button type="button" class="btn sm" data-addblock="${tab}|${sec||''}|table">+ 표</button><button type="button" class="btn sm" data-addblock="${tab}|${sec||''}|rules">+ 항목형 (항목 · 내용)</button><button type="button" class="btn sm" data-addblock="${tab}|${sec||''}|text">+ 글</button></div>`:'';
 const flow=(bs,cls='')=>bs.length?`<div class="flow ${cls}">${bs.map(b=>blockHtml(b)).join('')}</div>`:'';
 const editHint=()=>S.edit?`<div class="hint">${I('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>')}<span><b>편집 모드</b> · 색칠된 칸을 눌러 고치고, ${GRIP} 손잡이를 끌어 행·항목·카드 순서를 바꿉니다. 같은 모양의 다른 표로 행을 옮길 수도 있습니다. 실수하면 Ctrl+Z.</span></div>`:'';
-const comBar=()=>!S.edit?'':`<div class="combar">${I('<path d="M4 7l8-4 8 4-8 4z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/>')}<span>이 화면은 <b>모든 달 공통</b>입니다. 여기서 고치면 다른 달에도 같이 바뀝니다.</span></div>`;
+const comBar=()=>!S.edit?'':`<div class="combar">${I('<path d="M4 7l8-4 8 4-8 4z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/>')}<span>이 화면은 <b>고정 내용</b>입니다. 고치면 모든 달에 같이 바뀌고, 저장할 때 <b>수정 날짜</b>를 고릅니다.</span></div>`;
 function secPage(tab){
   const sec=curSub(tab);const counts={};PAGES[tab].subs.forEach(([k])=>counts[k]=blocksOf(tab,k).length);
   return pageHead(tab,'','',counts)+comBar()+editHint()+(flow(blocksOf(tab,sec))||(S.edit?'':'<div class="empty-state">이 주제에 카드가 없습니다. 편집을 켜고 새 카드를 추가할 수 있습니다.</div>'))+addBlockBar(tab,sec);
@@ -1380,7 +1384,7 @@ function viewToday(){
     <div class="hero-act daynav"><button type="button" class="btn sm" data-step="-1">← 전날</button><input type="date" id="datePick" value="${d}" aria-label="날짜 선택"><button type="button" class="btn sm" data-step="1">다음날 →</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-date="${todayIso()}">오늘</button>`:''}</div></div>
     <div class="today-hero">${gstat('duty','당직')}${gstat('assign','배정')}${eduStat}${opsStat}</div></div></section><main class="wrap">%%TOP%%
   ${card('week','이번 주','날짜를 누르면 그날 현황을 봅니다.',`<div class="week">${wk}</div>`)}
-  ${card('quick','자료실','모든 달에 같은 내용입니다.',`<div class="quick">${quick.map(([k,l,s])=>`<button type="button" data-tab="${k}"><span class="qi">${I(ICON[k])}</span><span><b>${l}</b><small>${s}</small></span></button>`).join('')}</div>`)}`;
+  ${card('quick','내용','달이 바뀌어도 그대로 쓰는 고정 내용입니다. 고칠 때만 수정 날짜가 붙습니다.',`<div class="quick">${quick.map(([k,l,s])=>`<button type="button" data-tab="${k}"><span class="qi">${I(ICON[k])}</span><span><b>${l}</b><small>${s}</small></span></button>`).join('')}</div>`)}`;
 }
 
 /* ================= duty / assign ================= */
@@ -1535,6 +1539,31 @@ function rosterSetup(k){
   const note=S.edit?`조원을 넣고 빼면 ${per(cur)} 편성의 모든 날짜에 바로 반영됩니다. 이름을 끌어 다른 조로 옮길 수도 있습니다. 중간에 조원이 바뀌면 ‘이 날부터 조원 바꾸기’를 쓰세요.`:`달력에 들어가는 ${cfg.label}조 구성입니다.`;
   return card('rset',`${cfg.label}조 설정`,note,`<div class="rs">${tabs}${rows}</div>`,{right});
 }
+
+/* ================= 내용(고정) 수정 날짜 ================= */
+function changedPages(){
+  let old=[];try{old=JSON.parse(S.savedC||'{}').blocks||[]}catch(e){}
+  return [...COMMON_TABS].filter(t=>JSON.stringify(old.filter(b=>b.tab===t))!==JSON.stringify((S.com?.blocks||[]).filter(b=>b.tab===t))).map(t=>PAGES[t].label);
+}
+const revDate=d=>{const p=String(d||'').split('-');return p.length===3?`${p[0]}.${p[1]}.${p[2]}`:esc(d)};
+function revLine(tab){
+  const revs=(S.com?.revs||[]),mine=revs.filter(r=>(r.pages||[]).includes(PAGES[tab].label));
+  const last=mine[mine.length-1];
+  return `<div class="revline">${last?`이 내용 수정일 <b>${revDate(last.date)}</b>${last.note?` · ${esc(last.note)}`:''}`:'처음 올린 뒤 아직 고친 적이 없습니다'}${revs.length?`<button type="button" class="lnk" data-revs="1">수정 기록 ${revs.length}건 ${S.showRevs?'닫기':'보기'}</button>`:''}</div>`;
+}
+function revPanel(){
+  if(!S.showRevs||!isCommonTab(S.tab))return '';
+  const revs=(S.com?.revs||[]).slice().reverse();
+  return `<div class="card"><div class="card-hd"><h2>내용 수정 기록</h2><p class="sub">고칠 때 고른 수정 날짜 순서입니다.</p></div><div class="tw"><table class="stk"><thead><tr><th>수정 날짜</th><th>바뀐 곳</th><th>메모</th><th>저장한 사람</th></tr></thead><tbody>${revs.map(r=>`<tr><td class="nw" data-l="수정 날짜"><b>${revDate(r.date)}</b></td><td data-l="바뀐 곳">${esc((r.pages||[]).join(', ')||'-')}</td><td data-l="메모">${esc(r.note||'')}</td><td class="nw" data-l="저장한 사람">${esc(r.by||'')}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+function revAskHtml(){
+  if(!S.revAsk)return '';
+  const pages=changedPages();
+  return `<div class="ovl" id="revOvl"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="revT"><h3 id="revT">내용 수정 날짜</h3>
+    <p>고정 내용(${esc(pages.join(', ')||'내용')})을 고쳤습니다. 언제부터 바뀐 내용인지 날짜를 골라 주세요. 이 날짜가 해당 화면에 수정일로 표시됩니다.</p>
+    <div class="gate-f" style="margin-bottom:18px"><label>수정 날짜<input type="date" id="revDate" value="${todayIso()}"></label><label>메모 (선택)<input type="text" id="revNote" maxlength="60" placeholder="예: 재배정 기준 변경"></label></div>
+    <div class="dlg-b"><button type="button" class="btn" data-revx="1">취소</button><button type="button" class="btn primary" data-revgo="1">이 날짜로 저장</button></div></div></div>`;
+}
 /* ================= 로그인 · 가입 · 승인 · 권한 (Firebase: noticecheck-80980) ================= */
 const FB_CFG=window.OPS_FIREBASE||{};
 const OWNER_MAIL='t9vely@gmail.com';
@@ -1659,8 +1688,10 @@ async function doImport(){
   const f=A.impFile;if(!f){toast('파일을 먼저 고르세요');return}
   try{const j=JSON.parse(await f.text());const ms=j.months||{};let n=0;
     for(const [id,d] of Object.entries(ms)){await A.fdb.collection(COL.months).doc(id).set(fsEnc(d));n++}
-    if(j.common)await A.fdb.collection(COL.common).doc('main').set(fsEnc(j.common));
-    A.impFile=null;toast(`${n}개 달${j.common?'과 자료실':''}을 가져왔습니다`);S.keepScroll=true;render()}
+    /* 고정 내용은 따로 한 벌 저장 (파일에 따로 없으면 달 자료 안의 규정·수강료·조직도·업무분장을 꺼내서) */
+    let com=j.common;if(!com){const src=Object.values(ms).slice(-1)[0];const bl=(src?.blocks||[]).filter(b=>COMMON_TABS.has(TAB_FIX[b.id]||b.tab));if(bl.length)com={blocks:clone(bl),label:'내용',updatedAt:new Date().toISOString().slice(0,19),revs:[]}}
+    if(com)await A.fdb.collection(COL.common).doc('main').set(fsEnc(com));
+    A.impFile=null;toast(`${n}개 달${com?'과 고정 내용':''}을 가져왔습니다`);S.keepScroll=true;render()}
   catch(e){console.error(e);S.msg={text:'가져오지 못했습니다: '+(e?.code==='permission-denied'?'저장 권한이 없습니다. Firebase 규칙을 게시했는지 확인해 주세요.':(e?.message||e?.code||'파일 형식을 확인해 주세요.'))};render()}
 }
 
@@ -1675,7 +1706,7 @@ function startData(){
     const d=snap.docs.find(x=>x.id==='main'&&x.exists);const next=d?d.data():null;const prev=S.common;S.common=next;gotC=true;
     if(!booted)return boot();
     if(JSON.stringify(next)!==JSON.stringify(prev)){if(S.dirtyC){if(next&&next.updatedAt!==S.com?.updatedAt){S.remoteNewer=true;render()}}else{pickCommon();S.keepScroll=true;render()}}
-  },err=>{gotC=true;S.msg={text:'공통 자료를 불러오지 못했습니다. ('+(err?.code||'오류')+')'};boot();render()});
+  },err=>{gotC=true;S.msg={text:'내용을 불러오지 못했습니다. ('+(err?.code||'오류')+')'};boot();render()});
   db.collection('months').onSnapshot(snap=>{
     const next={};snap.docs.forEach(d=>{if(d.exists)next[d.id]=d.data()});
     const prevDoc=S.id?S.months[S.id]:null;S.months=next;gotM=true;
@@ -1759,7 +1790,7 @@ function viewRules(){
 function panelHtml(){
   if(S.panel==='new'){
     let nm='';if(S.id){const [y,m]=S.id.split('-').map(Number);const d=new Date(y,m,1);nm=d.getFullYear()+'-'+pad(d.getMonth()+1)}
-    return `<div class="panel"><h3>새 달 만들기</h3><p>${S.doc?`‘${esc(S.doc.label)}’의 조 편성·배정 순번표·운영부 역할표를 복사합니다. 날짜별 당직·배정·교육·근무와 영업 기록은 빈 채로 시작합니다. 규정·수강료·조직도·업무분장은 공통 자료라서 그대로 이어집니다.`:'빈 운영표로 시작합니다.'}</p>
+    return `<div class="panel"><h3>새 달 만들기</h3><p>${S.doc?`‘${esc(S.doc.label)}’의 조 편성·배정 순번표·운영부 역할표를 복사합니다. 날짜별 당직·배정·교육·근무와 영업 기록은 빈 채로 시작합니다. 규정·수강료·조직도·업무분장은 고정 내용이라서 그대로 이어집니다.`:'빈 운영표로 시작합니다.'}</p>
     <div class="frow"><label>월<input type="month" id="nmId" value="${nm}"></label><label>이름<input type="text" id="nmLabel" value="${nm?Number(nm.slice(0,4))+'년 '+Number(nm.slice(5))+'월 영업':''}"></label>
     <label>영업 시작일<input type="date" id="nmStart"></label><label>영업 종료일<input type="date" id="nmEnd"></label>
     <button type="button" class="btn primary" id="nmGo">만들기</button><button type="button" class="btn" data-panel="">취소</button></div></div>`;
@@ -1767,7 +1798,7 @@ function panelHtml(){
   if(S.panel==='period'&&S.doc)return `<div class="panel"><h3>이 달 설정</h3><div class="frow"><label>이름<input type="text" id="pLabel" value="${esc(S.doc.label||'')}"></label>
     <label>영업 시작일<input type="date" id="pStart" value="${S.doc.period?.start||''}"></label><label>영업 종료일<input type="date" id="pEnd" value="${S.doc.period?.end||''}"></label>
     <button type="button" class="btn primary" id="pApply">적용</button><button type="button" class="btn" data-panel="">닫기</button><span style="flex:1"></span><button type="button" class="btn danger" data-panel="del">이 달 삭제</button></div></div>`;
-  if(S.panel==='del')return `<div class="panel"><h3>‘${esc(S.doc?.label||S.id)}’를 삭제할까요?</h3><p>이 달의 당직·배정·교육·근무·영업 기록이 모두 지워지고 되돌릴 수 없습니다. 공통 자료는 남습니다.</p><div class="frow"><button type="button" class="btn danger" id="delGo">삭제</button><button type="button" class="btn" data-panel="">취소</button></div></div>`;
+  if(S.panel==='del')return `<div class="panel"><h3>‘${esc(S.doc?.label||S.id)}’를 삭제할까요?</h3><p>이 달의 당직·배정·교육·근무·영업 기록이 모두 지워지고 되돌릴 수 없습니다. 고정 내용은 남습니다.</p><div class="frow"><button type="button" class="btn danger" id="delGo">삭제</button><button type="button" class="btn" data-panel="">취소</button></div></div>`;
   return '';
 }
 
@@ -1785,8 +1816,8 @@ function render(){
   if(!S.db){page.innerHTML=`<main class="wrap">${top}<div class="empty-state" style="margin-top:40px">저장소에 연결하지 못해 운영표를 열 수 없습니다. 로그인한 상태로 이 페이지를 다시 열어 주세요.</div></main>`;return}
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
   const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
-  const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 자료실 저장 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
-  const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top)+foot+'</main>'+popHtml()+randHtml();
+  const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
+  const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
   placePop();buildToc();
 }
@@ -1800,7 +1831,7 @@ function buildToc(){
 }
 
 /* ================= load / save ================= */
-function commonFrom(monthDoc){const c={blocks:clone((monthDoc?.blocks||[]).filter(b=>isCommonTab(b.tab))),label:'공통 자료',updatedAt:''};normalizeCommon(c);return c}
+function commonFrom(monthDoc){const c={blocks:clone((monthDoc?.blocks||[]).filter(b=>isCommonTab(b.tab))),label:'내용',updatedAt:''};normalizeCommon(c);return c}
 function pickCommon(){S.com=S.common?clone(S.common):commonFrom(S.doc);normalizeCommon(S.com);S.savedC=JSON.stringify(S.com);S.dirtyC=false}
 function pickDoc(id){
   S.id=id;S.doc=S.months[id]?clone(S.months[id]):null;S.remoteNewer=false;S.hist=[];S.fut=[];S.confirm=null;
@@ -1812,13 +1843,17 @@ function pickDoc(id){
 }
 async function save(){
   if(!S.db||!S.dirty||!CAN())return;
+  if(S.dirtyC&&!S.revOk){S.revAsk=true;render();return}
   const btn=$('#saveBtn');btn.disabled=true;btn.textContent='저장 중…';
   const now=new Date().toISOString().slice(0,19);
   try{
-    if(S.dirtyM){const out=clone(S.doc);out.updatedAt=now;out.blocks=out.blocks.filter(b=>!isCommonTab(b.tab));out.schema=2;await S.db.doc('months/'+S.id).set(out);S.doc.updatedAt=now;S.months[S.id]=clone(out);S.savedM=JSON.stringify(S.doc)}
-    if(S.dirtyC){const out=clone(S.com);out.updatedAt=now;await S.db.doc('common/main').set(out);S.com.updatedAt=now;S.common=clone(out);S.savedC=JSON.stringify(S.com)}
-    S.remoteNewer=false;S.msg=null;changed();toast('저장했습니다');
-  }catch(e){S.msg={text:e?.code==='quota_exceeded'?'저장 공간이 가득 찼습니다. 오래된 달을 삭제한 뒤 다시 저장하세요.':'저장하지 못했습니다. 편집 권한이 있는지 확인하고 다시 눌러 주세요. ('+(e?.code||'오류')+')'};changed()}
+    /* 고정 내용을 먼저 따로 저장해 둔 뒤에야 달 자료에서 뺀다 (순서가 바뀌면 내용이 사라짐) */
+    const needC=S.dirtyC||(!S.common&&(S.com?.blocks||[]).length>0);
+    if(needC){if(S.dirtyC){const r=S.revOk;S.com.revs=(S.com.revs||[]).concat([{date:r.date,at:now,by:r.by||'',pages:changedPages(),note:r.note||''}]).slice(-200)}
+      const out=clone(S.com);out.updatedAt=S.dirtyC?now:(out.updatedAt||now);await S.db.doc('common/main').set(out);S.com.updatedAt=out.updatedAt;S.common=clone(out);S.savedC=JSON.stringify(S.com)}
+    if(S.dirtyM){const keepCommon=!S.common;const out=clone(S.doc);out.updatedAt=now;if(!keepCommon)out.blocks=out.blocks.filter(b=>!isCommonTab(b.tab));out.schema=2;await S.db.doc('months/'+S.id).set(out);S.doc.updatedAt=now;S.months[S.id]=clone(out);S.savedM=JSON.stringify(S.doc)}
+    S.revOk=null;S.remoteNewer=false;S.msg=null;changed();toast('저장했습니다');
+  }catch(e){S.revOk=null;S.msg={text:e?.code==='quota_exceeded'?'저장 공간이 가득 찼습니다. 오래된 달을 삭제한 뒤 다시 저장하세요.':'저장하지 못했습니다. 편집 권한이 있는지 확인하고 다시 눌러 주세요. ('+(e?.code||'오류')+')'};changed()}
   btn.disabled=false;btn.textContent='저장';S.keepScroll=true;render();
 }
 async function createMonth(){
@@ -1840,6 +1875,9 @@ function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달
 /* ================= actions ================= */
 function act(t){
   const d=t.dataset;
+  if(d.revs){S.showRevs=!S.showRevs;S.keepScroll=true;render();return true}
+  if(d.revx){S.revAsk=false;S.keepScroll=true;render();return true}
+  if(d.revgo){const dt=$('#revDate').value;if(!dt){toast('수정 날짜를 골라 주세요');return true}S.revOk={date:dt,note:$('#revNote').value.trim(),by:(typeof A!=='undefined'&&A.prof?.name)||''};S.revAsk=false;save();return true}
   if(d.jump){const el=document.getElementById(d.jump);if(el){const y=el.getBoundingClientRect().top+scrollY-(document.querySelector('.top2').offsetHeight+12);scrollTo({top:y,behavior:'smooth'})}return true}
   if(d.cm){const ms=calMonths();if(d.cm==='0'){const t0=todayIso().slice(0,7);S.cm=ms.includes(t0)?t0:ms[0]}else{const i=ms.indexOf(calMonth())+Number(d.cm);if(ms[i])S.cm=ms[i]}S.pop=null;S.keepScroll=true;render();return true}
   if(d.pop){const [key,x]=sp(d.pop);const inPop=!!t.closest('#pop');if(!inPop&&S.pop&&S.pop.key===key&&S.pop.date===x)S.pop=null;else{S.pop={key,date:x};if(GK[key])S.rsel[key]=x;else S.csel[key]=x;if(inPop&&calMonths().includes(x.slice(0,7)))S.cm=x.slice(0,7)}S.keepScroll=true;render();return true}
