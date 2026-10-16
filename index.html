@@ -1200,6 +1200,92 @@ table.kv th{background:color-mix(in srgb,var(--sunk) 70%,var(--surface))}
   .subtabs{margin:18px 0 16px}
 }
 
+/* ===== v15: 블랙 / 화이트 ===== */
+:root{
+  --accent:#111111;--accent-ink:#ffffff;--accent-soft:#f1f1f1;--accent-line:#d6d6d6;--accent2:#111111;
+  --com:#111111;--com-soft:#f1f1f1;--com-line:#d6d6d6;--pri:#111111;--hl:#f3f3f3;
+  --bg:#f6f6f6;--surface:#ffffff;--sunk:#f7f7f7;--head:#f0f0f0;--ink:#111111;--ink2:#333333;--muted:#737373;--faint:#a3a3a3;
+  --line:#e7e7e7;--line-strong:#d4d4d4;--th:#fafafa;--rowh:#f8f8f8;
+  --sh-card:0 1px 2px rgba(0,0,0,.04),inset 0 0 0 1px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --accent:#f5f5f5;--accent-ink:#111;--accent-soft:#222;--accent-line:#3a3a3a;--accent2:#f5f5f5;
+  --com:#f5f5f5;--com-soft:#222;--com-line:#3a3a3a;--pri:#f5f5f5;--hl:#1e1e1e;
+  --bg:#0c0c0c;--surface:#151515;--sunk:#1a1a1a;--head:#202020;--ink:#f5f5f5;--ink2:#d4d4d4;--muted:#9a9a9a;--faint:#666;
+  --line:#262626;--line-strong:#363636;--th:#181818;--rowh:#1b1b1b;
+  --sh-card:inset 0 0 0 1px rgba(255,255,255,.07)}}
+:root[data-theme="dark"]{
+  --accent:#f5f5f5;--accent-ink:#111;--accent-soft:#222;--accent-line:#3a3a3a;--accent2:#f5f5f5;
+  --com:#f5f5f5;--com-soft:#222;--com-line:#3a3a3a;--pri:#f5f5f5;--hl:#1e1e1e;
+  --bg:#0c0c0c;--surface:#151515;--sunk:#1a1a1a;--head:#202020;--ink:#f5f5f5;--ink2:#d4d4d4;--muted:#9a9a9a;--faint:#666;
+  --line:#262626;--line-strong:#363636;--th:#181818;--rowh:#1b1b1b;
+  --sh-card:inset 0 0 0 1px rgba(255,255,255,.07)}
+body{background:var(--bg)!important}
+.top .logo .mk{color:var(--surface)!important;background:var(--ink)!important;box-shadow:none!important;border-radius:9px!important}
+/* 조 표시는 원래 색 유지 */
+.gb[class*="g-"].on{color:#fff}
+.ev.dot::before{background:var(--ink)}
+*{--glow:none}
+.btn.primary{background:var(--ink)!important;border-color:var(--ink)!important;color:var(--surface)!important;box-shadow:none!important}
+
+/* --- 월 선택 드롭다운 --- */
+#msw{position:relative}
+.mbtn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 10px 0 12px;border:0;background:none;color:var(--ink);font:inherit;font-size:14.5px;font-weight:800;letter-spacing:-.03em;cursor:pointer;border-radius:8px;white-space:nowrap}
+.mbtn:hover{background:var(--head)}
+.mbtn .i{width:15px;height:15px;color:var(--muted);transition:transform .15s}
+.mbtn[aria-expanded="true"] .i{transform:rotate(180deg)}
+.mmenu{position:absolute;top:calc(100% + 8px);left:0;min-width:240px;max-height:340px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.12);padding:6px;z-index:80}
+.mmenu[hidden]{display:none}
+.mmenu button{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:10px;width:100%;text-align:left;border:0;background:none;padding:9px 12px;border-radius:9px;cursor:pointer;color:var(--ink);font:inherit}
+.mmenu button b{font-size:14px;font-weight:700;letter-spacing:-.02em}
+.mmenu button small{grid-column:1;font-size:12px;color:var(--muted);margin-top:1px}
+.mmenu button .i{grid-row:1/3;grid-column:2;width:16px;height:16px}
+.mmenu button:hover{background:var(--head)}
+.mmenu button[aria-selected="true"]{background:var(--ink);color:var(--surface)}
+.mmenu button[aria-selected="true"] small{color:color-mix(in srgb,var(--surface) 70%,transparent)}
+.mm-empty{padding:12px;color:var(--muted);font-size:13px}
+
+/* --- 빠른 입력(붓) --- */
+.brushbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 12px;margin:0 0 12px;border:1px solid var(--line);border-radius:12px;background:var(--sunk)}
+.brushbar.on{background:var(--surface);border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.brushbar .bb-l{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--ink);margin-right:4px}
+.brushbar .bb-l .i{width:15px;height:15px}
+.brushbar .gb .i{width:13px;height:13px}
+.brushbar .bb-h{flex:1 1 220px;font-size:12.5px;color:var(--muted);margin-left:6px}
+.brushbar .bb-h b{color:var(--ink)}
+.lnk{border:0;background:none;padding:0 0 0 6px;color:var(--ink);font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.mc-grid.painting .mc-c[data-pop]{cursor:crosshair;user-select:none;-webkit-user-select:none;touch-action:none}
+.mc-grid.painting .mc-c[data-pop]:hover{box-shadow:inset 0 0 0 2px var(--ink)}
+.mc-c.painted{box-shadow:inset 0 0 0 2px var(--ink)}
+.pp-l small{display:block;font-weight:500;font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:0}
+
+/* --- 달력 / 표 전환 --- */
+.vseg{display:inline-flex;padding:3px;border-radius:9px;background:var(--head);gap:2px}
+.vseg button{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:5px 10px;border-radius:7px;font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.vseg button .i{width:14px;height:14px}
+.vseg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.ltab td{vertical-align:middle}
+.ltab tr.today td{background:var(--hl)}
+.ltab .lgs{display:flex;flex-wrap:wrap;gap:5px}
+.ltab .gb{padding:4px 10px}
+.ltab .gb.sm{font-size:12px}
+.ltab .lmemo{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.ltab .lppl{font-size:12.5px;color:var(--ink2)}
+.ev.inl{display:inline-block}
+#mBtnT{overflow:hidden;text-overflow:ellipsis;max-width:180px}
+@media (max-width:600px){.mbtn{font-size:13px;padding:0 6px 0 8px;gap:4px}#mBtnT{max-width:92px}.mmenu{left:auto;right:-60px;min-width:220px}}
+@media (max-width:420px){#mBtnT{max-width:70px}.top .mpill .ren{display:none}.top .hdr-r{gap:4px}}
+.top .top1{position:relative;z-index:5}
+
+/* --- 특별 표시는 색 유지: 교육 구분 · 운영부 휴무 · 메뉴 --- */
+.gnav button[aria-current=true] svg.i{color:#fff!important}
+.ev.dot.c-biz::before{background:#2563eb}.ev.dot.c-biz em{color:#2563eb}
+.ev.dot.c-edu::before{background:#0d8577}.ev.dot.c-edu em{color:#0d8577}
+.ev.dot.c-due::before{background:#e11d48}
+.ev.dot em{font-style:normal;font-weight:700;margin-right:4px}
+.ev-line.off,.ev-line.off b{color:#c2410c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ev.dot.c-biz::before{background:#60a5fa}:root:not([data-theme="light"]) .ev.dot.c-edu::before{background:#2dd4bf}:root:not([data-theme="light"]) .ev-line.off{color:#fb923c}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1247,6 +1333,8 @@ td.act .btn+.btn{margin-left:6px}
 .mechip .lo{color:var(--muted)}
 .mechip .lo:hover{color:var(--ink);background:var(--head)}
 .gate-tabs button[aria-selected=true]{background:linear-gradient(135deg,#17191e,#2a2e36);color:#fff}
+@media (max-width:600px){.mechip .lo span{display:none}.mechip{padding-left:4px;margin-left:0}}
+@media (max-width:420px){.top .mpill #mPrev,.top .mpill #mNext{display:none}.top .mpill{padding:0 2px}}
 
 .top .dchip{display:none!important}
 </style>
@@ -1257,7 +1345,7 @@ td.act .btn+.btn{margin-left:6px}
  <div class="top1"><div class="wrap t1">
   <button type="button" class="logo" data-tab="today"><span class="mk">AIX</span><span class="lt"><b>홍대지점 운영</b><small>SBS아카데미 AIX학원</small></span></button>
   <div class="hdr-r">
-    <div class="mpill" id="msw"><button type="button" class="ib" id="mPrev" aria-label="이전 달"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><select id="monthSel" aria-label="월 선택"></select><button type="button" class="ib" id="mNext" aria-label="다음 달"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><button type="button" class="ib ren" id="renBtn" title="영업월 이름·기간 바꾸기" aria-label="영업월 이름 바꾸기" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button></div>
+    <div class="mpill" id="msw"><button type="button" class="ib" id="mPrev" aria-label="이전 달"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><select hidden id="monthSel" aria-label="월 선택"></select><button type="button" class="mbtn" id="mBtn" aria-haspopup="listbox" aria-expanded="false"><span id="mBtnT"></span><svg class="i" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button><div class="mmenu" id="mMenu" role="listbox" hidden></div><button type="button" class="ib" id="mNext" aria-label="다음 달"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><button type="button" class="ib ren" id="renBtn" title="영업월 이름·기간 바꾸기" aria-label="영업월 이름 바꾸기" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button></div>
     <span class="dchip" id="todayChip"></span>
     <button type="button" class="membtn" id="memBtn" hidden><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="t">회원 관리</span><span class="bd" hidden></span></button>
     <span class="compill" id="compill" hidden>고정 내용</span>
@@ -1302,6 +1390,7 @@ const IC={
   pencil:'<path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/>',
   shuffle:'<path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.97a4 4 0 0 0 3.3-1.7l5.45-8.6a4 4 0 0 1 3.3-1.7H22"/><path d="M2 6h1.97a4 4 0 0 1 3.3 1.7l.64 1"/><path d="M22 18h-6.04a4 4 0 0 1-3.3-1.8l-.64-1"/>',
   alert:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+  list:'<path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/>',
   clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>'
 };
 const icx=(n,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
@@ -1419,6 +1508,8 @@ function setCal(layer,date,v){if(String(v).trim())S.doc.cal[layer][date]=v;else 
 function renderChrome(){
   const ids=Object.keys(S.months).sort();
   $('#monthSel').innerHTML=ids.slice().reverse().map(id=>`<option value="${id}" ${id===S.id?'selected':''}>${esc(S.months[id].label||id)}</option>`).join('')||'<option>저장된 달 없음</option>';
+  $('#mBtnT').textContent=S.months[S.id]?.label||S.doc?.label||'저장된 달 없음';
+  $('#mMenu').innerHTML=ids.slice().reverse().map(id=>{const mm=S.months[id];const p=mm.period||{};return `<button type="button" role="option" data-month="${id}" aria-selected="${id===S.id}"><b>${esc(mm.label||id)}</b>${p.start?`<small>${md(p.start)} ~ ${md(p.end)}</small>`:''}${id===S.id?icx('check'):''}</button>`}).join('')||'<div class="mm-empty">저장된 달이 없습니다</div>';
   const ix=ids.indexOf(S.id);$('#renBtn').hidden=!S.doc||!CAN();$('#mPrev').disabled=ix<=0;$('#mNext').disabled=ix<0||ix>=ids.length-1;
   const com=isCommonTab(S.tab);$('#msw').hidden=false;$('#compill').hidden=!com;$('#setBtn').hidden=com;
   $('#editBtn').setAttribute('aria-pressed',S.edit);
@@ -1642,8 +1733,8 @@ function monthCal(key,o){
   const per=CAN()&&S.edit?`<span class="mc-per"><label>시작일<input type="date" id="perStart" value="${a}"></label><span>~</span><label>종료일<input type="date" id="perEnd" value="${z}"></label></span>`
     :`<span class="mc-cnt">${md(a)} (${WD[parse(a).getDay()]}) ~ ${md(z)} (${WD[parse(z).getDay()]})</span>`;
   return `<section class="mc" id="mc-${key}"><div class="mc-bar"><div class="mc-t"><h2>${label}</h2>${per}</div>
-    <div class="mc-r">${o.right||''}</div></div>
-    <div class="mc-grid">${WD.map((w,i)=>`<div class="mc-wd${i===0?' sun':i===6?' sat':''}">${w}</div>`).join('')}${cells}</div></section>`;
+    <div class="mc-r">${o.right||''}</div></div>${o.pre||''}
+    <div class="mc-grid${S.brush&&S.brush.k===key?' painting':''}">${WD.map((w,i)=>`<div class="mc-wd${i===0?' sun':i===6?' sat':''}">${w}</div>`).join('')}${cells}</div></section>`;
 }
 
 /* ----- duty / assign ----- */
@@ -1653,8 +1744,25 @@ function rosterCal(k){
     const g=groupOf(v),e=effMembers(k,x);
     return `<div class="ev ${g?'g-'+g:'plain'}"${S.edit?` data-drag="day|${k}|${x}"`:''}>${esc(String(v).split('\n')[0])}${e.override?'<i class="ev-mk">인원 변경</i>':''}</div>${e.list.length?`<div class="ev-ppl">${e.list.map(esc).join(' ')}</div>`:''}`};
   let filled=0,total=0;for(let x=a;x<=z;x=addDays(x,1))if(cfg.days.includes(parse(x).getDay())){total++;if(cal[k]?.[x])filled++}
-  const right=`<span class="mc-cnt">${filled}/${total}일 채움</span>${CAN()?`<button type="button" class="btn primary" data-rand="${k}">${SHUF}랜덤 배치</button>`:''}`;
-  return peopleList()+monthCal(k,{days:cfg.days,cell,right,drop:x=>`rday|${k}|${x}`});
+  const view=(S.cview||{})[k]||'cal';
+  const seg=`<div class="vseg" role="tablist"><button type="button" data-cview="${k}|cal" aria-selected="${view==='cal'}">${icx('calcheck')}달력</button><button type="button" data-cview="${k}|list" aria-selected="${view==='list'}">${icx('list')}표</button></div>`;
+  const right=`<span class="mc-cnt">${filled}/${total}일 채움</span>${seg}${CAN()?`<button type="button" class="btn primary" data-rand="${k}">${SHUF}랜덤 배치</button>`:''}`;
+  const br=S.brush&&S.brush.k===k?S.brush.v:null;
+  const pal=CAN()?`<div class="brushbar${br!=null?' on':''}"><span class="bb-l">${icx('pencil')}빠른 입력</span>${GROUPS.map(G=>`<button type="button" class="gb g-${G}${br===G+'조'?' on':''}" data-brush="${k}|${G}조">${G}조</button>`).join('')}${cfg.opts.slice(0,2).map(o=>`<button type="button" class="gb${br===o?' on':''}" data-brush="${k}|${esc(o)}">${esc(o)}</button>`).join('')}<button type="button" class="gb ghost${br===''?' on':''}" data-brush="${k}|">${icx('x')}비우기</button>
+    <span class="bb-h">${br!=null?`<b>${br||'비우기'}</b> 선택됨 · 날짜를 누르거나 끌어서 칠하세요 <button type="button" class="lnk" data-brushoff="1">끝내기 (Esc)</button>`:'조를 고른 뒤 날짜를 누르거나 쭉 끌면 한 번에 들어갑니다'}</span></div>`:'';
+  if(view==='list')return peopleList()+rosterList(k,right,'');
+  return peopleList()+monthCal(k,{days:cfg.days,cell,right,drop:x=>`rday|${k}|${x}`,pre:pal});
+}
+function rosterList(k,right,pal){
+  const cfg=GK[k],cal=S.doc.cal,[a,z]=periodDays();let rows='';
+  for(let x=a;x<=z;x=addDays(x,1)){const dw=parse(x).getDay();if(!cfg.days.includes(dw))continue;
+    const v=cal[k]?.[x]||'',g=groupOf(v),e=effMembers(k,x),memo=cal.memo?.[x],hol=memo&&HOL.test(memo);
+    const btns=CAN()?`<div class="lgs">${GROUPS.map(G=>`<button type="button" class="gb g-${G}${g===G?' on':''}" data-rset="${k}|${x}|${G}조">${G}</button>`).join('')}${cfg.opts.slice(0,2).map(o=>`<button type="button" class="gb sm${v===o?' on':''}" data-rset="${k}|${x}|${esc(o)}">${esc(o)}</button>`).join('')}${v?`<button type="button" class="gb ghost" data-rset="${k}|${x}|" aria-label="비우기">${icx('x')}</button>`:''}</div>`
+      :(v?`<span class="ev ${g?'g-'+g:'plain'} inl">${esc(v)}</span>`:'<span class="muted">-</span>');
+    rows+=`<tr class="${x===todayIso()?'today':''}"><td class="nw" data-l="날짜"><b class="${dw===0||hol?'red':dw===6?'blue':''}">${md(x)} (${WD[dw]})</b>${memo?`<small class="lmemo${hol?' red':''}">${esc(memo)}</small>`:''}</td><td data-l="${cfg.label}">${btns}${v&&!g&&!cfg.opts.includes(v)&&CAN()?`<span class="ev plain inl">${esc(v)}</span>`:''}</td><td data-l="인원" class="lppl">${e.list.map(esc).join(' ')}${e.override?' <span class="chip warn">변경</span>':''}</td></tr>`}
+  const label=esc(String(S.doc.label||'').replace(/\s*영업$/,''));
+  return `<section class="mc" id="mc-${k}"><div class="mc-bar"><div class="mc-t"><h2>${label}</h2><span class="mc-cnt">${md(a)} ~ ${md(z)}</span></div><div class="mc-r">${right}</div></div>${pal}
+    <div class="tw"><table class="stk ltab"><thead><tr><th>날짜</th><th>${cfg.label}조</th><th>인원</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
 }
 function stepDay(k,x,dir){const [a,z]=periodDays(),days=GK[k]?GK[k].days:[0,1,2,3,4,5,6];for(let y=addDays(x,dir);y>=a&&y<=z;y=addDays(y,dir))if(days.includes(parse(y).getDay()))return y;return null}
 function popHead(key,x){
@@ -1669,7 +1777,7 @@ function popRoster(k,x){
     h+=e.list.length?`<div class="pp-ppl">${e.list.map(n=>`<span class="pn">${esc(n)}</span>`).join('')}</div>`:'';
     return h+(CAN()?`<div class="pp-foot"><button type="button" class="btn sm" data-editon="1">이 날 바꾸기</button></div>`:'');
   }
-  h+=`<div class="pp-sec"><div class="pp-l">조 고르기</div><div class="pp-gs">${GROUPS.map(G=>`<button type="button" class="gb g-${G}${g===G?' on':''}" data-rset="${k}|${x}|${G}조">${G}조</button>`).join('')}${cfg.opts.map(o=>`<button type="button" class="gb${v===o?' on':''}" data-rset="${k}|${x}|${esc(o)}">${esc(o)}</button>`).join('')}${v?`<button type="button" class="gb ghost" data-rset="${k}|${x}|">비우기</button>`:''}</div></div>
+  h+=`<div class="pp-sec"><div class="pp-l">조 고르기<small>키보드 A~E 또는 1~5 · ←→ 날짜 이동</small></div><div class="pp-gs">${GROUPS.map(G=>`<button type="button" class="gb g-${G}${g===G?' on':''}" data-rset="${k}|${x}|${G}조">${G}조</button>`).join('')}${cfg.opts.map(o=>`<button type="button" class="gb${v===o?' on':''}" data-rset="${k}|${x}|${esc(o)}">${esc(o)}</button>`).join('')}${v?`<button type="button" class="gb ghost" data-rset="${k}|${x}|">비우기</button>`:''}</div></div>
     <div class="pp-sec"><div class="pp-l">직접 입력<small>조 대신 원하는 글을 적을 수 있습니다</small></div><div class="pp-add"><input type="text" id="rtxt" value="${esc(v&&!g&&!cfg.opts.includes(v)?v:'')}" placeholder="예: A조+B조, 대체근무"><button type="button" class="btn sm" data-rtxt="${k}|${x}">적용</button></div></div>`;
   if(g||e.list.length)h+=`<div class="pp-sec"><div class="pp-l">이 날 인원</div><div class="pp-ppl">${e.list.map(n=>`<span class="pn">${esc(n)}<button type="button" class="px" aria-label="${esc(n)} 빼기" data-mrem="${k}|${x}|${esc(n)}">${icx('x')}</button></span>`).join('')}</div>
     <div class="pp-add"><input type="text" id="radd" list="peopleList" placeholder="이름을 적어 추가"><button type="button" class="btn sm" data-madd="${k}|${x}">추가</button></div>${e.override?`<button type="button" class="lnk" data-mreset="${k}|${x}">조 기본 인원으로 되돌리기</button>`:''}</div>`;
@@ -1680,8 +1788,8 @@ function popRoster(k,x){
 function viewLayer(layer){
   const cal=S.doc.cal;
   const cell=x=>{const v=cal[layer]?.[x];if(!v)return S.edit?'<div class="ev-empty">'+icx('plus')+'적기</div>':'';
-    if(layer==='edu'){const it=eduItems(v);return it.slice(0,3).map((e,i)=>`<div class="ev dot"${S.edit?` data-drag="cal|edu|${x}|${i}"`:''} title="${esc(e.t+(e.m?' / '+e.m:''))}">${e.cat?`<em>${esc(e.cat)}</em>`:''}${esc(e.t)}</div>`).join('')+(it.length>3?`<div class="ev-more">+${it.length-3}개 더</div>`:'')}
-    const L=opsLines(v);return `<div class="ev-ops"${S.edit?` data-drag="cal|ops|${x}|0"`:''}>${L.map(([t,n])=>`<div class="ev-line">${t?`<b>${esc(t)}</b>`:''}${esc(n)}</div>`).join('')}<span class="ev-dotm">${L.length}</span></div>`};
+    if(layer==='edu'){const it=eduItems(v);return it.slice(0,3).map((e,i)=>`<div class="ev dot${/교육/.test(e.cat||'')?' c-edu':/사업/.test(e.cat||'')?' c-biz':/마감/.test(e.t||'')?' c-due':''}"${S.edit?` data-drag="cal|edu|${x}|${i}"`:''} title="${esc(e.t+(e.m?' / '+e.m:''))}">${e.cat?`<em>${esc(e.cat)}</em>`:''}${esc(e.t)}</div>`).join('')+(it.length>3?`<div class="ev-more">+${it.length-3}개 더</div>`:'')}
+    const L=opsLines(v);return `<div class="ev-ops"${S.edit?` data-drag="cal|ops|${x}|0"`:''}>${L.map(([t,n])=>`<div class="ev-line${/휴무/.test(t||'')?' off':''}">${t?`<b>${esc(t)}</b>`:''}${esc(n)}</div>`).join('')}<span class="ev-dotm">${L.length}</span></div>`};
   return monthCal(layer,{cell,right:'',drop:x=>`cday|${layer}|${x}`});
 }
 function popLayer(layer,x){
@@ -2078,6 +2186,10 @@ function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달
 /* ================= actions ================= */
 function act(t){
   const d=t.dataset;
+  if(d.month){$('#mMenu').hidden=true;$('#mBtn').setAttribute('aria-expanded','false');switchMonth(d.month);return true}
+  if(d.brush!=null){const [k,v]=sp(d.brush);if(S.brush&&S.brush.k===k&&S.brush.v===v)S.brush=null;else{S.brush={k,v};S.edit=true;S.pop=null}S.keepScroll=true;render();return true}
+  if(d.brushoff){S.brush=null;S.keepScroll=true;render();return true}
+  if(d.cview){const [k,v]=sp(d.cview);S.cview=S.cview||{};S.cview[k]=v;S.pop=null;S.keepScroll=true;render();return true}
   if(d.renx){S.renAsk=false;S.keepScroll=true;render();return true}
   if(d.rengo){const lb=$('#renLabel').value.trim(),a=$('#renStart').value,z=$('#renEnd').value;if(!lb){toast('이름을 적어 주세요');return true}if(!a||!z||a>z){toast('시작일과 종료일을 확인해 주세요');return true}
     S.renAsk=false;mutate(()=>{S.doc.label=lb;S.doc.period={start:a,end:z}});save();return true}
@@ -2191,11 +2303,17 @@ function ghostFor(el,src){
   document.body.appendChild(g);return g;
 }
 function clearMarks(){document.querySelectorAll('.drop-ok,.drop-before,.drop-after').forEach(e=>e.classList.remove('drop-ok','drop-before','drop-after'))}
+let PAINT=null;
+function paintAt(cx,cy){const c=document.elementFromPoint(cx,cy)?.closest('.mc-c[data-pop]');if(!c||!S.brush)return;const [k,x]=sp(c.dataset.pop);if(k!==S.brush.k||PAINT.done.has(x))return;PAINT.done.add(x);
+  setCal(k,x,S.brush.v);delete S.doc.cal[GK[k].mem][x];c.classList.add('painted');const ev=c.querySelector('.ev,.ev-empty');const g=groupOf(S.brush.v);const html=S.brush.v?`<div class="ev ${g?'g-'+g:'plain'}">${esc(S.brush.v)}</div>`:'';
+  c.querySelectorAll('.ev,.ev-empty,.ev-ppl').forEach(n=>n.remove());c.insertAdjacentHTML('beforeend',html)}
 document.addEventListener('pointerdown',e=>{
-  if(e.button>0)return;const h=e.target.closest('[data-drag]');if(!h||e.target.closest('button.px,input,textarea,[contenteditable]'))return;
+  if(e.button>0)return;
+  if(S.brush&&e.target.closest('.mc-c[data-pop]')){e.preventDefault();PAINT={done:new Set(),h:snap()};paintAt(e.clientX,e.clientY);return}const h=e.target.closest('[data-drag]');if(!h||e.target.closest('button.px,input,textarea,[contenteditable]'))return;
   D={el:h,src:sp(h.dataset.drag),x:e.clientX,y:e.clientY,on:false,tgt:null,pos:null};
 });
 document.addEventListener('pointermove',e=>{
+  if(PAINT){e.preventDefault();paintAt(e.clientX,e.clientY);return}
   if(!D)return;
   if(!D.on){if(Math.hypot(e.clientX-D.x,e.clientY-D.y)<6)return;D.on=true;D.g=ghostFor(D.el,D.src);D.el.classList.add('drag-src');document.body.classList.add('dragging');try{getSelection().removeAllRanges()}catch(_){}}
   e.preventDefault();
@@ -2213,7 +2331,7 @@ function endDrag(ok){
   suppressClick=true;setTimeout(()=>suppressClick=false,0);
   if(ok&&d.tgt)doDrop(d.src,d.tgt,d.pos);
 }
-document.addEventListener('pointerup',()=>endDrag(true));
+document.addEventListener('pointerup',()=>{if(PAINT){const p=PAINT;PAINT=null;suppressClick=true;setTimeout(()=>suppressClick=false,0);if(p.done.size){pushHist(p.h);changed();toast(`${p.done.size}일에 ${S.brush?.v||'비우기'} 넣음 · Ctrl+Z로 되돌리기`)}S.keepScroll=true;render();return}endDrag(true)});
 document.addEventListener('pointercancel',()=>endDrag(false));
 document.addEventListener('dragstart',e=>{if(e.target.closest?.('[data-drag]'))e.preventDefault()});
 
@@ -2221,6 +2339,7 @@ document.addEventListener('dragstart',e=>{if(e.target.closest?.('[data-drag]'))e
 document.addEventListener('click',e=>{
   if(suppressClick){e.preventDefault();e.stopPropagation();return}
   if(!e.target.closest('.menu-wrap'))$('#dd').hidden=true;
+  if(!e.target.closest('#msw')){$('#mMenu').hidden=true;$('#mBtn').setAttribute('aria-expanded','false')}
   if(e.target.id==='sbScrim'){document.body.classList.remove('sb-open');return}
   if(e.target.id==='ovl'){S.rand=null;S.keepScroll=true;render();return}
   const closing=!!S.pop&&!e.target.closest('#pop,[data-pop]');if(closing)S.pop=null;
@@ -2230,6 +2349,7 @@ document.addEventListener('click',e=>{
   switch(t.id){
     case 'menuBtn':document.body.classList.toggle('sb-open');break;
     case 'moreBtn':$('#dd').hidden=!$('#dd').hidden;break;
+    case 'mBtn':{const mm=$('#mMenu');mm.hidden=!mm.hidden;t.setAttribute('aria-expanded',String(!mm.hidden));break}
     case 'renBtn':if(!CAN())break;S.renAsk=true;S.keepScroll=true;render();setTimeout(()=>$('#renLabel')?.select(),30);break;
     case 'memBtn':S.tab='members';S.pop=null;S.panel=null;S.confirm=null;render();scrollTo(0,0);break;
     case 'impGo':doImport();break;
@@ -2249,6 +2369,11 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{
   const mod=e.ctrlKey||e.metaKey,inField=e.target.closest?.('input,textarea,[contenteditable]');
   if(e.key==='Escape'&&D){endDrag(false);return}
+  if(e.key==='Escape'&&S.brush){S.brush=null;S.keepScroll=true;render();return}
+  if(S.pop&&GK[S.pop.key]&&CAN()&&!inField&&!mod){const k=S.pop.key,x=S.pop.date;const key=e.key.toUpperCase();const gi='12345'.indexOf(e.key);const G=GROUPS.includes(key)?key:gi>=0?GROUPS[gi]:null;
+    if(G){e.preventDefault();S.edit=true;mutate(()=>{setCal(k,x,G+'조');delete S.doc.cal[GK[k].mem][x]});const n=stepDay(k,x,1);if(n)S.pop={key:k,date:n};S.keepScroll=true;render();return}
+    if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();mutate(()=>{setCal(k,x,'');delete S.doc.cal[GK[k].mem][x]});return}
+    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const n=stepDay(k,x,e.key==='ArrowRight'?1:-1);if(n){S.pop={key:k,date:n};S.keepScroll=true;render()}return}}
   if(e.key==='Escape'&&(S.pop||S.rand||S.renAsk)){S.pop=null;S.rand=null;S.renAsk=false;S.keepScroll=true;render();return}
   if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();save();return}
   if(mod&&!inField&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
