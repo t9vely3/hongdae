@@ -1669,6 +1669,14 @@ function startData(){
     else renderChrome();
   },err=>{S.msg={text:'운영표를 불러오지 못했습니다. 페이지를 새로 고쳐 주세요. ('+(err?.code||'오류')+')'};render()});
 }
+
+function emptyHtml(){
+  if(!CAN())return '<div class="gate-card wide" style="margin:40px auto"><h1>아직 올라온 자료가 없습니다</h1><p>관리자가 운영표 자료를 올리면 여기에 바로 보입니다.</p></div>';
+  return `<div class="gate-card wide" style="margin:40px auto"><div class="gate-mk">AIX</div><h1>운영표 자료를 올려 주세요</h1>
+    <p>새 저장소라 아직 자료가 비어 있습니다. 함께 받은 <b>운영표_자료_2026-09.json</b> 파일을 골라 ‘가져오기’를 누르면 지금까지 만든 당직표·배정표·규정·수강료 등이 그대로 들어옵니다. 한 번만 하면 됩니다.</p>
+    <div class="imp" style="padding:0"><label class="btn">파일 고르기<input type="file" id="impFile" accept=".json,application/json" hidden></label><span class="muted">${A.impFile?esc(A.impFile.name):'고른 파일 없음'}</span><button type="button" class="btn primary" id="impGo" ${A.impFile?'':'disabled'}>가져오기</button></div>
+    <p style="margin:18px 0 0;font-size:13px">자료 없이 새로 시작하려면 오른쪽 위 ⋯ 메뉴의 ‘새 달 만들기’를 누르세요.</p></div>`;
+}
 function rosterEditor(k){
   const sel=selDate(k);const vs=versions(k);if(S.rv[k]==null||!S.doc.rosters[k][S.rv[k]])S.rv[k]=vs.filter(([v])=>!v.from||v.from<=sel).pop()?.[1]??vs[0][1];
   const vi=S.rv[k],cur=S.doc.rosters[k][vi];
@@ -1759,7 +1767,7 @@ function render(){
   if(A.mode!=='in'){page.innerHTML=authHtml();return}
   if(S.tab==='members'){page.innerHTML=viewMembers().replace('%%TOP%%',top)+'</main>';return}
   if(!S.db){page.innerHTML=`<main class="wrap">${top}<div class="empty-state" style="margin-top:40px">저장소에 연결하지 못해 운영표를 열 수 없습니다. 로그인한 상태로 이 페이지를 다시 열어 주세요.</div></main>`;return}
-  if(!S.doc){page.innerHTML=`<main class="wrap">${top}<div class="empty-state" style="margin-top:40px">아직 저장된 달이 없습니다. 오른쪽 위 ⋯ 메뉴의 <b>새 달 만들기</b>로 시작하세요.</div></main>`;return}
+  if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
   const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 자료실 저장 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
   const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top)+foot+'</main>'+popHtml()+randHtml();
