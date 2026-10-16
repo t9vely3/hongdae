@@ -1537,12 +1537,15 @@ const AUTH_MSG={"auth/invalid-credential":"이메일 또는 비밀번호가 맞�
 const authMsg=e=>AUTH_MSG[e?.code]||('처리하지 못했습니다. ('+(e?.code||e?.message||'오류')+')');
 
 /* 기존 화면 코드가 쓰던 저장소 모양(collection/doc/onSnapshot/set/delete)을 Firestore 에 맞춰 줌 */
+/* Firestore 는 '목록 안의 목록'을 저장하지 못해서, 저장할 때 감싸고 읽을 때 풉니다 */
+const fsEnc=v=>Array.isArray(v)?v.map(x=>Array.isArray(x)?{__a:fsEnc(x)}:fsEnc(x)):(v&&typeof v==='object')?Object.fromEntries(Object.entries(v).filter(([,x])=>x!==undefined).map(([k,x])=>[k,fsEnc(x)])):v;
+const fsDec=v=>Array.isArray(v)?v.map(fsDec):(v&&typeof v==='object')?((Object.keys(v).length===1&&'__a' in v)?fsDec(v.__a):Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fsDec(x)]))):v;
 function fsAdapter(fdb){
   const map=p=>{const a=p.split('/');a[0]=COL[a[0]]||a[0];return a.join('/')};
-  const wrapDoc=s=>({id:s.id,exists:s.exists,data:()=>s.data()});
+  const wrapDoc=s=>({id:s.id,exists:s.exists,data:()=>fsDec(s.data())});
   return {
     collection:n=>({onSnapshot:(cb,err)=>fdb.collection(map(n)).onSnapshot(s=>cb({docs:s.docs.map(wrapDoc)}),e=>err&&err({code:e.code}))}),
-    doc:p=>{const r=fdb.doc(map(p));return {set:d=>r.set(d),delete:()=>r.delete(),get:()=>r.get().then(wrapDoc),onSnapshot:(cb,err)=>r.onSnapshot(s=>cb(wrapDoc(s)),e=>err&&err({code:e.code}))}}
+    doc:p=>{const r=fdb.doc(map(p));return {set:d=>r.set(fsEnc(d)),delete:()=>r.delete(),get:()=>r.get().then(wrapDoc),onSnapshot:(cb,err)=>r.onSnapshot(s=>cb(wrapDoc(s)),e=>err&&err({code:e.code}))}}
   };
 }
 
@@ -1550,7 +1553,7 @@ function authStart(){
   if(!window.firebase){A.mode='nofb';render();return}
   if(!FB_CFG.apiKey||!FB_CFG.projectId||/여기/.test(FB_CFG.apiKey)){A.mode='nocfg';render();return}
   A.fb=firebase.apps.find(a=>a.name==='ops')||firebase.initializeApp(FB_CFG,'ops');
-  A.auth=A.fb.auth();A.fdb=A.fb.firestore();
+  A.auth=A.fb.auth();A.fdb=A.fb.firestore();try{A.fdb.settings({ignoreUndefinedProperties:true,merge:true})}catch(e){}
   A.auth.onAuthStateChanged(u=>{
     A.user=u;if(A.unsubMe){A.unsubMe();A.unsubMe=null}if(A.unsubU){A.unsubU();A.unsubU=null}
     if(!u){A.prof=null;A.mode=A.mode==='signup'?'signup':'login';S.db=null;render();return}
@@ -1642,10 +1645,10 @@ async function updUser(id,patch,msg){try{await A.fdb.collection('ops_users').doc
 async function doImport(){
   const f=A.impFile;if(!f){toast('파일을 먼저 고르세요');return}
   try{const j=JSON.parse(await f.text());const ms=j.months||{};let n=0;
-    for(const [id,d] of Object.entries(ms)){await A.fdb.collection(COL.months).doc(id).set(d);n++}
-    if(j.common)await A.fdb.collection(COL.common).doc('main').set(j.common);
+    for(const [id,d] of Object.entries(ms)){await A.fdb.collection(COL.months).doc(id).set(fsEnc(d));n++}
+    if(j.common)await A.fdb.collection(COL.common).doc('main').set(fsEnc(j.common));
     A.impFile=null;toast(`${n}개 달${j.common?'과 자료실':''}을 가져왔습니다`);S.keepScroll=true;render()}
-  catch(e){toast('가져오지 못했습니다: '+(e?.code||e?.message||'파일 형식 확인'))}
+  catch(e){console.error(e);S.msg={text:'가져오지 못했습니다: '+(e?.code==='permission-denied'?'저장 권한이 없습니다. Firebase 규칙을 게시했는지 확인해 주세요.':(e?.message||e?.code||'파일 형식을 확인해 주세요.'))};render()}
 }
 
 /* ---------- 운영표 자료 구독 (승인된 뒤에만) ---------- */
