@@ -1018,6 +1018,16 @@ table.kv td{padding:13px 20px}
   .wday .ev.dot::before{display:none}
 }
 
+/* 영업월 달력: 시작·종료 표시 */
+.mc-tag{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 6px;flex:none}
+.mc-tag.end{color:var(--warn);background:var(--warn-soft)}
+.mc-c.off{background:var(--sunk);min-height:0}
+.mc-per{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.mc-per label{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.mc-per input[type=date]{min-height:32px;padding:3px 8px;font-size:13px}
+.mc-t{flex-wrap:wrap;gap:6px 14px}
+@media (max-width:760px){.mc-tag{display:none}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1418,20 +1428,22 @@ function calMonths(){const [a,z]=periodDays();const ms=[];let y=+a.slice(0,4),m=
 function calMonth(){const ms=calMonths();if(!ms.includes(S.cm)){const t=todayIso().slice(0,7);S.cm=ms.includes(t)?t:ms[0]}return S.cm}
 const dayLabel=x=>{const d=parse(x);return `${d.getMonth()+1}월 ${d.getDate()}일 (${WD[d.getDay()]})`};
 function monthCal(key,o){
-  const [a,z]=periodDays(),ms=calMonths(),cm=calMonth(),ix=ms.indexOf(cm),days=o.days||[0,1,2,3,4,5,6];
-  const [y,m]=cm.split('-').map(Number),first=cm+'-01',last=iso(new Date(y,m,0));
-  const start=addDays(first,-parse(first).getDay()),end=addDays(last,6-parse(last).getDay());
+  /* 영업월 한 장: 시작일이 있는 주부터 종료일이 있는 주까지만 보여 줌 */
+  const [a,z]=periodDays(),days=o.days||[0,1,2,3,4,5,6];
+  const start=addDays(a,-parse(a).getDay()),end=addDays(z,6-parse(z).getDay());
   let cells='';
   for(let x=start;x<=end;x=addDays(x,1)){
-    const dd=parse(x),dw=dd.getDay(),off=x<a||x>z,out=x.slice(0,7)!==cm,na=!days.includes(dw),memo=S.doc.cal.memo?.[x],hol=!!memo&&HOL.test(memo),live=!off&&!na;
+    const dd=parse(x),dw=dd.getDay(),off=x<a||x>z,na=!days.includes(dw),memo=S.doc.cal.memo?.[x],hol=!!memo&&HOL.test(memo),live=!off&&!na;
     const sel=S.pop&&S.pop.key===key&&S.pop.date===x;
-    cells+=`<div class="mc-c${out?' out':''}${off?' off':''}${na&&!off?' na':''}${x===todayIso()?' today':''}${sel?' sel':''}"${live?` data-pop="${key}|${x}" data-drop="${o.drop(x)}" tabindex="0" role="button" aria-label="${dayLabel(x)}"`:''}>
-      <div class="mc-dh"><span class="mc-n${dw===0||hol?' red':dw===6?' blue':''}">${dd.getDate()===1&&out?(dd.getMonth()+1)+'/':''}${dd.getDate()}</span>${memo&&!off?`<span class="mc-memo${hol?' red':''}">${esc(memo)}</span>`:''}</div>${live?o.cell(x):''}</div>`;
+    const lab=(x===a||dd.getDate()===1)?`${dd.getMonth()+1}/${dd.getDate()}`:dd.getDate();
+    cells+=`<div class="mc-c${off?' off':''}${na&&!off?' na':''}${x===todayIso()?' today':''}${sel?' sel':''}"${live?` data-pop="${key}|${x}" data-drop="${o.drop(x)}" tabindex="0" role="button" aria-label="${dayLabel(x)}"`:''}>
+      ${off?'':`<div class="mc-dh"><span class="mc-n${dw===0||hol?' red':dw===6?' blue':''}">${lab}</span>${memo?`<span class="mc-memo${hol?' red':''}">${esc(memo)}</span>`:''}${x===a?'<span class="mc-tag">시작</span>':x===z?'<span class="mc-tag end">종료</span>':''}</div>${live?o.cell(x):''}`}</div>`;
   }
-  return `<section class="mc" id="mc-${key}"><div class="mc-bar"><div class="mc-t"><h2>${y}년 ${m}월</h2>
-      <button type="button" class="ib" data-cm="-1" ${ix<=0?'disabled':''} aria-label="이전 달">${CHEV_L}</button><button type="button" class="ib" data-cm="1" ${ix>=ms.length-1?'disabled':''} aria-label="다음 달">${CHEV_R}</button>
-      <button type="button" class="btn sm" data-cm="0">오늘</button></div>
-    <div class="mc-r"><span class="mc-cnt">영업기간 ${md(a)} ~ ${md(z)}</span>${o.right||''}</div></div>
+  const label=esc(String(S.doc.label||'').replace(/\s*영업$/,''));
+  const per=CAN()&&S.edit?`<span class="mc-per"><label>시작일<input type="date" id="perStart" value="${a}"></label><span>~</span><label>종료일<input type="date" id="perEnd" value="${z}"></label></span>`
+    :`<span class="mc-cnt">${md(a)} (${WD[parse(a).getDay()]}) ~ ${md(z)} (${WD[parse(z).getDay()]})</span>`;
+  return `<section class="mc" id="mc-${key}"><div class="mc-bar"><div class="mc-t"><h2>${label}</h2>${per}</div>
+    <div class="mc-r">${o.right||''}</div></div>
     <div class="mc-grid">${WD.map((w,i)=>`<div class="mc-wd${i===0?' sun':i===6?' sat':''}">${w}</div>`).join('')}${cells}</div></section>`;
 }
 
@@ -1458,7 +1470,8 @@ function popRoster(k,x){
     h+=e.list.length?`<div class="pp-ppl">${e.list.map(n=>`<span class="pn">${esc(n)}</span>`).join('')}</div>`:'';
     return h+(CAN()?`<div class="pp-foot"><button type="button" class="btn sm" data-editon="1">이 날 바꾸기</button></div>`:'');
   }
-  h+=`<div class="pp-sec"><div class="pp-l">조 고르기</div><div class="pp-gs">${GROUPS.map(G=>`<button type="button" class="gb g-${G}${g===G?' on':''}" data-rset="${k}|${x}|${G}조">${G}조</button>`).join('')}${cfg.opts.map(o=>`<button type="button" class="gb${v===o?' on':''}" data-rset="${k}|${x}|${esc(o)}">${esc(o)}</button>`).join('')}${v?`<button type="button" class="gb ghost" data-rset="${k}|${x}|">비우기</button>`:''}</div></div>`;
+  h+=`<div class="pp-sec"><div class="pp-l">조 고르기</div><div class="pp-gs">${GROUPS.map(G=>`<button type="button" class="gb g-${G}${g===G?' on':''}" data-rset="${k}|${x}|${G}조">${G}조</button>`).join('')}${cfg.opts.map(o=>`<button type="button" class="gb${v===o?' on':''}" data-rset="${k}|${x}|${esc(o)}">${esc(o)}</button>`).join('')}${v?`<button type="button" class="gb ghost" data-rset="${k}|${x}|">비우기</button>`:''}</div></div>
+    <div class="pp-sec"><div class="pp-l">직접 입력<small>조 대신 원하는 글을 적을 수 있습니다</small></div><div class="pp-add"><input type="text" id="rtxt" value="${esc(v&&!g&&!cfg.opts.includes(v)?v:'')}" placeholder="예: A조+B조, 대체근무"><button type="button" class="btn sm" data-rtxt="${k}|${x}">적용</button></div></div>`;
   if(g||e.list.length)h+=`<div class="pp-sec"><div class="pp-l">이 날 인원</div><div class="pp-ppl">${e.list.map(n=>`<span class="pn">${esc(n)}<button type="button" class="px" aria-label="${esc(n)} 빼기" data-mrem="${k}|${x}|${esc(n)}">×</button></span>`).join('')}</div>
     <div class="pp-add"><input type="text" id="radd" list="peopleList" placeholder="이름을 적어 추가"><button type="button" class="btn sm" data-madd="${k}|${x}">추가</button></div>${e.override?`<button type="button" class="lnk" data-mreset="${k}|${x}">조 기본 인원으로 되돌리기</button>`:''}</div>`;
   return h;
@@ -2014,6 +2027,7 @@ function onInput(t){
 document.addEventListener('submit',e=>{const id=e.target.id;if(id==='loginForm'){e.preventDefault();doLogin()}if(id==='signupForm'){e.preventDefault();doSignup()}if(id==='applyForm'){e.preventDefault();doApply()}});
 document.addEventListener('change',e=>{
   const t=e.target;
+  if(t.id==='perStart'||t.id==='perEnd'){const a=$('#perStart').value,z=$('#perEnd').value;if(!a||!z)return;if(a>z){toast('종료일이 시작일보다 앞설 수 없습니다');render();return}mutate(()=>{S.doc.period={start:a,end:z}},`영업기간을 ${md(a)} ~ ${md(z)}로 바꿨습니다`);return}
   if(t.id==='monthSel')switchMonth(t.value);
   if(t.id==='impFile'){A.impFile=t.files[0]||null;S.keepScroll=true;render()}
   if(t.id==='datePick'&&t.value){S.date=t.value;render()}
