@@ -6,6 +6,21 @@
 <meta name="robots" content="noindex, nofollow">
 <title>홍대지점 운영표</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
+<script>
+/* ============================================================
+   Firebase 연결 정보 — 새로 만든 운영표 전용 Firebase 프로젝트 값으로 바꾸세요.
+   Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
+   아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
+   ============================================================ */
+window.OPS_FIREBASE = {
+  apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
+  authDomain: "hongdae-ops.firebaseapp.com",
+  projectId: "hongdae-ops",
+  storageBucket: "hongdae-ops.firebasestorage.app",
+  messagingSenderId: "1074230015310",
+  appId: "1:1074230015310:web:7e22af71a7000dc819da1f"
+};
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -1508,7 +1523,7 @@ function rosterSetup(k){
   return card('rset',`${cfg.label}조 설정`,note,`<div class="rs">${tabs}${rows}</div>`,{right});
 }
 /* ================= 로그인 · 가입 · 승인 · 권한 (Firebase: noticecheck-80980) ================= */
-const FB_CFG={apiKey:"AIzaSyCQix_uMdvMdGKvo3ZSe7KgIoD7HJEXp0g",authDomain:"noticecheck-80980.firebaseapp.com",projectId:"noticecheck-80980",storageBucket:"noticecheck-80980.firebasestorage.app",messagingSenderId:"251674052066",appId:"1:251674052066:web:9edd72d52728a1486425bb"};
+const FB_CFG=window.OPS_FIREBASE||{};
 const OWNER_MAIL='t9vely@gmail.com';
 const COL={months:'ops_months',common:'ops_common'};
 const DEPTS=['사업부 1부서','사업부 2부서','사업부 3부서','사업부 4부서','운영부','교육부','강사','기타'];
@@ -1533,6 +1548,7 @@ function fsAdapter(fdb){
 
 function authStart(){
   if(!window.firebase){A.mode='nofb';render();return}
+  if(!FB_CFG.apiKey||!FB_CFG.projectId||/여기/.test(FB_CFG.apiKey)){A.mode='nocfg';render();return}
   A.fb=firebase.apps.find(a=>a.name==='ops')||firebase.initializeApp(FB_CFG,'ops');
   A.auth=A.fb.auth();A.fdb=A.fb.firestore();
   A.auth.onAuthStateChanged(u=>{
@@ -1559,6 +1575,7 @@ function authHtml(){
   const card=(title,body,wide)=>`<main class="wrap gate"><div class="gate-card${wide?' wide':''}"><div class="gate-mk">AIX</div><h1>${title}</h1>${body}</div></main>`;
   const err=A.err?`<p class="gate-err">${esc(A.err)}</p>`:'';
   const deptSel=v=>`<label>부서<select class="in" id="aDept" required><option value="">부서 선택</option>${DEPTS.map(d=>`<option ${v===d?'selected':''}>${d}</option>`).join('')}</select></label>`;
+  if(A.mode==='nocfg')return card('Firebase 연결 정보가 비어 있습니다','<p>index.html 맨 위의 OPS_FIREBASE 칸에 새 Firebase 프로젝트의 연결 정보를 넣어 주세요.</p>');
   if(A.mode==='nofb')return card('연결하지 못했습니다','<p>로그인 서버에 연결하지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.</p>');
   if(A.mode==='boot'||A.mode==='wait')return card('확인하는 중입니다','<p>잠시만 기다려 주세요.</p>');
   const tabs=`<div class="gate-tabs" role="tablist"><button type="button" role="tab" data-amode="login" aria-selected="${A.mode==='login'}">로그인</button><button type="button" role="tab" data-amode="signup" aria-selected="${A.mode==='signup'}">가입 신청</button></div>`;
