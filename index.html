@@ -1032,6 +1032,9 @@ table.kv td{padding:13px 20px}
 .revline b{color:var(--com);font-weight:700}
 .revline .lnk{margin:0}
 
+.top .mpill .ren{border-left:1px solid rgba(255,255,255,.12);border-radius:0 7px 7px 0;margin-left:2px}
+.ren-dates{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.ren-dates input{min-width:0;width:100%;box-sizing:border-box}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1076,7 +1079,7 @@ td.act .btn+.btn{margin-left:6px}
  <div class="top1"><div class="wrap t1">
   <button type="button" class="logo" data-tab="today"><span class="mk">AIX</span><span class="lt"><b>홍대지점 운영</b><small>SBS아카데미 AIX학원</small></span></button>
   <div class="hdr-r">
-    <div class="mpill" id="msw"><button type="button" class="ib" id="mPrev" aria-label="이전 달"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><select id="monthSel" aria-label="월 선택"></select><button type="button" class="ib" id="mNext" aria-label="다음 달"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    <div class="mpill" id="msw"><button type="button" class="ib" id="mPrev" aria-label="이전 달"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><select id="monthSel" aria-label="월 선택"></select><button type="button" class="ib" id="mNext" aria-label="다음 달"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><button type="button" class="ib ren" id="renBtn" title="영업월 이름·기간 바꾸기" aria-label="영업월 이름 바꾸기" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button></div>
     <span class="dchip" id="todayChip"></span>
     <button type="button" class="membtn" id="memBtn" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/></svg><span class="t">회원 관리</span><span class="bd" hidden></span></button>
     <span class="compill" id="compill" hidden>고정 내용</span>
@@ -1224,7 +1227,7 @@ function setCal(layer,date,v){if(String(v).trim())S.doc.cal[layer][date]=v;else 
 function renderChrome(){
   const ids=Object.keys(S.months).sort();
   $('#monthSel').innerHTML=ids.slice().reverse().map(id=>`<option value="${id}" ${id===S.id?'selected':''}>${esc(S.months[id].label||id)}</option>`).join('')||'<option>저장된 달 없음</option>';
-  const ix=ids.indexOf(S.id);$('#mPrev').disabled=ix<=0;$('#mNext').disabled=ix<0||ix>=ids.length-1;
+  const ix=ids.indexOf(S.id);$('#renBtn').hidden=!S.doc||!CAN();$('#mPrev').disabled=ix<=0;$('#mNext').disabled=ix<0||ix>=ids.length-1;
   const com=isCommonTab(S.tab);$('#msw').hidden=false;$('#compill').hidden=!com;$('#setBtn').hidden=com;
   $('#editBtn').setAttribute('aria-pressed',S.edit);
   $('#editBtn').hidden=!CAN();document.querySelector('.menu-wrap').hidden=!CAN();
@@ -1556,6 +1559,14 @@ function revPanel(){
   const revs=(S.com?.revs||[]).slice().reverse();
   return `<div class="card"><div class="card-hd"><h2>내용 수정 기록</h2><p class="sub">고칠 때 고른 수정 날짜 순서입니다.</p></div><div class="tw"><table class="stk"><thead><tr><th>수정 날짜</th><th>바뀐 곳</th><th>메모</th><th>저장한 사람</th></tr></thead><tbody>${revs.map(r=>`<tr><td class="nw" data-l="수정 날짜"><b>${revDate(r.date)}</b></td><td data-l="바뀐 곳">${esc((r.pages||[]).join(', ')||'-')}</td><td data-l="메모">${esc(r.note||'')}</td><td class="nw" data-l="저장한 사람">${esc(r.by||'')}</td></tr>`).join('')}</tbody></table></div></div>`;
 }
+function renHtml(){
+  if(!S.renAsk||!S.doc)return '';const [a,z]=periodDays();
+  return `<div class="ovl" id="renOvl"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="renT"><h3 id="renT">영업월 이름 · 기간</h3>
+    <p>위쪽 영업월 선택과 달력 제목에 나오는 이름입니다. 시작일·종료일을 바꾸면 달력도 그 기간으로 바뀝니다.</p>
+    <div class="gate-f" style="margin-bottom:18px"><label>이름<input type="text" id="renLabel" maxlength="30" value="${esc(S.doc.label||'')}" placeholder="예: 10월 영업일"></label>
+    <div class="ren-dates"><label>시작일<input type="date" id="renStart" value="${a}"></label><label>종료일<input type="date" id="renEnd" value="${z}"></label></div></div>
+    <div class="dlg-b"><button type="button" class="btn" data-renx="1">취소</button><button type="button" class="btn primary" data-rengo="1">저장</button></div></div></div>`;
+}
 function revAskHtml(){
   if(!S.revAsk)return '';
   const pages=changedPages();
@@ -1817,7 +1828,7 @@ function render(){
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
   const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
-  const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml();
+  const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
   placePop();buildToc();
 }
@@ -1875,6 +1886,9 @@ function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달
 /* ================= actions ================= */
 function act(t){
   const d=t.dataset;
+  if(d.renx){S.renAsk=false;S.keepScroll=true;render();return true}
+  if(d.rengo){const lb=$('#renLabel').value.trim(),a=$('#renStart').value,z=$('#renEnd').value;if(!lb){toast('이름을 적어 주세요');return true}if(!a||!z||a>z){toast('시작일과 종료일을 확인해 주세요');return true}
+    S.renAsk=false;mutate(()=>{S.doc.label=lb;S.doc.period={start:a,end:z}});save();return true}
   if(d.revs){S.showRevs=!S.showRevs;S.keepScroll=true;render();return true}
   if(d.revx){S.revAsk=false;S.keepScroll=true;render();return true}
   if(d.revgo){const dt=$('#revDate').value;if(!dt){toast('수정 날짜를 골라 주세요');return true}S.revOk={date:dt,note:$('#revNote').value.trim(),by:(typeof A!=='undefined'&&A.prof?.name)||''};S.revAsk=false;save();return true}
@@ -2024,6 +2038,7 @@ document.addEventListener('click',e=>{
   switch(t.id){
     case 'menuBtn':document.body.classList.toggle('sb-open');break;
     case 'moreBtn':$('#dd').hidden=!$('#dd').hidden;break;
+    case 'renBtn':if(!CAN())break;S.renAsk=true;S.keepScroll=true;render();setTimeout(()=>$('#renLabel')?.select(),30);break;
     case 'memBtn':S.tab='members';S.pop=null;S.panel=null;S.confirm=null;render();scrollTo(0,0);break;
     case 'impGo':doImport();break;
     case 'editBtn':if(!CAN())break;S.edit=!S.edit;S.confirm=null;S.keepScroll=true;render();toast(S.edit?'편집 모드를 켰습니다':'편집 모드를 껐습니다');break;
@@ -2042,7 +2057,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{
   const mod=e.ctrlKey||e.metaKey,inField=e.target.closest?.('input,textarea,[contenteditable]');
   if(e.key==='Escape'&&D){endDrag(false);return}
-  if(e.key==='Escape'&&(S.pop||S.rand)){S.pop=null;S.rand=null;S.keepScroll=true;render();return}
+  if(e.key==='Escape'&&(S.pop||S.rand||S.renAsk)){S.pop=null;S.rand=null;S.renAsk=false;S.keepScroll=true;render();return}
   if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();save();return}
   if(mod&&!inField&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
   if(mod&&!inField&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
