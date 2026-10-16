@@ -1555,7 +1555,7 @@ function renderChrome(){
   const ids=Object.keys(S.months).sort();
   $('#monthSel').innerHTML=ids.slice().reverse().map(id=>`<option value="${id}" ${id===S.id?'selected':''}>${esc(S.months[id].label||id)}</option>`).join('')||'<option>저장된 달 없음</option>';
   $('#mBtnT').textContent=S.months[S.id]?.label||S.doc?.label||'저장된 달 없음';
-  $('#mMenu').innerHTML=ids.slice().reverse().map(id=>{const mm=S.months[id];const p=mm.period||{};return `<button type="button" role="option" data-month="${id}" aria-selected="${id===S.id}"><b>${esc(mm.label||id)}</b>${p.start?`<small>${md(p.start)} ~ ${md(p.end)}</small>`:''}${id===S.id?icx('check'):''}</button>`}).join('')||'<div class="mm-empty">저장된 달이 없습니다</div>';
+  $('#mMenu').innerHTML=ids.slice().map(id=>{const mm=S.months[id];const p=mm.period||{};return `<button type="button" role="option" data-month="${id}" aria-selected="${id===S.id}"><b>${esc(mm.label||id)}</b>${p.start?`<small>${md(p.start)} ~ ${md(p.end)}</small>`:''}${id===S.id?icx('check'):''}</button>`}).join('')||'<div class="mm-empty">저장된 달이 없습니다</div>';
   const ix=ids.indexOf(S.id);$('#renBtn').hidden=!S.doc||!CAN();$('#mPrev').disabled=ix<=0;$('#mNext').disabled=ix<0||ix>=ids.length-1;
   const com=isCommonTab(S.tab);$('#msw').hidden=false;$('#compill').hidden=!com;$('#setBtn').hidden=com;
   $('#editBtn').setAttribute('aria-pressed',S.edit);
@@ -1721,7 +1721,7 @@ function viewToday(){
   const quick=[['rules','DB 규정','디비턴 · 권한 · 재배정'],['tuition','수강료','과정별 수강료 조회'],['org','조직도','부서 · 강사진 · 자리'],['lead','업무분장','담당 업무 · 순번']];
   const nm=((typeof A!=='undefined'&&A.prof&&A.prof.name)||S.myName||'').trim();
   const hr=new Date().getHours(),hi=hr<11?'좋은 아침입니다':hr<18?'안녕하세요':'오늘도 수고 많으셨습니다';
-  const mids=Object.keys(S.months).sort().reverse();
+  const mids=Object.keys(S.months).sort();
   const greet=`<div class="greet"><div class="gr-t"><h2>${nm?`<b>${esc(nm)}</b> 멘토님, `:''}${hi}</h2><p>오늘은 ${dt.getFullYear()}년 ${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일입니다. 볼 달을 고르세요.</p></div>
     <div class="gr-m" role="listbox" aria-label="영업월 선택">${mids.map(id=>{const mm=S.months[id],pp=mm.period||{};return `<button type="button" role="option" data-month="${id}" aria-selected="${id===S.id}"><b>${esc(mm.label||id)}</b>${pp.start?`<small>${md(pp.start)} ~ ${md(pp.end)}</small>`:''}</button>`}).join('')}</div></div>`;
   return `<section class="hero"><div class="wrap hero-in">${greet}<div class="hero-row"><div><span class="kicker">${I(ICON.today)}${esc(S.doc.label||'')} · 오늘 현황</span><h1>${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일</h1>${(d<a||d>z)?'<p>이 달 영업기간 밖의 날짜입니다.</p>':cal.memo?.[d]?`<p>${esc(cal.memo[d])}</p>`:''}</div>
@@ -2462,7 +2462,7 @@ document.addEventListener('keydown',e=>{
   if(mod&&!inField&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
   if(mod&&!inField&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('.cell,.ag,.mc-c,[data-rsel],[data-csel]')&&!inField){e.preventDefault();e.target.click();return}
-  if(e.key==='Enter'&&e.target.matches?.('#radd,#rtxt,[id^=gadd-]')){e.preventDefault();e.target.parentElement.querySelector('button')?.click()}
+  if(e.key==='Enter'&&e.target.matches?.('#radd,#rtxt,[id^=gadd-]')){if(e.isComposing||e.keyCode===229)return;e.preventDefault();const id=e.target.id,keep=id!=='rtxt';e.target.parentElement.querySelector('button')?.click();if(keep){const f=()=>{const n=document.getElementById(id);if(n&&document.activeElement!==n){n.value='';n.focus({preventScroll:true})}};f();requestAnimationFrame(f);setTimeout(f,60)}}
 });
 document.addEventListener('focusin',e=>{if(e.target.matches?.('[data-p],[data-cal]'))S.pend=snap()});
 let IME=false;
