@@ -1301,6 +1301,20 @@ body{background:var(--bg)!important}
 .lg-when{font-size:12.5px;font-weight:600;color:var(--ink2);background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
 @media (max-width:700px){.lg-row{grid-template-columns:1fr;gap:10px;padding:16px}.lg-who{flex-direction:row;align-items:baseline;gap:8px}.lg-list li{grid-template-columns:22px 1fr}.lg-when{grid-column:2;justify-self:start}}
 
+/* --- 홈 인사 · 월 선택 --- */
+.greet{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;padding:0 0 22px;margin:0 0 26px;border-bottom:1px solid var(--line)}
+.gr-t h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.04em;color:var(--ink2)}
+.gr-t h2 b{color:var(--ink);font-weight:850}
+.gr-t p{margin:6px 0 0;font-size:13.5px;color:var(--muted)}
+.gr-m{display:flex;flex-wrap:wrap;gap:8px}
+.gr-m button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--line-strong);background:var(--surface);border-radius:12px;padding:9px 14px;cursor:pointer;font:inherit;color:var(--ink);text-align:left}
+.gr-m button b{font-size:14px;font-weight:750;letter-spacing:-.02em}
+.gr-m button small{font-size:11.5px;color:var(--muted)}
+.gr-m button:hover{border-color:var(--ink)}
+.gr-m button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.gr-m button[aria-selected="true"] small{color:color-mix(in srgb,var(--surface) 70%,transparent)}
+@media (max-width:600px){.gr-t h2{font-size:19px}.gr-m{width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.gr-m button{flex:none}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1350,6 +1364,23 @@ td.act .btn+.btn{margin-left:6px}
 .gate-tabs button[aria-selected=true]{background:linear-gradient(135deg,#17191e,#2a2e36);color:#fff}
 @media (max-width:600px){.mechip .lo span{display:none}.mechip{padding-left:4px;margin-left:0}}
 @media (max-width:420px){.top .mpill #mPrev,.top .mpill #mNext{display:none}.top .mpill{padding:0 2px}}
+
+/* 회원 관리: 부서·직급 */
+.msel{min-width:118px;height:32px;padding:0 28px 0 10px;font-size:13px}
+.lsgrid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.lsbox{padding:18px 24px;border-top:1px solid var(--line)}
+.lsbox+.lsbox{border-left:1px solid var(--line)}
+.lsbox h3{margin:0 0 12px;font-size:14.5px;font-weight:800;display:flex;align-items:baseline;gap:8px}
+.lsbox h3 small{font-size:12px;color:var(--muted);font-weight:500}
+.lschips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.lschip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line-strong);border-radius:999px;padding:3px 4px 3px 12px;font-size:13px;font-weight:600;background:var(--surface)}
+.lschip button{border:0;background:none;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;color:var(--muted);cursor:pointer;padding:0}
+.lschip button:hover:not([disabled]){background:var(--head);color:var(--ink)}
+.lschip button[disabled]{opacity:.25;cursor:default}
+.lschip .i{width:13px;height:13px}
+.lsadd{display:flex;gap:6px}
+.lsadd .in{flex:1;min-width:0;height:34px}
+@media (max-width:760px){.lsgrid{grid-template-columns:1fr}.lsbox+.lsbox{border-left:0}.lsbox{padding:16px}}
 
 .top .dchip{display:none!important}
 </style>
@@ -1530,7 +1561,7 @@ function renderChrome(){
   $('#editBtn').setAttribute('aria-pressed',S.edit);
   $('#editBtn').hidden=!CAN();document.querySelector('.menu-wrap').hidden=!CAN();
   {const mb=$('#memBtn');mb.hidden=!isOwnerA();const n=isOwnerA()?pendingList().filter(([,u])=>!u.owner).length:0;const bd=mb.querySelector('.bd');bd.textContent=n||'';bd.hidden=!n;mb.setAttribute('aria-current',S.tab==='members');
-   const me=$('#meChip');me.hidden=!A.user;if(A.user){me.querySelector('.nm').textContent=(A.prof?.name||A.user.email||'')+(CAN()?'':' · 열람')}}
+   const me=$('#meChip');me.hidden=!A.user;if(A.user){me.querySelector('.nm').textContent=(A.prof?.name||A.user.email||'')+(A.prof?.rank?' '+A.prof.rank:'')+(CAN()?'':' · 열람')}}
   $('#undoBtn').disabled=!S.hist.length;$('#redoBtn').disabled=!S.fut.length;
   $('#newBtn').disabled=!S.db;$('#editBtn').disabled=!S.doc;$('#setBtn').disabled=!S.doc;
   $('#savebar').hidden=!S.dirty;
@@ -1688,7 +1719,12 @@ function viewToday(){
     return `<button type="button" class="wday${x===d?' sel':''}${x===todayIso()?' today':''}" data-date="${x}"><span class="wd-h"><span class="wd-w${i===0?' red':i===6?' blue':''}">${WD[i]}</span><span class="mc-n${i===0||hol?' red':i===6?' blue':''}">${parse(x).getDate()}</span></span>${me?`<span class="mc-memo${hol?' red':''}">${esc(me)}</span>`:''}${bar(du,'당직')}${bar(as,'배정')}${ed?`<span class="ev dot">교육 ${eduItems(ed).length}건</span>`:''}</button>`}).join('');
   const [a,z]=periodDays();
   const quick=[['rules','DB 규정','디비턴 · 권한 · 재배정'],['tuition','수강료','과정별 수강료 조회'],['org','조직도','부서 · 강사진 · 자리'],['lead','업무분장','담당 업무 · 순번']];
-  return `<section class="hero"><div class="wrap hero-in"><div class="hero-row"><div><span class="kicker">${I(ICON.today)}${esc(S.doc.label||'')} · 오늘 현황</span><h1>${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일</h1>${(d<a||d>z)?'<p>이 달 영업기간 밖의 날짜입니다.</p>':cal.memo?.[d]?`<p>${esc(cal.memo[d])}</p>`:''}</div>
+  const nm=((typeof A!=='undefined'&&A.prof&&A.prof.name)||S.myName||'').trim();
+  const hr=new Date().getHours(),hi=hr<11?'좋은 아침입니다':hr<18?'안녕하세요':'오늘도 수고 많으셨습니다';
+  const mids=Object.keys(S.months).sort().reverse();
+  const greet=`<div class="greet"><div class="gr-t"><h2>${nm?`<b>${esc(nm)}</b> 멘토님, `:''}${hi}</h2><p>오늘은 ${dt.getFullYear()}년 ${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일입니다. 볼 달을 고르세요.</p></div>
+    <div class="gr-m" role="listbox" aria-label="영업월 선택">${mids.map(id=>{const mm=S.months[id],pp=mm.period||{};return `<button type="button" role="option" data-month="${id}" aria-selected="${id===S.id}"><b>${esc(mm.label||id)}</b>${pp.start?`<small>${md(pp.start)} ~ ${md(pp.end)}</small>`:''}</button>`}).join('')}</div></div>`;
+  return `<section class="hero"><div class="wrap hero-in">${greet}<div class="hero-row"><div><span class="kicker">${I(ICON.today)}${esc(S.doc.label||'')} · 오늘 현황</span><h1>${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일</h1>${(d<a||d>z)?'<p>이 달 영업기간 밖의 날짜입니다.</p>':cal.memo?.[d]?`<p>${esc(cal.memo[d])}</p>`:''}</div>
     <div class="hero-act daynav"><button type="button" class="btn sm" data-step="-1">${icx('left')}전날</button><input type="date" id="datePick" value="${d}" aria-label="날짜 선택"><button type="button" class="btn sm" data-step="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-date="${todayIso()}">오늘</button>`:''}</div></div>
     <div class="today-hero">${gstat('duty','당직')}${gstat('assign','배정')}${eduStat}${opsStat}</div></div></section><main class="wrap">%%TOP%%
   ${card('week','이번 주','날짜를 누르면 그날 현황을 봅니다.',`<div class="week">${wk}</div>`)}
@@ -1903,6 +1939,9 @@ const OWNER_MAIL='t9vely@gmail.com';
 const COL={months:'ops_months',common:'ops_common'};
 const DEPTS=['사업부 1부서','사업부 2부서','사업부 3부서','사업부 4부서','운영부','교육부','강사','기타'];
 const ROLE_L={view:'열람',edit:'편집'};
+const RANKS=['원장','부원장','실장','부장','팀장','과장','대리','주임','사원','강사'];
+const deptList=()=>(A.lists&&A.lists.depts&&A.lists.depts.length)?A.lists.depts:DEPTS;
+const rankList=()=>(A.lists&&A.lists.ranks&&A.lists.ranks.length)?A.lists.ranks:RANKS;
 const A={fb:null,auth:null,fdb:null,user:null,prof:null,mode:'login',busy:false,err:'',users:{},unsubU:null,unsubMe:null,started:false};
 const isOwnerA=()=>!!A.user&&(A.user.email||'').toLowerCase()===OWNER_MAIL;
 const approved=()=>isOwnerA()||(A.prof&&A.prof.status==='approved');
@@ -1929,6 +1968,7 @@ function authStart(){
   if(!FB_CFG.apiKey||!FB_CFG.projectId||/여기/.test(FB_CFG.apiKey)){A.mode='nocfg';render();return}
   A.fb=firebase.apps.find(a=>a.name==='ops')||firebase.initializeApp(FB_CFG,'ops');
   A.auth=A.fb.auth();A.fdb=A.fb.firestore();try{A.fdb.settings({ignoreUndefinedProperties:true,merge:true})}catch(e){}
+  try{A.fdb.collection('ops_meta').doc('lists').onSnapshot(s=>{A.lists=s.exists?s.data():null;if(S.tab==='members'||A.mode!=='in'){S.keepScroll=true;render()}},()=>{})}catch(e){}
   A.auth.onAuthStateChanged(u=>{
     A.user=u;if(A.unsubMe){A.unsubMe();A.unsubMe=null}if(A.unsubU){A.unsubU();A.unsubU=null}
     if(!u){A.prof=null;A.mode=A.mode==='signup'?'signup':'login';S.db=null;render();return}
@@ -1952,7 +1992,7 @@ function pendingList(){return Object.entries(A.users).filter(([,u])=>u.status===
 function authHtml(){
   const card=(title,body,ic)=>`<main class="wrap gate"><div class="gate-card"><div class="gate-mk">${ic?icx(ic):'AIX'}</div><h1>${title}</h1>${body}</div></main>`;
   const err=A.err?`<p class="gate-err">${esc(A.err)}</p>`:'';
-  const deptSel=v=>`<label>부서<select class="in" id="aDept" required><option value="">부서 선택</option>${DEPTS.map(d=>`<option ${v===d?'selected':''}>${d}</option>`).join('')}</select></label>`;
+  const deptSel=v=>`<label>부서<select class="in" id="aDept" required><option value="">부서 선택</option>${deptList().map(d=>`<option ${v===d?'selected':''}>${esc(d)}</option>`).join('')}</select></label>`;
   if(A.mode==='nocfg')return card('Firebase 연결 정보가 비어 있습니다','<p>index.html 맨 위의 OPS_FIREBASE 칸에 새 Firebase 프로젝트의 연결 정보를 넣어 주세요.</p>');
   if(A.mode==='nofb')return card('연결하지 못했습니다','<p>로그인 서버에 연결하지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.</p>');
   if(A.mode==='boot'||A.mode==='wait')return card('확인하는 중입니다','<p>잠시만 기다려 주세요.</p>');
@@ -2000,22 +2040,42 @@ function viewMembers(){
   if(!isOwnerA())return pageHead('members','회원 관리')+'<div class="empty-state">관리자만 볼 수 있습니다.</div>';
   const all=Object.entries(A.users).filter(([,u])=>!u.owner);
   const pend=pendingList().filter(([,u])=>!u.owner);
-  const mem=all.filter(([,u])=>u.status==='approved').sort((x,y)=>(x[1].dept||'').localeCompare(y[1].dept||'','ko')||(x[1].name||'').localeCompare(y[1].name||'','ko'));
+  const ownE=Object.entries(A.users).filter(([,u])=>u.owner);
+  const mem=ownE.concat(all.filter(([,u])=>u.status==='approved')).sort((x,y)=>(y[1].owner?1:0)-(x[1].owner?1:0)||(x[1].dept||'').localeCompare(y[1].dept||'','ko')||rankIx(x[1].rank)-rankIx(y[1].rank)||(x[1].name||'').localeCompare(y[1].name||'','ko'));
+  const opts=(list,v,ph)=>`<option value=>${ph}</option>${(v&&!list.includes(v)?[v,...list]:list).map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}`;
+  const dSel=(id,u)=>`<select class="in sm msel" data-udept="${esc(id)}" aria-label="부서">${opts(deptList(),u.dept||'','부서 없음')}</select>`;
+  const rSel=(id,u)=>`<select class="in sm msel" data-urank="${esc(id)}" aria-label="직급">${opts(rankList(),u.rank||'','직급 선택')}</select>`;
   const rej=all.filter(([,u])=>u.status==='rejected'||u.status==='removed');
   const who=u=>`<b>${esc(u.name||'(이름 없음)')}</b><small class="acct">${esc(u.email||'')}</small>`;
-  const pRows=pend.map(([id,u])=>`<tr><td class="nw" data-l="부서">${esc(u.dept)}</td><td data-l="이름">${who(u)}</td><td class="nw" data-l="신청">${esc(fmtAt(u.createdAt))}</td>
+  const pRows=pend.map(([id,u])=>`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td><td class="nw" data-l="신청">${esc(fmtAt(u.createdAt))}</td>
     <td class="act" data-l="처리"><button type="button" class="btn sm" data-approve="${esc(id)}|view">${icx('check')}열람으로 승인</button><button type="button" class="btn sm primary" data-approve="${esc(id)}|edit">${icx('check')}편집으로 승인</button><button type="button" class="btn sm danger" data-reject="${esc(id)}">${icx('x')}반려</button></td></tr>`).join('');
-  const mRows=mem.map(([id,u])=>`<tr><td class="nw" data-l="부서">${esc(u.dept||'-')}</td><td data-l="이름">${who(u)}</td>
-    <td data-l="권한"><div class="seg rolesel">${['view','edit'].map(r=>`<button type="button" class="${u.role===r?'on':''}" data-role="${esc(id)}|${r}">${ROLE_L[r]}</button>`).join('')}</div></td><td class="nw" data-l="승인">${esc(fmtAt(u.decidedAt))}</td>
-    <td class="act" data-l="처리">${S.confirm==='mem:'+id?`<span class="muted">이용을 중지할까요?</span><button type="button" class="btn sm danger" data-kickgo="${esc(id)}">중지</button><button type="button" class="btn sm" data-cancel="1">취소</button>`:`<button type="button" class="btn sm ghost" data-kick="${esc(id)}">이용 중지</button>`}</td></tr>`).join('');
+  const mRows=mem.map(([id,u])=>`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td>
+    <td data-l="권한">${u.owner?'<span class="chip">관리자 · 모든 권한</span>':`<div class="seg rolesel">${['view','edit'].map(r=>`<button type="button" class="${u.role===r?'on':''}" data-role="${esc(id)}|${r}">${ROLE_L[r]}</button>`).join('')}</div>`}</td><td class="nw" data-l="승인">${esc(fmtAt(u.decidedAt))}</td>
+    <td class="act" data-l="처리">${u.owner?'':S.confirm==='mem:'+id?`<span class="muted">이용을 중지할까요?</span><button type="button" class="btn sm danger" data-kickgo="${esc(id)}">중지</button><button type="button" class="btn sm" data-cancel="1">취소</button>`:`<button type="button" class="btn sm ghost" data-kick="${esc(id)}">이용 중지</button>`}</td></tr>`).join('');
   const rRows=rej.map(([id,u])=>`<tr><td class="nw" data-l="부서">${esc(u.dept||'-')}</td><td data-l="이름">${who(u)}</td><td class="nw" data-l="상태">${u.status==='removed'?'이용 중지':'반려'} · ${esc(fmtAt(u.decidedAt))}</td><td class="act" data-l="처리"><button type="button" class="btn sm" data-approve="${esc(id)}|view">다시 승인</button></td></tr>`).join('');
   const t=(head,rows,empty)=>`<div class="tw"><table class="stk"><thead><tr>${head.map(h=>`<th${h==='처리'?' class="act"':''}>${h}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${head.length}" class="empty-cell">${empty}</td></tr>`}</tbody></table></div>`;
   return pageHead('members','회원 관리')+
-    card('mpend',`가입 신청${pend.length?' '+pend.length+'건':''}`,'승인할 때 열람만 할지, 편집까지 할지 고릅니다.',t(['부서','이름','신청','처리'],pRows,'새 가입 신청이 없습니다.'))+
-    card('mlist',`회원 ${mem.length}명`,'‘열람’은 보기만, ‘편집’은 당직표·규정 등을 고치고 저장할 수 있습니다. 관리자(김태욱)는 항상 모든 권한을 가집니다.',t(['부서','이름','권한','승인','처리'],mRows,'아직 승인한 회원이 없습니다.'))+
+    card('mpend',`가입 신청${pend.length?' '+pend.length+'건':''}`,'승인할 때 열람만 할지, 편집까지 할지 고릅니다.',t(['부서','직급','이름','신청','처리'],pRows,'새 가입 신청이 없습니다.'))+
+    card('mlist',`회원 ${mem.length}명`,'‘열람’은 보기만, ‘편집’은 당직표·규정 등을 고치고 저장할 수 있습니다. 관리자(김태욱)는 항상 모든 권한을 가집니다.',t(['부서','직급','이름','권한','승인','처리'],mRows,'아직 승인한 회원이 없습니다.'))+listsCard()+
     (rRows?card('mrej','반려 · 이용 중지','',t(['부서','이름','상태','처리'],rRows,'')):'')+
     card('mimport','자료 가져오기','Claude 운영표에서 내려받은 자료 파일(.json)을 한 번 올리면 이 사이트로 옮겨집니다. 같은 달이 이미 있으면 덮어씁니다.',`<div class="imp"><label class="btn sm">파일 고르기<input type="file" id="impFile" accept=".json,application/json" hidden></label><span class="muted">${A.impFile?esc(A.impFile.name):'고른 파일 없음'}</span><button type="button" class="btn sm primary" id="impGo" ${A.impFile?'':'disabled'}>가져오기</button></div>`);
 }
+const rankIx=r=>{const i=rankList().indexOf(r||'');return i<0?99:i};
+function listsCard(){
+  const box=(k,title,list,ph)=>`<div class="lsbox"><h3>${title}<small>${list.length}개</small></h3><div class="lschips">${list.map((v,i)=>`<span class="lschip">${esc(v)}<button type="button" data-lsup="${k}|${i}" title="앞으로" ${i?'':'disabled'}>${icx('left')}</button><button type="button" data-lsdel="${k}|${i}" title="빼기">${icx('x')}</button></span>`).join('')}</div>
+    <div class="lsadd"><input type="text" class="in sm" id="lsIn-${k}" maxlength="20" placeholder="${ph}"><button type="button" class="btn sm" data-lsadd="${k}">${icx('plus')}추가</button></div></div>`;
+  return card('mlists','부서 · 직급 목록','가입 신청 화면과 회원 목록의 선택칸에 나오는 목록입니다. 목록에서 빼도 이미 그 값을 가진 회원은 그대로 남습니다.',`<div class="lsgrid">${box('depts','부서',deptList(),'새 부서 이름')}${box('ranks','직급',rankList(),'새 직급 이름')}</div>`);
+}
+async function saveLists(k,list,msg){const cur={depts:deptList().slice(),ranks:rankList().slice()};cur[k]=list;
+  try{await A.fdb.collection('ops_meta').doc('lists').set({...cur,updatedAt:new Date().toISOString()});A.lists=cur;toast(msg);S.keepScroll=true;render()}
+  catch(e){toast(e?.code==='permission-denied'?'저장 권한이 없습니다. Firebase 규칙을 새로 게시해 주세요.':authMsg(e))}}
+function listAct(d){
+  if(d.lsadd){const k=d.lsadd,inp=document.getElementById('lsIn-'+k),v=(inp?.value||'').trim();if(!v){toast('이름을 적어 주세요');return true}const L=(k==='depts'?deptList():rankList()).slice();if(L.includes(v)){toast('이미 있습니다');return true}L.push(v);saveLists(k,L,`‘${v}’ 추가했습니다`);return true}
+  if(d.lsdel){const [k,i]=sp(d.lsdel);const L=(k==='depts'?deptList():rankList()).slice();const v=L.splice(+i,1)[0];saveLists(k,L,`‘${v}’ 뺐습니다`);return true}
+  if(d.lsup){const [k,i]=sp(d.lsup);const L=(k==='depts'?deptList():rankList()).slice();const n=+i;if(n>0){[L[n-1],L[n]]=[L[n],L[n-1]];saveLists(k,L,'순서를 바꿨습니다')}return true}
+  return false}
+document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&!e.isComposing&&t.id&&t.id.startsWith('lsIn-')){e.preventDefault();listAct({lsadd:t.id.slice(5)})}});
+async function setField(id,patch,msg){try{await A.fdb.collection('ops_users').doc(id).set({...A.users[id],...patch});toast(msg)}catch(e){toast(authMsg(e))}}
 async function updUser(id,patch,msg){try{await A.fdb.collection('ops_users').doc(id).set({...A.users[id],...patch,decidedAt:new Date().toISOString()});toast(msg)}catch(e){toast(authMsg(e))}}
 async function doImport(){
   const f=A.impFile;if(!f){toast('파일을 먼저 고르세요');return}
@@ -2229,6 +2289,7 @@ function act(t){
   if(d.reject){updUser(d.reject,{status:'rejected'},'반려했습니다');return true}
   if(d.role){const [id,r]=sp(d.role);updUser(id,{role:r},`${ROLE_L[r]} 권한으로 바꿨습니다`);return true}
   if(d.kick){S.confirm='mem:'+d.kick;S.keepScroll=true;render();return true}
+  if(listAct(d))return true;
   if(d.kickgo){const id=d.kickgo;S.confirm=null;updUser(id,{status:'removed',role:'view'},'이용을 중지했습니다');return true}
   if(d.editon){if(!CAN())return true;S.edit=true;S.keepScroll=true;render();toast('편집 모드를 켰습니다');return true}
   if(d.rand){if(!CAN())return true;S.rand=d.rand;S.pop=null;S.keepScroll=true;render();return true}
@@ -2422,6 +2483,8 @@ document.addEventListener('change',e=>{
   if(t.id==='perStart'||t.id==='perEnd'){const a=$('#perStart').value,z=$('#perEnd').value;if(!a||!z)return;if(a>z){toast('종료일이 시작일보다 앞설 수 없습니다');render();return}mutate(()=>{S.doc.period={start:a,end:z}},`영업기간을 ${md(a)} ~ ${md(z)}로 바꿨습니다`);return}
   if(t.id==='monthSel')switchMonth(t.value);
   if(t.id==='impFile'){A.impFile=t.files[0]||null;S.keepScroll=true;render()}
+  if(t.dataset.udept!=null){setField(t.dataset.udept,{dept:t.value},'부서를 바꿨습니다')}
+  if(t.dataset.urank!=null){setField(t.dataset.urank,{rank:t.value},t.value?`직급을 ${t.value}(으)로 바꿨습니다`:'직급을 비웠습니다')}
   if(t.id==='datePick'&&t.value){S.date=t.value;render()}
   if(t.id==='showNames'){S.showNames=t.checked;S.keepScroll=true;render()}
   if(t.id==='tdept'){S.tdept=t.value;S.keepScroll=true;render()}
