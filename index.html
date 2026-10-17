@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261017-145609';
+window.OPS_BUILD = '20261017-150926';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2718,7 +2718,7 @@ async function createMonth(){
   catch(e){S.msg={text:'만들지 못했습니다. 편집 권한을 확인하세요. ('+(e?.code||'오류')+')'}}
   render();
 }
-function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달에 저장하지 않은 변경이 있습니다. 저장하거나 취소한 뒤 옮기세요.');renderChrome();return}pickDoc(id);S.msg=null;render()}
+function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달에 저장하지 않은 변경이 있습니다. 저장하거나 취소한 뒤 옮기세요.');renderChrome();return}pickDoc(id);{const [a,z]=perOf(id);const t=todayIso();if(a&&z&&(S.date<a||S.date>z))S.date=(t>=a&&t<=z)?t:a}S.msg=null;render()}
 
 /* ================= actions ================= */
 function act(t){
