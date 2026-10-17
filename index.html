@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261017-133155';
+window.OPS_BUILD = '20261017-133854';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1452,6 +1452,24 @@ html.hdr-compact .ng{background:var(--surface)}
 .wk-note{font-size:12px;margin:0}
 @media (max-width:760px){.wk{padding:12px 16px}.wk-res{grid-template-columns:1fr}}
 
+/* --- 디비턴 자동 분류 --- */
+.tn-rule{font-size:12.5px;font-weight:700;color:var(--ink2);margin-right:auto}
+.tn-cols{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.tn-col{border:1px solid var(--line);border-radius:12px;background:var(--sunk);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.tn-col.drop-ok{box-shadow:inset 0 0 0 2px var(--ink);background:var(--surface)}
+.tn-h{display:flex;flex-direction:column;gap:1px;padding-bottom:6px;border-bottom:2px solid var(--tc,var(--line-strong))}
+.tn-h b{font-size:13.5px;font-weight:800}
+.tn-h small{font-size:11.5px;color:var(--muted)}
+.t-내사{--tc:#e11d48}.t-대표{--tc:#7c3aed}.t-공식{--tc:#2563eb}.t-올턴제한{--tc:#9ca3af}.t-제외{--tc:var(--line-strong)}
+.tn-l{display:flex;flex-direction:column;gap:5px}
+.tn-p{display:flex;justify-content:space-between;align-items:baseline;gap:6px;background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;padding:5px 9px;cursor:grab;user-select:none;touch-action:none;font-size:13px}
+.tn-p:hover{border-color:var(--ink)}
+.tn-p small{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tn-p.moved{border-style:dashed;border-color:var(--ink)}
+.tn-note{font-size:12px;margin:0}
+@media (max-width:1000px){.tn-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.tn-cols{grid-template-columns:1fr}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1844,9 +1862,39 @@ const addBlockBar=(tab,sec)=>S.edit?`<div class="addblock"><span>이 화면에 �
 const flow=(bs,cls='')=>bs.length?`<div class="flow ${cls}">${bs.map(b=>blockHtml(b)).join('')}</div>`:'';
 const editHint=()=>S.edit?`<div class="hint">${I('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>')}<span><b>편집 모드</b> · 색칠된 칸을 눌러 고치고, ${GRIP} 손잡이를 끌어 행·항목·카드 순서를 바꿉니다. 같은 모양의 다른 표로 행을 옮길 수도 있습니다. 실수하면 Ctrl+Z.</span></div>`:'';
 const comBar=()=>!S.edit?'':`<div class="combar">${I('<path d="M4 7l8-4 8 4-8 4z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/>')}<span>이 화면은 <b>고정 내용</b>입니다. 고치면 모든 달에 같이 바뀌고, 저장할 때 <b>수정 날짜</b>를 고릅니다.</span></div>`;
+/* ---------- 디비턴 자동 분류: 매출표 붙여넣기 → 담당멘토 · 실매출액으로 턴 나누기 ---------- */
+const TN_TIERS=[['내사',18000000,'내사턴까지 포함','1,800만 이상'],['대표',13000000,'대표턴 포함','1,300만~1,799만'],['공식',10000000,'공식턴','1,000만~1,299만'],['올턴제한',10000000,'올턴 제한','999만 이하']];
+function tnTierOf(a){return a>=18e6?'내사':a>=13e6?'대표':a>=10e6?'공식':'올턴제한'}
+function parseSales(text){
+  const out=[];const seen=new Set();
+  String(text||'').split(/\r?\n/).forEach(raw=>{let c=raw.includes('\t')?raw.split('\t'):raw.trim().split(/\s+/);c=c.map(x=>x.trim());
+    if(c.length<3)return;const ni=c.findIndex(x=>/[가-힣]/.test(x));if(ni<0||/담당|이름|NO/i.test(c[ni])||/[()]/.test(c[ni]))return;
+    if(!/^[가-힣]{2,5}\d*$/.test(c[ni]))return;let last='';for(let i=c.length-1;i>ni;i--){if(c[i]!==''){last=c[i];break}}
+    if(!/^-?[\d,]+$/.test(last))return;const amt=Number(last.replace(/,/g,''));const nm=c[ni];if(seen.has(nm))return;seen.add(nm);out.push({name:nm,amt})});
+  return out;
+}
+function tnCard(){
+  if(!CAN())return '';S.tn=S.tn||{};const R=S.tn.rows;
+  const tierOf=r=>S.tn.over?.[r.name]||(r.amt>0?tnTierOf(r.amt):'제외');
+  let res='';
+  if(R){const cols=[...TN_TIERS.map(t=>t[0]),'제외'];
+    res=`<div class="tn-cols">${cols.map(t=>{const L=R.filter(r=>tierOf(r)===t).sort((a,b)=>b.amt-a.amt);const T=TN_TIERS.find(x=>x[0]===t);
+      return `<div class="tn-col t-${t}" data-drop="tnt|${t}"><div class="tn-h"><b>${t==='제외'?'제외 (매출 0 이하)':T[2]}</b><small>${T?T[3]:'끌어 넣으면 포함'} · ${L.length}명</small></div>
+        <div class="tn-l">${L.map(r=>`<span class="tn-p${S.tn.over?.[r.name]?' moved':''}" data-drag="tnp|${esc(r.name)}"><b>${esc(r.name)}</b><small>${(r.amt/1e4).toLocaleString('ko-KR',{maximumFractionDigits:0})}만</small></span>`).join('')||'<span class="muted">없음</span>'}</div></div>`}).join('')}</div>
+      <p class="muted tn-note">${R.length}명을 읽었습니다. 이름을 끌어 다른 칸에 놓으면 그 턴으로 옮겨집니다(옮긴 사람은 점선 표시). ‘디비턴 현황에 넣기’를 누르면 아래 표가 이 내용으로 바뀝니다.</p>`}
+  return card('tnauto','디비턴 자동 분류','매출표를 엑셀에서 드래그해 복사한 뒤 그대로 붙여넣으세요. 담당자와 실매출액(맨 끝 칸)만 읽어 턴을 나눕니다.',
+    `<div class="wk"><div class="wk-top"><span class="tn-rule">1,800만↑ 내사 · 1,300만↑ 대표 · 1,000만↑ 공식 · 그 아래 올턴 제한</span><button type="button" class="btn sm" data-tnparse="1">분류하기</button>${R?`<button type="button" class="btn sm primary" data-tnapply="1">디비턴 현황에 넣기</button><button type="button" class="btn sm ghost" data-tnclear="1">지우기</button>`:''}</div>
+     <textarea id="tnText" class="in" rows="${R?3:6}" placeholder="NO  담당자  경력전환일  수납액 …  실매출액 표를 붙여넣으세요">${esc(S.tn.text||'')}</textarea>${res}</div>`);
+}
+function tnApply(){
+  const R=S.tn?.rows;if(!R)return;const b=blk('turns');if(!b){toast('디비턴 현황 표가 없습니다');return}
+  const tierOf=r=>S.tn.over?.[r.name]||(r.amt>0?tnTierOf(r.amt):'제외');const old={};b.rows.forEach(r=>old[String(r[0]).replace(/\d+$/,'')]=r[2]||'');
+  const rows=[];TN_TIERS.forEach(([t,th])=>{R.filter(r=>tierOf(r)===t).sort((a,b)=>b.amt-a.amt).forEach((r,i)=>rows.push([r.name,String(r.amt),'',i===0?String(th):'',i===0?t:'']))});
+  S.edit=true;mutate(()=>{b.rows=rows},`디비턴 현황을 ${rows.length}명으로 바꿨습니다 · 저장을 눌러 확정`);
+}
 function secPage(tab){
   const sec=curSub(tab);const counts={};PAGES[tab].subs.forEach(([k])=>counts[k]=blocksOf(tab,k).length);
-  return pageHead(tab,'','',counts)+comBar()+editHint()+(flow(blocksOf(tab,sec))||(S.edit?'':'<div class="empty-state">이 주제에 카드가 없습니다. 편집을 켜고 새 카드를 추가할 수 있습니다.</div>'))+addBlockBar(tab,sec);
+  return pageHead(tab,'','',counts)+comBar()+editHint()+(tab==='sales'&&sec==='turns'?tnCard():'')+(flow(blocksOf(tab,sec))||(S.edit?'':'<div class="empty-state">이 주제에 카드가 없습니다. 편집을 켜고 새 카드를 추가할 수 있습니다.</div>'))+addBlockBar(tab,sec);
 }
 
 /* ================= today ================= */
@@ -2495,6 +2543,9 @@ function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달
 /* ================= actions ================= */
 function act(t){
   const d=t.dataset;
+  if(d.tnparse){S.tn=S.tn||{};S.tn.text=$('#tnText').value;const R=parseSales(S.tn.text);S.tn.rows=R.length?R:null;S.tn.over={};S.keepScroll=true;render();if(!R.length)toast('담당자와 실매출액을 찾지 못했습니다');return true}
+  if(d.tnapply){tnApply();return true}
+  if(d.tnclear){S.tn={};S.keepScroll=true;render();return true}
   if(d.wkparse){S.wk=S.wk||{};S.wk.text=$('#wkText').value;S.wk.res=parseWkend(S.wk.text);S.keepScroll=true;render();if(!S.wk.res.n)toast('‘토 - 지원’ 같은 줄을 찾지 못했습니다');return true}
   if(d.wkapply){const r=S.wk?.res;if(!r)return true;const sat=S.wk.sat,sun=addDays(sat,1);S.edit=true;
     mutate(()=>{[[sat,r.sat],[sun,r.sun]].forEach(([x,l])=>{if(!l.length)return;const v=S.doc.cal.duty[x];if(!v||groupOf(v)==null)S.doc.cal.duty[x]=v&&/지원/.test(v)?v:'지원';S.doc.cal.dutyMembers[x]=l.slice()})},`토 ${r.sat.length}명 · 일 ${r.sun.length}명 넣었습니다 · 저장을 눌러 확정`);return true}
@@ -2637,6 +2688,7 @@ function canDrop(src,dst){
   if(dt==='rgrp'&&(st==='rpool'||st==='rmem'))return CAN()&&src[1]===dst[1]&&+src[2]===+dst[2]&&!(st==='rmem'&&src[3]===dst[3]);
   if(dt==='rgrp'&&st==='team')return CAN()&&src[1]===dst[1]&&+src[2]===+dst[2];
   if(dt==='tmz')return false;
+  if(dt==='tnt')return st==='tnp';
   if(dt==='rpoolz')return st==='rmem'&&CAN()&&src[1]===dst[1]&&+src[2]===+dst[2];
   if(dt==='rgrp'&&st==='rgsw')return src[1]===dst[1]&&src[2]===dst[2]&&src[3]!==dst[3];
   if(dt==='rgrp')return S.edit&&['per','dmem','rmem'].includes(st)&&(st==='per'||src[1]===dst[1]);
@@ -2663,6 +2715,7 @@ function doDrop(src,dst,pos){
   if(dt==='rgrp'&&(st==='rpool'||st==='rmem')){const [,k,i,g]=dst;const n=st==='rpool'?src[3]:src[4];let from=null;S.edit=true;
     mutate(()=>{const gr=S.doc.rosters[k][+i].groups;GROUPS.forEach(x=>{if((gr[x]||[]).includes(n)){from=x;gr[x]=gr[x].filter(y=>y!==n)}});gr[g]=gr[g]||[];gr[g].push(n)});toast(from?`${n}: ${from}조 → ${g}조`:`${g}조에 ${n} 넣음`);return}
   if(dt==='rgrp'&&st==='team'){teamTo(dst[1],+dst[2],+src[3],dst[3]);return}
+  if(dt==='tnt'){const n=src.slice(1).join('|'),t=dst[1];const r=S.tn.rows.find(x=>x.name===n);S.tn.over=S.tn.over||{};const auto=r&&r.amt>0?tnTierOf(r.amt):'제외';if(t===auto)delete S.tn.over[n];else S.tn.over[n]=t;S.keepScroll=true;render();toast(`${n} → ${t==='제외'?'제외':TN_TIERS.find(x=>x[0]===t)[2]}`);return}
   if(dt==='rpoolz'){const [,k,i,g,n]=src;S.edit=true;mutate(()=>{const gr=S.doc.rosters[k][+i].groups;gr[g]=(gr[g]||[]).filter(y=>y!==n)},`${g}조에서 ${n} 뺌`);return}
   if(dt==='rgrp'&&st==='rgsw'){swapGroups(dst[1],+dst[2],src[3],dst[3]);return}
   if(dt==='rgrp'){const [,k,i,g]=dst;const n=st==='per'?src[1]:st==='dmem'?src[3]:src[4];
