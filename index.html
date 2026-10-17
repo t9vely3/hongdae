@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>홍대지점 운영표</title>
+<title>홍대지점 운영계획표</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
 <script>
 /* ============================================================
@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261017-142523';
+window.OPS_BUILD = '20261017-145609';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1620,6 +1620,7 @@ td.act .btn+.btn{margin-left:6px}
 .updbar .ub-t b{color:var(--ink)}
 .updbar .ub-x{border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;cursor:pointer;padding:6px 4px}
 @media (max-width:600px){.updbar{top:auto;bottom:16px;font-size:12.5px}.updbar .ub-t{flex:1}}
+@media (max-width:960px){.top .logo .lt b{font-size:14.5px}.top .logo small{display:none}.mechip .lo span{display:none}.mechip .nm{max-width:90px;overflow:hidden;text-overflow:ellipsis}}
 
 .top .dchip{display:none!important}
 </style>
@@ -1628,7 +1629,7 @@ td.act .btn+.btn{margin-left:6px}
 
 <header class="top">
  <div class="top1"><div class="wrap t1">
-  <button type="button" class="logo" data-tab="today"><span class="mk">AIX</span><span class="lt"><b>홍대지점 운영</b><small>SBS아카데미 AIX학원</small></span></button>
+  <button type="button" class="logo" data-tab="today"><span class="mk">AIX</span><span class="lt"><b>홍대지점 운영계획표</b><small>SBS아카데미 AIX학원</small></span></button>
   <div class="hdr-r">
     <div class="mpill" id="msw"><button type="button" class="ib" id="mPrev" aria-label="이전 달"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><select hidden id="monthSel" aria-label="월 선택"></select><button type="button" class="mbtn" id="mBtn" aria-haspopup="listbox" aria-expanded="false"><span id="mBtnT"></span><svg class="i" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button><div class="mmenu" id="mMenu" role="listbox" hidden></div><button type="button" class="ib" id="mNext" aria-label="다음 달"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><button type="button" class="ib ren" id="renBtn" title="영업월 이름·기간 바꾸기" aria-label="영업월 이름 바꾸기" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button></div>
     <span class="dchip" id="todayChip"></span>
@@ -1659,6 +1660,7 @@ const ICON={
   assign:'<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>',
   edu:'<path d="M21.42 10.92a1 1 0 0 0-.02-1.84l-8.57-3.9a2 2 0 0 0-1.66 0l-8.57 3.9a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
   ops:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  dbturn:'<path d="M3 6h18M3 12h18M3 18h18"/><path d="M7 4v4M12 10v4M17 16v4"/>',
   sales:'<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
   tuition:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/><path d="M6 15h4"/>',
   rules:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 13h6M9 17h4"/>',
@@ -1687,14 +1689,15 @@ const PAGES={
   assign:{label:'배정표',g:'m',subs:[['cal','달력'],['order','배정 순번표'],['count','횟수 집계'],['rule','배정조 숙지사항']],desc:'평일 배정조를 ‘랜덤 배치’로 채우고, 바꿀 날만 눌러 고칩니다.'},
   edu:{label:'교육 일정',g:'m',desc:'날짜를 누르면 그날 교육을 보고 고칠 수 있습니다.'},
   ops:{label:'운영부 근무',g:'m',subs:[['cal','근무 달력'],['info','역할·근무 순서']],desc:'운영부 출근 시간대와 휴무를 날짜별로 관리합니다.'},
-  sales:{label:'영업 현황',g:'m',subs:[['turns','디비턴 현황'],['acp','ACP·리뷰'],['assign','디비 배정표'],['log','조정·재배정 기록']],desc:'디비턴 기준 매출 대비 차액과 ACP·리뷰 달성 여부는 자동으로 계산됩니다.'},
+  sales:{label:'영업 현황',g:'m',subs:[['acp','ACP·리뷰'],['log','조정·재배정 기록']],desc:'디비턴 기준 매출 대비 차액과 ACP·리뷰 달성 여부는 자동으로 계산됩니다.'},
+  dbturn:{label:'디비턴',g:'m',subs:[['turns','디비턴 현황'],['assign','디비 배정표']],desc:'매출표를 붙여넣으면 턴을 나누고, 디비 배정표를 자동으로 만듭니다.'},
   rules:{label:'DB 규정',g:'c',subs:[['turn','디비턴·배정'],['rights','권한 기간·규정'],['visit','방문·더블 처리'],['reassign','재배정'],['penalty','패널티·메모'],['duty','당직·배정조 운영'],['group','계열사 지침']],desc:'주제별로 나눴습니다. 검색하면 모든 주제에서 찾아 줍니다.'},
   tuition:{label:'수강료',g:'c',subs:[['weekday','평일'],['weekend','주말'],['vacation','방학특강']],desc:'청소년가는 총 수업시간(분) × 163원에서 천 원 아래를 버린 금액입니다.'},
   org:{label:'조직도',g:'c',subs:[['dept','사업부'],['staff','운영부·강사진'],['seat','자리배치도']],desc:''},
   members:{label:'회원 관리',g:'x',desc:'가입 신청을 승인하고, 사람마다 열람·편집 권한을 정합니다.'},
   lead:{label:'업무분장',g:'c',subs:[['fixed','공통·고정 업무'],['rotate','분기 업무'],['order','순번']],desc:''}
 };
-const NAV=[['m','운영계획',['today','duty','assign','edu','ops','sales']],['c','내용',['rules','tuition','org','lead']]];
+const NAV=[['m','운영계획',['today','duty','assign','edu','ops','sales','dbturn']],['c','내용',['rules','tuition','org','lead']]];
 const COMMON_TABS=new Set(['rules','tuition','org','lead']);
 const SEC_DEFAULT={turnBase:'turn',turnWeekday:'turn',turnDuty:'turn',rights:'rights',rulesInter:'rights',rulesInner:'rights',dismissed:'rights',ndb:'rights',ambVisit:'visit',ambStudent:'visit',ambDouble:'visit',reassignRoom:'reassign',reassign:'reassign',penalty:'penalty',memoRule:'penalty',dutyRule:'duty',assignRule:'duty',groupRule:'group',signers:'group',heads:'dept',dept1:'dept',dept2:'dept',dept3:'dept',dept4:'dept',opsStaff:'staff',teachers:'staff',seats:'seat',leadFixed:'fixed',leadRotate:'rotate',leadRotation:'rotate',leadOrder:'order',turns:'turns',acp:'acp',dbAssign:'assign',dbAssignPrev:'assign',dbLog:'log',reLog:'log',assignOrder:'order',opsRoles:'info',opsOrder:'info',tuitionWeekday:'weekday',tuitionWeekend:'weekend',tuitionVacation:'vacation'};
 const TAB_FIX={assignOrder:'assign',opsRoles:'ops',opsOrder:'ops',dutyGroups:'legacy',assignGroups:'legacy'};
@@ -2026,8 +2029,8 @@ function assignTable(doc,title,live){
 function assignPage(){
   const cur=assignTable(S.doc,`${S.doc.label||''} 디비 배정표`,true);
   const pd=prevMonthDoc();const prev=pd?assignTable(pd,`${pd.label||'전월'} 디비 배정표`,false):null;
-  const legacyPrev=!prev?blocksOf('sales','assign').filter(b=>b.id==='dbAssignPrev').map(b=>blockHtml(b,{})).join(''):'';
-  const legacyCur=!cur?blocksOf('sales','assign').filter(b=>b.id==='dbAssign').map(b=>blockHtml(b,{})).join(''):'';
+  const legacyPrev=!prev?[...blocksOf('sales','assign'),...blocksOf('dbturn','assign')].filter(b=>b.id==='dbAssignPrev').map(b=>blockHtml(b,{})).join(''):'';
+  const legacyCur=!cur?[...blocksOf('sales','assign'),...blocksOf('dbturn','assign')].filter(b=>b.id==='dbAssign').map(b=>blockHtml(b,{})).join(''):'';
   const bar=`<div class="asg-bar"><span class="asg-k"><i></i>노란 칸 = 공식 제한(실매출 1,000만 미만)</span><span class="muted">디비턴 현황을 넣으면 자동으로 만들어집니다. 공식 순번은 고정, 대표는 그 순서에서 1,300만 이상만, 내사는 1,800만 이상을 매출 순으로 넣습니다.${CAN()?' 칸을 누르면 이름·색을 고치고, 칸을 끌면 순서가 바뀝니다.':''}</span></div>`;
   return bar+`<div class="asg-two">${cur||legacyCur||`<div class="empty-state">디비턴 현황을 먼저 넣으면 배정표가 자동으로 만들어집니다.</div>`}${prev||legacyPrev}</div>`;
 }
@@ -2040,10 +2043,10 @@ function tnApply(){
 }
 function secPage(tab){
   const sec=curSub(tab);const counts={};PAGES[tab].subs.forEach(([k])=>counts[k]=blocksOf(tab,k).length);
-  if(tab==='sales'){counts.turns=turnsOf().length;counts.assign=assignOf(S.doc).off.length||counts.assign}
-  const hideIds=tab==='sales'?(sec==='turns'?b=>b.kind==='turns':sec==='assign'?b=>b.id==='dbAssign'||b.id==='dbAssignPrev':()=>false):()=>false;
-  const extra=tab==='sales'&&sec==='turns'?tnCard()+turnsTable():tab==='sales'&&sec==='assign'?assignPage():'';
-  const rest=blocksOf(tab,sec).filter(b=>!hideIds(b));
+  if(tab==='dbturn'){counts.turns=turnsOf().length;counts.assign=assignOf(S.doc).off.length}
+  const hideIds=tab==='dbturn'?(sec==='turns'?b=>b.kind==='turns':sec==='assign'?b=>b.id==='dbAssign'||b.id==='dbAssignPrev':()=>false):()=>false;
+  const extra=tab==='dbturn'&&sec==='turns'?tnCard()+turnsTable():tab==='dbturn'&&sec==='assign'?assignPage():'';
+  const rest=(tab==='dbturn'?[...blocksOf('sales',sec),...blocksOf('dbturn',sec)]:blocksOf(tab,sec)).filter(b=>!hideIds(b));
   return pageHead(tab,'','',counts)+(isCommonTab(tab)?comBar():'')+editHint()+extra+(flow(rest)||(S.edit||extra?'':'<div class="empty-state">이 주제에 카드가 없습니다. 편집을 켜고 새 카드를 추가할 수 있습니다.</div>'))+addBlockBar(tab,sec);
 }
 
@@ -2358,7 +2361,7 @@ function authHtml(){
   if(A.mode==='nofb')return card('연결하지 못했습니다','<p>로그인 서버에 연결하지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.</p>');
   if(A.mode==='boot'||A.mode==='wait')return card('확인하는 중입니다','<p>잠시만 기다려 주세요.</p>');
   const tabs=`<div class="gate-tabs" role="tablist"><button type="button" role="tab" data-amode="login" aria-selected="${A.mode==='login'}">로그인</button><button type="button" role="tab" data-amode="signup" aria-selected="${A.mode==='signup'}">가입 신청</button></div>`;
-  if(A.mode==='login')return card('홍대지점 운영표',`<p>승인된 계정으로 로그인하세요. 처음이면 ‘가입 신청’을 눌러 주세요.</p>${tabs}
+  if(A.mode==='login')return card('홍대지점 운영계획표',`<p>승인된 계정으로 로그인하세요. 처음이면 ‘가입 신청’을 눌러 주세요.</p>${tabs}
     <form class="gate-f" id="loginForm"><label>이메일<input type="email" id="aEm" autocomplete="username" required></label><label>비밀번호<input type="password" id="aPw" autocomplete="current-password" required></label>
     <button type="submit" class="btn primary" ${A.busy?'disabled':''}>${A.busy?'확인 중…':'로그인'}</button>${err}</form>`);
   if(A.mode==='signup')return card('가입 신청',`<p>부서와 이름을 적어 신청하면, 관리자가 승인한 뒤부터 볼 수 있습니다.</p>${tabs}
@@ -2641,7 +2644,7 @@ function render(){
   if(S.tab==='members'){page.innerHTML=viewMembers().replace('%%TOP%%',top)+'</main>';return}
   if(!S.db){page.innerHTML=`<main class="wrap">${top}<div class="empty-state" style="margin-top:40px">저장소에 연결하지 못해 운영표를 열 수 없습니다. 로그인한 상태로 이 페이지를 다시 열어 주세요.</div></main>`;return}
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
-  const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
+  const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),dbturn:()=>secPage('dbturn'),tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
   const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
@@ -2649,7 +2652,7 @@ function render(){
 }
 function buildToc(){
   if(['today','duty','assign','edu','ops'].includes(S.tab))return;
-  if(S.tab==='sales'&&['turns','assign'].includes(curSub('sales')))return;
+  if(S.tab==='dbturn')return;
   const cards=[...document.querySelectorAll('#page main .card[id^="b-"]')].filter(c=>c.querySelector('h2'));
   if(cards.length<3)return;
   const nav=document.createElement('nav');nav.className='toc';nav.setAttribute('aria-label','이 화면 바로가기');
