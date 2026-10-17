@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261017-133854';
+window.OPS_BUILD = '20261017-134037';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1470,6 +1470,8 @@ html.hdr-compact .ng{background:var(--surface)}
 @media (max-width:1000px){.tn-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.tn-cols{grid-template-columns:1fr}}
 
+.chip.adj{font-size:11px;padding:1px 7px;border:1px dashed var(--ink);background:none;color:var(--ink);margin-left:4px}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1808,7 +1810,7 @@ function tableBlock(b,opt={}){
       else if(b.kind==='dept'&&j===0){inner=`<span class="chip acc">${esc(v)}</span>`}
       else if((b.kind==='dept'||b.kind==='teachers')&&j===1){inner=/부장|팀장|학과장|학부장|선임/.test(v)?`<b>${esc(v)}</b>`:esc(v)}
       else if(b.kind==='rights'&&j===0){cls+=' strong';inner=hi(v,q)}
-      else if(personCols.has(j))inner=person(v,q);
+      else if(personCols.has(j)){inner=person(v,q);if(b.kind==='turns'&&!E){const adj=[r[4],r[5]].find(x=>/^조정:/.test(String(x||'')));if(adj){const t=String(adj).slice(3);inner+=` <span class="chip adj">${esc(t==='올턴제한'?'올턴 제한':t+'턴')}으로 조정</span>`}}}
       else inner=hi(v,q);
       if(j===0&&grouping&&!cont)cls+=' grp';
       if((b.kind==='dept'||b.kind==='teachers'||b.id==='opsStaff')&&!E)cls+=' nw';
@@ -1889,7 +1891,10 @@ function tnCard(){
 function tnApply(){
   const R=S.tn?.rows;if(!R)return;const b=blk('turns');if(!b){toast('디비턴 현황 표가 없습니다');return}
   const tierOf=r=>S.tn.over?.[r.name]||(r.amt>0?tnTierOf(r.amt):'제외');const old={};b.rows.forEach(r=>old[String(r[0]).replace(/\d+$/,'')]=r[2]||'');
-  const rows=[];TN_TIERS.forEach(([t,th])=>{R.filter(r=>tierOf(r)===t).sort((a,b)=>b.amt-a.amt).forEach((r,i)=>rows.push([r.name,String(r.amt),'',i===0?String(th):'',i===0?t:'']))});
+  /* 실매출 높은 순으로 한 줄씩. 기준 금액을 처음 밑도는 줄에 구분을 붙이고, 기준과 다르게 옮긴 사람은 구분 칸에 ‘조정’으로 적음 */
+  const L=R.filter(r=>tierOf(r)!=='제외').sort((a,b)=>b.amt-a.amt);const rows=[];let last=null;
+  L.forEach(r=>{const auto=r.amt>0?tnTierOf(r.amt):'제외',t=tierOf(r);const start=auto!==last;if(start)last=auto;const T=TN_TIERS.find(x=>x[0]===auto);
+    rows.push([r.name,String(r.amt),'',start?String(T[1]):'',start?auto:(t!==auto?'조정:'+t:'')]);if(start&&t!==auto)rows[rows.length-1].push('조정:'+t)});
   S.edit=true;mutate(()=>{b.rows=rows},`디비턴 현황을 ${rows.length}명으로 바꿨습니다 · 저장을 눌러 확정`);
 }
 function secPage(tab){
