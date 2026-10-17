@@ -12,6 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
+window.OPS_BUILD = '20261017-132431';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1334,6 +1335,107 @@ body{background:var(--bg)!important}
 .rs-row.gpick{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 .rs-row.gpick .gdrag{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
 
+/* ===== 머리말 고정 · 내리면 작게 ===== */
+html{height:auto}body{height:auto;min-height:100vh}
+.top{position:sticky!important;top:0!important}
+.top .t1,.top .t2,.gnav button,.ng,.top .logo .mk,.top .logo b,.mbtn,.top .mpill,.top .switch,.membtn{transition:height .18s ease,padding .18s ease,font-size .18s ease,width .18s ease,min-height .18s ease}
+html.hdr-compact .top .t1{height:46px}
+html.hdr-compact .top .logo .mk{width:26px;height:26px;font-size:8px}
+html.hdr-compact .top .logo b{font-size:14.5px}
+html.hdr-compact .top .logo small{display:none}
+html.hdr-compact .top .mpill{height:34px}
+html.hdr-compact .mbtn{height:28px;font-size:13.5px}
+html.hdr-compact .top .ib{width:28px;height:28px}
+html.hdr-compact .top .switch,html.hdr-compact .membtn{padding-top:3px;padding-bottom:3px;font-size:12.5px}
+html.hdr-compact .t2{padding:4px 0}
+html.hdr-compact .ng{padding:2px;border-radius:13px}
+html.hdr-compact .gnav button{height:30px;font-size:13px;padding:0 10px;border-radius:10px}
+html.hdr-compact .gnav button svg.i{width:15px;height:15px}
+html.hdr-compact .nl{font-size:10px}
+html.hdr-compact .top{box-shadow:0 6px 24px rgba(0,0,0,.06)}
+@media (max-width:760px){html.hdr-compact .ng{height:36px}html.hdr-compact .top .t1{height:44px}}
+
+/* ===== 오른쪽 빠른 편집 도구 ===== */
+.dock{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:70;display:flex;flex-direction:column;gap:4px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 44px rgba(0,0,0,.12)}
+.dock[hidden]{display:none}
+.dk{position:relative;width:40px;height:40px;border:0;border-radius:11px;background:none;color:var(--ink2);display:grid;place-items:center;cursor:pointer;padding:0}
+.dk .i{width:19px;height:19px}
+.dk:hover:not([disabled]){background:var(--head);color:var(--ink)}
+.dk[disabled]{opacity:.3;cursor:default}
+.dk.on{background:var(--ink);color:var(--surface)}
+.dk.hot{color:var(--ink)}
+.dk-b{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 2px var(--surface)}
+.dk-l{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%) translateX(4px);white-space:nowrap;background:var(--ink);color:var(--surface);font-size:12.5px;font-weight:700;padding:6px 10px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .12s,transform .12s;display:flex;gap:8px;align-items:center}
+.dk-l kbd{font:inherit;font-size:11px;font-weight:600;opacity:.65}
+.dk:hover .dk-l,.dk:focus-visible .dk-l{opacity:1;transform:translateY(-50%)}
+.dk-sep{height:1px;background:var(--line);margin:3px 6px}
+@media (max-width:1400px){.dock{right:10px}}
+@media (max-width:760px){.dock{top:auto;bottom:84px;transform:none;right:10px;padding:4px;border-radius:14px}.dk{width:38px;height:38px}.dk-l{display:none}}
+
+.dk-more{display:none}
+html.hdr-compact .top2{background:color-mix(in srgb,var(--bg) 96%,transparent)}
+html.hdr-compact .ng{background:var(--surface)}
+@media (max-width:760px){
+  .dock{bottom:96px}
+  .dk-more{display:grid;background:var(--ink);color:var(--surface)}
+  .dk-more:hover:not([disabled]){background:var(--ink);color:var(--surface)}
+  .dock:not(.open){padding:0;border:0;background:none;box-shadow:none}
+  .dock:not(.open) .dk-more{width:48px;height:48px;border-radius:50%;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .dock:not(.open) .dk:not(.dk-more),.dock:not(.open) .dk-sep{display:none}
+}
+
+.wday.nox{opacity:.55}
+.wday.nox::after{content:"영업월 없음";display:block;font-size:11px;color:var(--faint);margin-top:4px}
+/* 화면 겹침 방지: 흐림 효과 끄고 단색으로 */
+.today-hero{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--surface)!important}
+.top .top1,.top2{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.top .top1{background:var(--surface)!important}
+.top2{background:var(--bg)!important}
+.hero h1::after{box-shadow:none!important}
+
+/* --- 조 설정: 이름 목록에서 끌어 넣기 --- */
+.rs-pool{padding:14px 24px;border-bottom:1px solid var(--line);background:var(--sunk);display:flex;flex-direction:column;gap:10px}
+.rs-pool.drop-ok{box-shadow:inset 0 0 0 2px var(--ink)}
+.rp-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.rp-h b{font-size:13.5px;font-weight:800}
+.rp-h .muted{font-size:12.5px;flex:1 1 260px}
+.rp-h .addp input{width:120px}
+.rp-l{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.rp-t{font-size:11.5px;font-weight:800;color:var(--muted);min-width:64px}
+.pp-c{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:650;cursor:grab;user-select:none;touch-action:none}
+.pp-c:hover{border-color:var(--ink)}
+.pp-c.used{color:var(--muted);background:transparent}
+.pp-c em{font-style:normal;font-size:10.5px;font-weight:800;color:#fff;background:var(--g);border-radius:5px;padding:0 5px;line-height:16px}
+.rs-n[data-drag]{cursor:grab;user-select:none;touch-action:none}
+@media (max-width:760px){.rs-pool{padding:12px 16px}}
+
+/* --- 멤버 묶음 --- */
+.rs-teams{padding:16px 24px;border-bottom:1px solid var(--line);background:var(--sunk);display:flex;flex-direction:column;gap:12px}
+.rs-teams .rp-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.rs-teams .rp-h b{font-size:14px;font-weight:800}
+.rs-teams .rp-h .muted{font-size:12.5px;flex:1 1 300px}
+.tm-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.tm-empty{font-size:13px;padding:6px 0}
+.tm{background:var(--surface);border:1px solid var(--line-strong);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.tm.in{border-color:var(--ink)}
+.tm-h{display:flex;align-items:center;gap:6px}
+.tm-grip{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;cursor:grab;color:var(--muted);background:var(--head);touch-action:none;user-select:none;flex:none}
+.tm-grip:hover{color:var(--ink)}
+.tm-grip .i{width:15px;height:15px}
+.tm-n{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:14px;font-weight:800;color:var(--ink);padding:4px 2px;border-bottom:1px dashed transparent}
+.tm-n:hover,.tm-n:focus{border-bottom-color:var(--line-strong);outline:0}
+.tm-tag{font-size:11.5px;padding:2px 8px;width:auto}
+.tm-m{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.tm-m .pchip{font-size:12.5px;padding:2px 4px 2px 10px}
+.tm-in{flex:1 1 110px;min-width:90px;border:1px dashed var(--line-strong);border-radius:999px;background:none;padding:4px 10px;font:inherit;font-size:12.5px}
+.tm-in:focus{outline:0;border-style:solid;border-color:var(--ink)}
+.tm-f{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line)}
+.tm-f .muted{font-size:11.5px;margin-right:4px}
+.tm-f .gb{padding:2px 9px;font-size:12px}
+.lnk.sm{font-size:11.5px;padding:0;color:var(--muted)}
+.ib.sm{width:26px;height:26px}
+@media (max-width:760px){.rs-teams{padding:12px 16px}.tm-list{grid-template-columns:1fr}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1401,6 +1503,14 @@ td.act .btn+.btn{margin-left:6px}
 .lsadd .in{flex:1;min-width:0;height:34px}
 @media (max-width:760px){.lsgrid{grid-template-columns:1fr}.lsbox+.lsbox{border-left:0}.lsbox{padding:16px}}
 
+.updbar{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:300;display:flex;align-items:center;gap:12px;background:var(--surface);color:var(--ink);border:1px solid var(--line-strong);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.16);padding:10px 12px 10px 16px;max-width:calc(100vw - 24px);font-size:13.5px}
+.updbar[hidden]{display:none}
+.updbar .ub-dot{width:8px;height:8px;border-radius:50%;background:#e5484d;flex:none;box-shadow:0 0 0 4px color-mix(in srgb,#e5484d 18%,transparent)}
+.updbar .ub-t{color:var(--ink2)}
+.updbar .ub-t b{color:var(--ink)}
+.updbar .ub-x{border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;cursor:pointer;padding:6px 4px}
+@media (max-width:600px){.updbar{top:auto;bottom:16px;font-size:12.5px}.updbar .ub-t{flex:1}}
+
 .top .dchip{display:none!important}
 </style>
 </head>
@@ -1427,6 +1537,7 @@ td.act .btn+.btn{margin-left:6px}
 </div>
 <div id="savebar" hidden><div class="in"><span class="dot"></span><span class="t" id="saveTxt">저장하지 않은 변경이 있습니다</span><button type="button" class="ib" id="undoBtn" title="되돌리기 (Ctrl+Z)" aria-label="되돌리기"><svg class="i" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button><button type="button" class="ib" id="redoBtn" title="다시 실행 (Ctrl+Y)" aria-label="다시 실행"><svg class="i" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/></svg></button><button type="button" class="btn sm" id="revertBtn">변경 취소</button><button type="button" class="btn sm primary" id="saveBtn">저장</button></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<nav id="dock" class="dock" aria-label="빠른 편집" hidden></nav>
 
 <script>
 (function(){
@@ -1563,7 +1674,7 @@ function normalizeCommon(c){c.blocks=c.blocks||[];c.blocks.forEach(b=>{if(b.sec=
 const versions=k=>S.doc.rosters[k].map((v,i)=>[v,i]).sort((a,b)=>(a[0].from||'')<(b[0].from||'')?-1:1);
 function rosterAt(k,date){let r=versions(k)[0][0];for(const [v] of versions(k))if(!v.from||v.from<=date)r=v;return r}
 function effMembers(k,date){const ov=S.doc.cal[GK[k].mem]?.[date];const g=groupOf(S.doc.cal[k]?.[date]);const base=g?(rosterAt(k,date).groups[g]||[]):[];return Array.isArray(ov)?{list:ov,override:true,base}:{list:base,override:false,base}}
-function allPeople(){const set=new Set();(S.com?.blocks||[]).filter(b=>b.kind==='dept').forEach(b=>b.rows.forEach(r=>r[2]&&set.add(r[2])));Object.keys(GK).forEach(k=>S.doc.rosters[k].forEach(v=>GROUPS.forEach(g=>(v.groups[g]||[]).forEach(n=>set.add(n)))));return [...set].sort((a,b)=>a.localeCompare(b,'ko'))}
+function allPeople(){const set=new Set();(S.com?.blocks||[]).filter(b=>b.kind==='dept').forEach(b=>b.rows.forEach(r=>r[2]&&set.add(r[2])));(S.doc.pool||[]).forEach(n=>set.add(n));Object.keys(GK).forEach(k=>S.doc.rosters[k].forEach(v=>GROUPS.forEach(g=>(v.groups[g]||[]).forEach(n=>set.add(n)))));return [...set].sort((a,b)=>a.localeCompare(b,'ko'))}
 const sameList=(a,b)=>a.length===b.length&&a.every((x,i)=>x===b[i]);
 function setOverride(k,date,list){const e=effMembers(k,date);const m=S.doc.cal[GK[k].mem];if(sameList(list,e.base))delete m[date];else m[date]=list}
 function setPath(path,val){const [id,rest]=path.split('::');let o=blk(id);const p=rest.split('.');for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val}
@@ -1584,6 +1695,7 @@ function renderChrome(){
   $('#undoBtn').disabled=!S.hist.length;$('#redoBtn').disabled=!S.fut.length;
   $('#newBtn').disabled=!S.db;$('#editBtn').disabled=!S.doc;$('#setBtn').disabled=!S.doc;
   $('#savebar').hidden=!S.dirty;
+  renderDock();
   {const t=new Date();const tc=$('#todayChip');if(tc)tc.innerHTML=`${I('<path d="M4 6h16v14H4z"/><path d="M4 10h16M9 3v4M15 3v4"/>')}오늘 ${t.getMonth()+1}월 ${t.getDate()}일 (${WD[t.getDay()]})`;
    const f=$('#sbFoot');if(f){const up=S.doc?.updatedAt?String(S.doc.updatedAt).replace('T',' ').slice(5,16).replace('-','/'):'';f.innerHTML=S.dirty?`<span class="st warn"><i></i>저장하지 않은 변경 있음</span><span>아래 저장 버튼을 눌러 주세요</span>`:`<span class="st"><i></i>모두 저장됨</span>${up?`<span>마지막 저장 ${esc(up)}</span>`:''}`}}
   $('#saveTxt').textContent=S.dirtyM&&S.dirtyC?`저장하지 않은 변경 · ${S.doc?.label||'운영계획'}, 내용`:S.dirtyC?'저장하지 않은 변경 · 내용 (저장할 때 수정 날짜 선택)':`저장하지 않은 변경 · ${S.doc?.label||'이번 달'}`;
@@ -1723,9 +1835,9 @@ function secPage(tab){
 
 /* ================= today ================= */
 function viewToday(){
-  const d=S.date,dt=parse(d),cal=S.doc.cal;
+  const d=S.date,dt=parse(d),cov=monthCover(d),cal=calAt(d)||{};const inDoc=cov===S.id;
   const none='<div class="val txt none">없음</div>';
-  const gstat=(k,title)=>{const v=cal[k]?.[d];const g=groupOf(v);const em=effMembers(k,d);const ppl=em.list;
+  const gstat=(k,title)=>{const v=cal[k]?.[d];const g=groupOf(v);const em=inDoc?effMembers(k,d):{list:[]};const ppl=em.list;
     return `<div class="stat ${g?'g-'+g:''}"><div class="lab"><span>오늘 ${title}</span>${ppl.length?`<span>${em.override?'인원 변경 · ':''}${ppl.length}명</span>`:''}</div>
     ${v?(g?`<div class="val">${esc(v)}</div>`:`<div class="val txt">${esc(v)}</div>`):none}
     ${ppl.length?`<div class="ppl">${ppl.map(n=>`<span>${esc(n)}</span>`).join('')}</div>`:''}<button type="button" class="btn xs ghost go" data-goto="${k}|${d}">${title}표 열기${icx('arrow')}</button></div>`};
@@ -1733,17 +1845,17 @@ function viewToday(){
   const eduStat=`<div class="stat" style="--g:var(--accent)"><div class="lab"><span>교육</span></div>${edu?eduItems(edu).map(e=>`<div class="evt">${e.cat?`<span class="chip acc">${esc(e.cat)}</span>`:''}<span class="t">${esc(e.t)}</span>${e.m?`<span class="m">${esc(e.m)}</span>`:''}</div>`).join(''):none}<button type="button" class="btn xs ghost go" data-goto="edu|${d}">교육 일정 열기${icx('arrow')}</button></div>`;
   const opsStat=`<div class="stat" style="--g:var(--faint)"><div class="lab"><span>운영부 근무</span></div>${ops?`<div class="shift">${opsLines(ops).map(([a,b])=>`<b>${esc(a)}</b><span>${esc(b)}</span>`).join('')}</div>`:none}<button type="button" class="btn xs ghost go" data-goto="ops|${d}">근무표 열기${icx('arrow')}</button></div>`;
   const sun=addDays(d,-dt.getDay());
-  const wk=[0,1,2,3,4,5,6].map(i=>{const x=addDays(sun,i);const du=cal.duty?.[x],as=cal.assign?.[x],me=cal.memo?.[x],ed=cal.edu?.[x],hol=!!me&&HOL.test(me);
+  const wk=[0,1,2,3,4,5,6].map(i=>{const x=addDays(sun,i);const cx=calAt(x),nox=!cx;const c2=cx||{};const du=c2.duty?.[x],as=c2.assign?.[x],me=c2.memo?.[x],ed=c2.edu?.[x],hol=!!me&&HOL.test(me);
     const bar=(v,lab)=>v?(groupOf(v)?`<span class="ev g-${groupOf(v)}">${lab} ${groupOf(v)}조</span>`:`<span class="ev plain">${esc(String(v).split('\n')[0])}</span>`):'';
-    return `<button type="button" class="wday${i===0||hol?' redday':i===6?' satday':''}${x===d?' sel':''}${x===todayIso()?' today':''}" data-date="${x}"><span class="wd-h"><span class="wd-w${i===0?' red':i===6?' blue':''}">${WD[i]}</span><span class="mc-n${i===0||hol?' red':i===6?' blue':''}">${parse(x).getDate()}</span></span>${me?`<span class="mc-memo${hol?' red':''}">${esc(me)}</span>`:''}${bar(du,'당직')}${bar(as,'배정')}${ed?`<span class="ev dot">교육 ${eduItems(ed).length}건</span>`:''}</button>`}).join('');
+    return `<button type="button" class="wday${nox?' nox':''}${i===0||hol?' redday':i===6?' satday':''}${x===d?' sel':''}${x===todayIso()?' today':''}" data-date="${x}"><span class="wd-h"><span class="wd-w${i===0?' red':i===6?' blue':''}">${WD[i]}</span><span class="mc-n${i===0||hol?' red':i===6?' blue':''}">${parse(x).getDate()}</span></span>${me?`<span class="mc-memo${hol?' red':''}">${esc(me)}</span>`:''}${bar(du,'당직')}${bar(as,'배정')}${ed?`<span class="ev dot">교육 ${eduItems(ed).length}건</span>`:''}</button>`}).join('');
   const [a,z]=periodDays();
   const quick=[['rules','DB 규정','디비턴 · 권한 · 재배정'],['tuition','수강료','과정별 수강료 조회'],['org','조직도','부서 · 강사진 · 자리'],['lead','업무분장','담당 업무 · 순번']];
-  const nm=((typeof A!=='undefined'&&A.prof&&A.prof.name)||S.myName||'').trim();
+  const nm=((typeof A!=='undefined'&&A.prof&&A.prof.name)||S.myName||'').trim();const rk=((typeof A!=='undefined'&&A.prof&&A.prof.rank)||'').trim();
   const hr=new Date().getHours(),hi=hr<11?'좋은 아침입니다':hr<18?'안녕하세요':'오늘도 수고 많으셨습니다';
   const mids=Object.keys(S.months).sort();
-  const greet=`<div class="greet"><div class="gr-t"><h2>${nm?`<b>${esc(nm)}</b> 멘토님, `:''}${hi}</h2><p>오늘은 ${dt.getFullYear()}년 ${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일입니다. 볼 달을 고르세요.</p></div>
+  const greet=`<div class="greet"><div class="gr-t"><h2>${nm?`<b>${esc(nm)}</b> ${esc(rk||'멘토')}님, `:''}${hi}</h2><p>오늘은 ${dt.getFullYear()}년 ${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일입니다. 볼 달을 고르세요.</p></div>
     <div class="gr-m" role="listbox" aria-label="영업월 선택">${mids.map(id=>{const mm=S.months[id],pp=mm.period||{};return `<button type="button" role="option" data-month="${id}" aria-selected="${id===S.id}"><b>${esc(mm.label||id)}</b>${pp.start?`<small>${md(pp.start)} ~ ${md(pp.end)}</small>`:''}</button>`}).join('')}</div></div>`;
-  return `<section class="hero"><div class="wrap hero-in">${greet}<div class="hero-row"><div><span class="kicker">${I(ICON.today)}${esc(S.doc.label||'')} · 오늘 현황</span><h1>${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일</h1>${(d<a||d>z)?'<p>이 달 영업기간 밖의 날짜입니다.</p>':cal.memo?.[d]?`<p>${esc(cal.memo[d])}</p>`:''}</div>
+  return `<section class="hero"><div class="wrap hero-in">${greet}<div class="hero-row"><div><span class="kicker">${I(ICON.today)}${d===todayIso()?'오늘 기준':'고른 날짜'} · ${esc(cov?(S.months[cov]?.label||S.doc.label||''):'영업월 없음')}</span><h1>${dt.getMonth()+1}월 ${dt.getDate()}일 ${WD[dt.getDay()]}요일</h1>${!cov?'<p>이 날짜가 들어간 영업월이 아직 없습니다. 오른쪽 위 ⋯ 메뉴의 ‘새 달 만들기’로 만들 수 있습니다.</p>':cal.memo?.[d]?`<p>${esc(cal.memo[d])}</p>`:''}</div>
     <div class="hero-act daynav"><button type="button" class="btn sm" data-step="-1">${icx('left')}전날</button><input type="date" id="datePick" value="${d}" aria-label="날짜 선택"><button type="button" class="btn sm" data-step="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-date="${todayIso()}">오늘</button>`:''}</div></div>
     <div class="today-hero">${gstat('duty','당직')}${gstat('assign','배정')}${eduStat}${opsStat}</div></div></section><main class="wrap">%%TOP%%
   ${card('week','이번 주','날짜를 누르면 그날 현황을 봅니다.',`<div class="week">${wk}</div>`)}
@@ -1904,6 +2016,8 @@ function randHtml(){
     <p class="dlg-s">결과가 마음에 들지 않으면 다시 누르면 새로 섞입니다. 저장을 누르기 전까지는 확정되지 않습니다.</p>
     <div class="dlg-b"><button type="button" class="btn" data-randx="1">취소</button><button type="button" class="btn" data-randgo="${k}|empty">빈 날만 채우기</button><button type="button" class="btn primary" data-randgo="${k}|all">${SHUF}전체 새로 섞기</button></div></div></div>`;
 }
+function teamsOf(k){S.doc.teams=S.doc.teams||{};S.doc.teams[k]=S.doc.teams[k]||[];return S.doc.teams[k]}
+function teamTo(k,i,ti,g){const t=teamsOf(k)[ti];if(!t)return;const nm=t.name||`묶음 ${ti+1}`;S.edit=true;mutate(()=>{const gr=S.doc.rosters[k][i].groups;GROUPS.forEach(x=>{if(x!==g)gr[x]=(gr[x]||[]).filter(n=>!t.members.includes(n))});gr[g]=t.members.slice()},`${nm} → ${g}조`)}
 function swapGroups(k,i,g1,g2){S.gswap=null;S.edit=true;mutate(()=>{const gr=S.doc.rosters[k][i].groups;const t=gr[g1]||[];gr[g1]=gr[g2]||[];gr[g2]=t},`${g1}조 ↔ ${g2}조 조원을 바꿨습니다`)}
 function rosterSetup(k){
   const cfg=GK[k],sel=selDate(k),vs=versions(k);
@@ -1917,13 +2031,21 @@ function rosterSetup(k){
     ${S.edit?`<span class="sp"></span><span class="addp"><input type="date" id="rvDate" value="${sel}" aria-label="새 편성 시작일"><button type="button" class="btn sm" data-rvnew="${k}">이 날부터 조원 바꾸기</button></span>${vs.length>1?`<button type="button" class="btn sm danger" data-rvdel="${k}|${vi}">이 편성 삭제</button>`:''}`:''}</div>`:'';
   const rows=GROUPS.map(g=>{const L=cur.groups[g]||[];
     const mem=S.edit?L.map(n=>`<span class="pchip" data-drag="rmem|${k}|${vi}|${g}|${esc(n)}">${esc(n)}<button type="button" class="px" aria-label="${esc(n)} 빼기" data-grem="${k}|${vi}|${g}|${esc(n)}">${icx('x')}</button></span>`).join('')+`<span class="addp"><input type="text" id="gadd-${g}" list="peopleList" placeholder="이름"><button type="button" class="btn sm" data-gadd="${k}|${vi}|${g}">추가</button></span>`
-      :(L.length?L.map(n=>`<span class="rs-n">${esc(n)}</span>`).join(''):'<span class="muted">조원이 없습니다</span>');
+      :(L.length?L.map(n=>CAN()?`<span class="rs-n" data-drag="rmem|${k}|${vi}|${g}|${esc(n)}">${esc(n)}</span>`:`<span class="rs-n">${esc(n)}</span>`).join(''):'<span class="muted">조원이 없습니다</span>');
     const swp=S.gswap&&S.gswap.k===k&&S.gswap.vi===vi;const pick=swp&&S.gswap.g===g;
-    return `<div class="rs-row${pick?' gpick':''}"><div class="rs-g"${CAN()?` data-drop="rgrp|${k}|${vi}|${g}"`:''}>${CAN()?`<button type="button" class="ev g-${g} gdrag" data-drag="rgsw|${k}|${vi}|${g}" data-gsw="${k}|${vi}|${g}" title="끌어서 다른 조에 놓으면 조원이 통째로 바뀝니다">${icx('grip')}${g}조</button>`:`<span class="ev g-${g}">${g}조</span>`}<small>${L.length}명 · 이번 달 ${cnt[g]}회</small></div><div class="rs-m"${S.edit||CAN()?` data-drop="rgrp|${k}|${vi}|${g}"`:''}>${mem}</div></div>`}).join('');
+    return `<div class="rs-row${pick?' gpick':''}"><div class="rs-g"${CAN()?` data-drop="rgrp|${k}|${vi}|${g}"`:''}>${CAN()?`<button type="button" class="ev g-${g} gdrag" data-drag="rgsw|${k}|${vi}|${g}" data-gsw="${k}|${vi}|${g}" title="끌어서 다른 조에 놓으면 조원이 통째로 바뀝니다">${icx('grip')}${g}조</button>`:`<span class="ev g-${g}">${g}조</span>`}<small>${L.length}명 · 이번 달 ${cnt[g]}회${CAN()&&L.length?` · <button type="button" class="lnk sm" data-gempty="${k}|${vi}|${g}">비우기</button>`:''}</small></div><div class="rs-m"${S.edit||CAN()?` data-drop="rgrp|${k}|${vi}|${g}"`:''}>${mem}</div></div>`}).join('');
   const right=S.edit||!CAN()?'':`<button type="button" class="btn sm" data-editon="1">조원 바꾸기</button>`;
   const swHint=CAN()?(S.gswap&&S.gswap.k===k?` 지금 ${S.gswap.g}조를 골랐습니다. 바꿀 조의 이름표를 누르세요. (취소는 Esc)`:' 조 이름표(A조 등)를 끌어 다른 조에 놓거나, 두 조를 차례로 누르면 조원이 통째로 바뀝니다.'):'';
   const note=(S.edit?`조원을 넣고 빼면 ${per(cur)} 편성의 모든 날짜에 바로 반영됩니다. 이름을 끌어 다른 조로 옮길 수도 있습니다. 중간에 조원이 바뀌면 ‘이 날부터 조원 바꾸기’를 쓰세요.`:`달력에 들어가는 ${cfg.label}조 구성입니다.`)+swHint;
-  return card('rset',`${cfg.label}조 설정`,note,`<div class="rs">${tabs}${rows}</div>`,{right});
+  let pool='';
+  if(CAN()){const TM=teamsOf(k);const same=(x,y)=>x.length===y.length&&x.every(n=>y.includes(n));
+    const card1=(t,ti)=>{const inG=GROUPS.find(g=>(cur.groups[g]||[]).length&&same(cur.groups[g],t.members));
+      return `<div class="tm${inG?' in':''}" data-drop="tmz|${k}|${ti}"><div class="tm-h"><span class="tm-grip" data-drag="team|${k}|${vi}|${ti}" title="끌어서 조에 놓기">${icx('grip')}</span><input class="tm-n" data-tmname="${k}|${ti}" value="${esc(t.name||'')}" placeholder="묶음 ${ti+1}" maxlength="16">${inG?`<span class="ev g-${inG} tm-tag">${inG}조</span>`:''}<button type="button" class="ib sm" data-tmdel="${k}|${ti}" title="묶음 삭제">${icx('x')}</button></div>
+        <div class="tm-m">${t.members.map((n,ni)=>`<span class="pchip">${esc(n)}<button type="button" class="px" data-tmrem="${k}|${ti}|${ni}" aria-label="${esc(n)} 빼기">${icx('x')}</button></span>`).join('')}<input type="text" class="tm-in" id="tmIn-${k}-${ti}" list="peopleList" placeholder="이름 적고 Enter"></div>
+        <div class="tm-f"><span class="muted">조에 넣기</span>${GROUPS.map(g=>`<button type="button" class="gb g-${g} sm${inG===g?' on':''}" data-tmto="${k}|${vi}|${ti}|${g}">${g}</button>`).join('')}</div></div>`};
+    pool=`<div class="rs-teams"><div class="rp-h"><b>멤버 묶음</b><span class="muted">조와 상관없이 이름끼리 먼저 묶어 두세요. 묶음을 끌어 아래 조에 놓거나 A~E를 누르면 그 조의 멤버가 묶음으로 바뀝니다.</span><button type="button" class="btn sm" data-tmnew="${k}">${icx('plus')}새 묶음</button>${GROUPS.some(g=>(cur.groups[g]||[]).length)?`<button type="button" class="btn sm ghost" data-gclear="${k}|${vi}">조 멤버 모두 비우기</button>`:''}</div>
+      <div class="tm-list">${TM.map(card1).join('')||'<div class="muted tm-empty">아직 묶음이 없습니다. ‘새 묶음’을 눌러 이름을 적어 주세요.</div>'}</div></div>`}
+  return card('rset',`${cfg.label}조 설정`,note,`<div class="rs">${tabs}${pool}${rows}</div>`,{right});
 }
 
 /* ================= 내용(고정) 수정 날짜 ================= */
@@ -2118,7 +2240,7 @@ function startData(){
   if(A.started)return;A.started=true;
   const db=fsAdapter(A.fdb);S.db=db;
   let gotM=false,gotC=false,booted=false;
-  const boot=()=>{if(booted||!gotM||!gotC)return;booted=true;const want=ls.get('month');const ids=Object.keys(S.months).sort();pickDoc(S.months[want]?want:(ids[ids.length-1]||null));render()};
+  const boot=()=>{if(booted||!gotM||!gotC)return;booted=true;const want=ls.get('month');pickDoc(bootMonth(want));render()};
   setTimeout(()=>{if(!gotC){gotC=true;boot()}},4000);
   db.collection('common').onSnapshot(snap=>{
     const d=snap.docs.find(x=>x.id==='main'&&x.exists);const next=d?d.data():null;const prev=S.common;S.common=next;gotC=true;
@@ -2142,6 +2264,28 @@ function emptyHtml(){
     <div class="imp" style="padding:0"><label class="btn">파일 고르기<input type="file" id="impFile" accept=".json,application/json" hidden></label><span class="muted">${A.impFile?esc(A.impFile.name):'고른 파일 없음'}</span><button type="button" class="btn primary" id="impGo" ${A.impFile?'':'disabled'}>가져오기</button></div>
     <p style="margin:18px 0 0;font-size:13px">자료 없이 새로 시작하려면 오른쪽 위 ⋯ 메뉴의 ‘새 달 만들기’를 누르세요.</p></div>`;
 }
+
+/* ---------- 새 버전 알림 · 업데이트(강제 새로고침) ---------- */
+const UPD={ver:null,t:null};
+async function checkUpdate(){
+  if(!/^https?:/.test(location.protocol)||!window.OPS_BUILD||window.OPS_BUILD.indexOf('__'+'BUILD')>=0)return;
+  try{const r=await fetch(location.pathname+'?_v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const t=await r.text();
+    const m=t.match(/window\.OPS_BUILD = '([^']+)'/);if(m&&m[1]!==window.OPS_BUILD&&m[1]>window.OPS_BUILD){UPD.ver=m[1];showUpd()}}catch(e){}
+}
+function showUpd(){
+  let el=document.getElementById('updBar');
+  if(!el){el=document.createElement('div');el.id='updBar';el.className='updbar';document.body.appendChild(el)}
+  el.innerHTML=`<span class="ub-dot"></span><span class="ub-t"><b>새 버전이 올라왔습니다.</b> 업데이트를 누르면 새 화면으로 바뀝니다.</span><button type="button" class="btn sm primary" id="updGo">업데이트</button><button type="button" class="ub-x" id="updLater" aria-label="나중에">나중에</button>`;
+  el.hidden=false;
+}
+function doUpdate(){
+  if(S.dirty&&!confirm('저장하지 않은 변경이 있습니다. 저장하지 않고 업데이트할까요?'))return;
+  const go=()=>location.replace(location.pathname+'?v='+(UPD.ver||Date.now())+location.hash);
+  try{if(window.caches&&caches.keys)caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).finally(go);else go()}catch(e){go()}
+}
+document.addEventListener('click',e=>{const t=e.target.closest?.('#updGo,#updLater');if(!t)return;if(t.id==='updGo')doUpdate();else{const b=document.getElementById('updBar');if(b)b.hidden=true;clearTimeout(UPD.t);UPD.t=setTimeout(()=>UPD.ver&&showUpd(),30*60e3)}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
+setInterval(checkUpdate,5*60e3);setTimeout(checkUpdate,8000);
 function rosterEditor(k){
   const sel=selDate(k);const vs=versions(k);if(S.rv[k]==null||!S.doc.rosters[k][S.rv[k]])S.rv[k]=vs.filter(([v])=>!v.from||v.from<=sel).pop()?.[1]??vs[0][1];
   const vi=S.rv[k],cur=S.doc.rosters[k][vi];
@@ -2222,6 +2366,7 @@ function panelHtml(){
 
 /* ================= render ================= */
 function render(){
+  if(S.tab==='today'&&S.doc&&S.date&&!S.dirtyM){const c=monthCover(S.date);if(c&&c!==S.id)pickDoc(c)}
   renderChrome();renderNav();
   const page=$('#page');let top='';
   if(S.msg)top+=`<div class="banner ${S.msg.info?'info':''}">${esc(S.msg.text)}</div>`;
@@ -2251,9 +2396,14 @@ function buildToc(){
 /* ================= load / save ================= */
 function commonFrom(monthDoc){const c={blocks:clone((monthDoc?.blocks||[]).filter(b=>isCommonTab(b.tab))),label:'내용',updatedAt:''};normalizeCommon(c);return c}
 function pickCommon(){S.com=S.common?clone(S.common):commonFrom(S.doc);normalizeCommon(S.com);S.savedC=JSON.stringify(S.com);S.dirtyC=false}
+/* 날짜가 들어 있는 영업월 찾기 (오늘 기준 화면용) */
+function perOf(id){const m=id===S.id&&S.doc?S.doc:S.months[id];const p=m?.period||{};return [p.start,p.end]}
+function monthCover(x){const ids=Object.keys(S.months).sort();if(S.id&&S.doc){const [a,z]=perOf(S.id);if(a&&z&&x>=a&&x<=z)return S.id}for(const id of ids){const [a,z]=perOf(id);if(a&&z&&x>=a&&x<=z)return id}return null}
+function calAt(x){const id=monthCover(x);if(!id)return null;return id===S.id&&S.doc?S.doc.cal:(S.months[id]?.cal||null)}
+function bootMonth(want){const c=monthCover(todayIso());if(c)return c;const ids=Object.keys(S.months).sort();return S.months[want]?want:(ids[ids.length-1]||null)}
 function pickDoc(id){
   S.id=id;S.doc=S.months[id]?clone(S.months[id]):null;S.remoteNewer=false;S.hist=[];S.fut=[];S.confirm=null;
-  if(S.doc){normalizeMonth(S.doc);const [a,z]=periodDays();const t=todayIso();if(!S.date||S.date<addDays(a,-7)||S.date>addDays(z,7))S.date=(t>=a&&t<=z)?t:a}
+  if(S.doc){normalizeMonth(S.doc);const [a,z]=periodDays();const t=todayIso();if(!S.date)S.date=t}
   S.savedM=S.doc?JSON.stringify(S.doc):'';S.dirtyM=false;
   if(!S.com||!S.dirtyC)pickCommon();
   S.dirty=S.dirtyM||S.dirtyC;
@@ -2296,7 +2446,7 @@ async function createMonth(){
   blocks.forEach(b=>{if(b.type!=='table')return;if(b.reset==='clear')b.rows=[];if(b.reset==='counts')b.rows=b.rows.map(r=>[r[0],'',''])});
   const y=Number(id.slice(0,4)),m=Number(id.slice(5));const nstart=start||`${id}-01`;
   const rosters={};if(S.doc?.rosters)Object.keys(GK).forEach(k=>{const vs=versions(k);rosters[k]=[{from:nstart,groups:clone(vs[vs.length-1][0].groups)}]});
-  const doc={schema:2,rosters,label:label||`${y}년 ${m}월 영업`,period:{start:nstart,end:end||iso(new Date(y,m,0))},cal:{duty:{},assign:{},edu:{},ops:{},memo:{},dutyMembers:{},assignMembers:{}},blocks,source:S.doc?`${S.doc.label}에서 복사`:'새로 작성',updatedAt:new Date().toISOString().slice(0,19)};
+  const doc={schema:2,rosters,teams:clone(S.doc?.teams||{}),label:label||`${y}년 ${m}월 영업`,period:{start:nstart,end:end||iso(new Date(y,m,0))},cal:{duty:{},assign:{},edu:{},ops:{},memo:{},dutyMembers:{},assignMembers:{}},blocks,source:S.doc?`${S.doc.label}에서 복사`:'새로 작성',updatedAt:new Date().toISOString().slice(0,19)};
   try{await S.db.doc('months/'+id).set(doc);S.months[id]=doc;pickDoc(id);S.panel=null;S.tab='duty';S.msg=null;toast(`‘${doc.label}’를 만들었습니다`)}
   catch(e){S.msg={text:'만들지 못했습니다. 편집 권한을 확인하세요. ('+(e?.code||'오류')+')'}}
   render();
@@ -2306,6 +2456,13 @@ function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달
 /* ================= actions ================= */
 function act(t){
   const d=t.dataset;
+  if(d.tmnew){const k=d.tmnew;S.edit=true;mutate(()=>{teamsOf(k).push({name:'',members:[]})});setTimeout(()=>{const L=teamsOf(k);document.getElementById(`tmIn-${k}-${L.length-1}`)?.focus()},30);return true}
+  if(d.tmdel){const [k,ti]=sp(d.tmdel);mutate(()=>{teamsOf(k).splice(+ti,1)},'묶음을 지웠습니다');return true}
+  if(d.tmrem){const [k,ti,ni]=sp(d.tmrem);mutate(()=>{teamsOf(k)[+ti].members.splice(+ni,1)});return true}
+  if(d.tmto){const [k,vi,ti,g]=sp(d.tmto);teamTo(k,+vi,+ti,g);return true}
+  if(d.gempty){const [k,vi,g]=sp(d.gempty);S.edit=true;mutate(()=>{S.doc.rosters[k][+vi].groups[g]=[]},`${g}조를 비웠습니다`);return true}
+  if(d.gclear){const [k,vi]=sp(d.gclear);S.edit=true;mutate(()=>{const gr=S.doc.rosters[k][+vi].groups;GROUPS.forEach(g=>gr[g]=[])},'모든 조의 멤버를 비웠습니다');return true}
+  if(d.pooladd){const n=($('#poolAdd')?.value||'').trim();if(!n)return true;if(allPeople().includes(n)){toast('이미 목록에 있습니다');return true}S.edit=true;mutate(()=>{S.doc.pool=(S.doc.pool||[]).concat([n])},`${n} 추가`);return true}
   if(d.gsw){const [k,vi,g]=sp(d.gsw);if(S.gswap&&S.gswap.k===k&&S.gswap.vi===+vi){if(S.gswap.g===g){S.gswap=null;S.keepScroll=true;render()}else swapGroups(k,+vi,S.gswap.g,g)}else{S.gswap={k,vi:+vi,g};S.keepScroll=true;render()}return true}
   if(d.month){$('#mMenu').hidden=true;$('#mBtn').setAttribute('aria-expanded','false');switchMonth(d.month);return true}
   if(d.brush!=null){const [k,v]=sp(d.brush);if(S.brush&&S.brush.k===k&&S.brush.v===v)S.brush=null;else{S.brush={k,v};S.edit=true;S.pop=null}S.keepScroll=true;render();return true}
@@ -2378,12 +2535,66 @@ function act(t){
 }
 function moveBlock(id,dir){const b=blk(id),L=listOf(b),i=L.indexOf(b);let j=i+dir;while(j>=0&&j<L.length&&(L[j].tab!==b.tab||L[j].sec!==b.sec))j+=dir;if(j<0||j>=L.length)return;L.splice(i,1);L.splice(j,0,b)}
 
+
+/* ================= 오른쪽 빠른 편집 도구 + 줄어드는 머리말 ================= */
+const DI={
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+  redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/>',
+  brush:'<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/>',
+  shuffle:'<path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4M2 6h1.9c1.5 0 2.9.9 3.6 2.2M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/>',
+  table:'<path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18"/>',
+  up:'<path d="m18 15-6-6-6 6"/>',
+  tools:'<path d="M12 5v14M5 12h14"/>',
+  close:'<path d="M18 6 6 18M6 6l12 12"/>'
+};
+let DOCK_OPEN=false;
+function dockBtn(id,ic,label,o={}){return `<button type="button" class="dk${o.on?' on':''}${o.cls?' '+o.cls:''}" data-dock="${id}" ${o.dis?'disabled':''} aria-label="${label}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true">${DI[ic]}</svg><span class="dk-l">${label}${o.kbd?`<kbd>${o.kbd}</kbd>`:''}</span>${o.badge?'<i class="dk-b"></i>':''}</button>`}
+function renderDock(){
+  const el=document.getElementById('dock');if(!el)return;
+  const can=typeof CAN==='function'&&CAN()&&!!S.doc;const up=scrollY>300;
+  if(!can&&!up){el.hidden=true;return}
+  let h=dockBtn('more',DOCK_OPEN?'close':'tools',DOCK_OPEN?'닫기':'편집 도구',{cls:'dk-more',badge:S.dirty&&!DOCK_OPEN});
+  if(can){
+    h+=dockBtn('edit','edit',S.edit?'편집 끄기':'편집 켜기',{on:S.edit});
+    h+=dockBtn('save','save','저장',{dis:!S.dirty,badge:S.dirty,kbd:'Ctrl+S',cls:S.dirty?'hot':''});
+    h+=dockBtn('undo','undo','되돌리기',{dis:!S.hist.length,kbd:'Ctrl+Z'})+dockBtn('redo','redo','다시 하기',{dis:!S.fut.length,kbd:'Ctrl+Y'});
+    if(GK[S.tab]){h+='<span class="dk-sep"></span>';
+      h+=dockBtn('brush','brush',S.brush?'빠른 입력 끄기':'빠른 입력',{on:!!S.brush&&S.brush.k===S.tab});
+      h+=dockBtn('rand','shuffle','랜덤 배치');
+      h+=dockBtn('view','table',((S.cview||{})[S.tab]||'cal')==='list'?'달력으로 보기':'표로 보기')}
+  }
+  if(up)h+=(can?'<span class="dk-sep"></span>':'')+dockBtn('top','up','맨 위로');
+  el.innerHTML=h;el.hidden=false;el.classList.toggle('open',DOCK_OPEN);
+}
+function dockAct(id){
+  const k=S.tab;
+  if(id==='more'){DOCK_OPEN=!DOCK_OPEN;renderDock();return}
+  if(id==='edit'){if(!CAN())return;S.edit=!S.edit;S.confirm=null;S.keepScroll=true;render();toast(S.edit?'편집 모드를 켰습니다':'편집 모드를 껐습니다')}
+  else if(id==='save')askSave();
+  else if(id==='undo')undo();
+  else if(id==='redo')redo();
+  else if(id==='brush'){if(S.brush&&S.brush.k===k)S.brush=null;else{S.brush={k,v:'A조'};S.pop=null}S.keepScroll=true;render();if(S.brush){const b=document.querySelector('.brushbar');if(b&&b.getBoundingClientRect().top<90)b.scrollIntoView({block:'center',behavior:'smooth'});toast('A조로 시작합니다 · 위 줄에서 다른 조를 고르세요')}}
+  else if(id==='rand'){S.rand=k;S.keepScroll=true;render()}
+  else if(id==='view'){S.cview=S.cview||{};S.cview[k]=(S.cview[k]||'cal')==='list'?'cal':'list';S.pop=null;S.keepScroll=true;render()}
+  else if(id==='top'){scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{if(scrollY>0&&scrollY<120)scrollTo(0,0)},700)}
+}
+document.addEventListener('click',e=>{const b=e.target.closest?.('[data-dock]');if(!b||b.disabled)return;e.preventDefault();e.stopPropagation();dockAct(b.dataset.dock)},true);
+let _cmp=false,_dockUp=false;
+function onScrollHdr(){const y=scrollY;const c=_cmp?y>12:y>90;if(c!==_cmp){_cmp=c;document.documentElement.classList.toggle('hdr-compact',c)}const u=y>300;if(u!==_dockUp){_dockUp=u;renderDock()}}
+addEventListener('scroll',onScrollHdr,{passive:true});
+
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
   const [st]=src,[dt]=dst;
   if(dt==='trash')return ['dmem','rmem','day'].includes(st);
   if(dt==='rday')return ['grp','day','per','dmem','rmem'].includes(st)&&(st==='per'||src[1]===dst[1])&&!(st==='day'&&src[2]===dst[2]);
+  if(dt==='rgrp'&&(st==='rpool'||st==='rmem'))return CAN()&&src[1]===dst[1]&&+src[2]===+dst[2]&&!(st==='rmem'&&src[3]===dst[3]);
+  if(dt==='rgrp'&&st==='team')return CAN()&&src[1]===dst[1]&&+src[2]===+dst[2];
+  if(dt==='tmz')return false;
+  if(dt==='rpoolz')return st==='rmem'&&CAN()&&src[1]===dst[1]&&+src[2]===+dst[2];
   if(dt==='rgrp'&&st==='rgsw')return src[1]===dst[1]&&src[2]===dst[2]&&src[3]!==dst[3];
   if(dt==='rgrp')return S.edit&&['per','dmem','rmem'].includes(st)&&(st==='per'||src[1]===dst[1]);
   if(dt==='row'||dt==='rowend'){if(st!=='row')return false;const a=blk(src[1]),b=blk(dst[1]);return !!a&&!!b&&(a===b||(a.cols.length===b.cols.length&&a.kind===b.kind))}
@@ -2406,6 +2617,10 @@ function doDrop(src,dst,pos){
     if(st==='day'){const y=src[2];mutate(()=>{const m=cal[GK[k].mem];const [v1,v2,o1,o2]=[cal[k][y],cal[k][x],m[y],m[x]];v2!=null?cal[k][y]=v2:delete cal[k][y];v1!=null?cal[k][x]=v1:delete cal[k][x];o2?m[y]=o2:delete m[y];o1?m[x]=o1:delete m[x]},`${md(y)} ↔ ${md(x)} 바꿈`);return}
     const n=st==='per'?src[1]:st==='dmem'?src[3]:src[4];S.rsel[k]=x;
     mutate(()=>{const l=effMembers(k,x).list;if(!l.includes(n))setOverride(k,x,[...l,n]);if(st==='dmem'&&src[2]!==x){const y=src[2];setOverride(k,y,effMembers(k,y).list.filter(z=>z!==n))}},st==='dmem'?`${n}: ${md(src[2])} → ${md(x)}`:`${md(x)}에 ${n} 추가`);return}
+  if(dt==='rgrp'&&(st==='rpool'||st==='rmem')){const [,k,i,g]=dst;const n=st==='rpool'?src[3]:src[4];let from=null;S.edit=true;
+    mutate(()=>{const gr=S.doc.rosters[k][+i].groups;GROUPS.forEach(x=>{if((gr[x]||[]).includes(n)){from=x;gr[x]=gr[x].filter(y=>y!==n)}});gr[g]=gr[g]||[];gr[g].push(n)});toast(from?`${n}: ${from}조 → ${g}조`:`${g}조에 ${n} 넣음`);return}
+  if(dt==='rgrp'&&st==='team'){teamTo(dst[1],+dst[2],+src[3],dst[3]);return}
+  if(dt==='rpoolz'){const [,k,i,g,n]=src;S.edit=true;mutate(()=>{const gr=S.doc.rosters[k][+i].groups;gr[g]=(gr[g]||[]).filter(y=>y!==n)},`${g}조에서 ${n} 뺌`);return}
   if(dt==='rgrp'&&st==='rgsw'){swapGroups(dst[1],+dst[2],src[3],dst[3]);return}
   if(dt==='rgrp'){const [,k,i,g]=dst;const n=st==='per'?src[1]:st==='dmem'?src[3]:src[4];
     mutate(()=>{const gr=S.doc.rosters[k][+i].groups;if(st==='rmem'&&+src[2]===+i){const og=src[3];gr[og]=gr[og].filter(y=>y!==n)}gr[g]=gr[g]||[];if(!gr[g].includes(n))gr[g].push(n)},st==='rmem'?`${n} → ${g}조`:`${g}조에 ${n} 추가`);return}
@@ -2507,7 +2722,8 @@ document.addEventListener('keydown',e=>{
   if(mod&&!inField&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
   if(mod&&!inField&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('.cell,.ag,.mc-c,[data-rsel],[data-csel]')&&!inField){e.preventDefault();e.target.click();return}
-  if(e.key==='Enter'&&e.target.matches?.('#radd,#rtxt,[id^=gadd-]')){if(e.isComposing||e.keyCode===229)return;e.preventDefault();const id=e.target.id,keep=id!=='rtxt';e.target.parentElement.querySelector('button')?.click();if(keep){const f=()=>{const n=document.getElementById(id);if(n&&document.activeElement!==n){n.value='';n.focus({preventScroll:true})}};f();requestAnimationFrame(f);setTimeout(f,60)}}
+  if(e.key==='Enter'&&e.target.matches?.('.tm-in')){if(e.isComposing||e.keyCode===229)return;e.preventDefault();const id=e.target.id,[,k,ti]=id.split('-');const n=e.target.value.trim();if(!n)return;const t=teamsOf(k)[+ti];if(t.members.includes(n)){toast('이미 들어 있습니다');return}const dup=teamsOf(k).findIndex((x,i)=>i!==+ti&&x.members.includes(n));S.edit=true;mutate(()=>{if(dup>=0)teamsOf(k)[dup].members=teamsOf(k)[dup].members.filter(y=>y!==n);t.members.push(n)});if(dup>=0)toast(`${n}: 다른 묶음에서 옮겼습니다`);const f=()=>{const el=document.getElementById(id);if(el&&document.activeElement!==el){el.value='';el.focus({preventScroll:true})}};f();requestAnimationFrame(f);setTimeout(f,60);return}
+  if(e.key==='Enter'&&e.target.matches?.('#radd,#rtxt,[id^=gadd-],#poolAdd')){if(e.isComposing||e.keyCode===229)return;e.preventDefault();const id=e.target.id,keep=id!=='rtxt';e.target.parentElement.querySelector('button')?.click();if(keep){const f=()=>{const n=document.getElementById(id);if(n&&document.activeElement!==n){n.value='';n.focus({preventScroll:true})}};f();requestAnimationFrame(f);setTimeout(f,60)}}
 });
 document.addEventListener('focusin',e=>{if(e.target.matches?.('[data-p],[data-cal]'))S.pend=snap()});
 let IME=false;
@@ -2525,6 +2741,7 @@ function onInput(t){
 document.addEventListener('submit',e=>{const id=e.target.id;if(id==='loginForm'){e.preventDefault();doLogin()}if(id==='signupForm'){e.preventDefault();doSignup()}if(id==='applyForm'){e.preventDefault();doApply()}});
 document.addEventListener('change',e=>{
   const t=e.target;
+  if(t.dataset&&t.dataset.tmname){const [k,ti]=sp(t.dataset.tmname);const v=t.value.trim();S.edit=true;mutate(()=>{teamsOf(k)[+ti].name=v});return}
   if(t.id==='perStart'||t.id==='perEnd'){const a=$('#perStart').value,z=$('#perEnd').value;if(!a||!z)return;if(a>z){toast('종료일이 시작일보다 앞설 수 없습니다');render();return}mutate(()=>{S.doc.period={start:a,end:z}},`영업기간을 ${md(a)} ~ ${md(z)}로 바꿨습니다`);return}
   if(t.id==='monthSel')switchMonth(t.value);
   if(t.id==='impFile'){A.impFile=t.files[0]||null;S.keepScroll=true;render()}
