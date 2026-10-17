@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261017-132431';
+window.OPS_BUILD = '20261017-133155';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1436,6 +1436,22 @@ html.hdr-compact .ng{background:var(--surface)}
 .ib.sm{width:26px;height:26px}
 @media (max-width:760px){.rs-teams{padding:12px 16px}.tm-list{grid-template-columns:1fr}}
 
+/* --- 주말 지원자 --- */
+.wk{padding:16px 24px;display:flex;flex-direction:column;gap:12px}
+.wk-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.wk-sel{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-right:auto}
+.wk textarea{width:100%;resize:vertical;font:inherit;font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;min-height:90px}
+.wk-res{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wk-col{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--sunk);display:flex;flex-direction:column;gap:8px}
+.wk-d{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.wk-d b{font-size:14.5px}
+.wk-d .muted{font-size:12px}
+.wk-n{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.wk-c{font-size:12px;font-weight:800;margin-right:4px}
+.pchip.ro{padding:3px 10px;font-size:12.5px}
+.wk-note{font-size:12px;margin:0}
+@media (max-width:760px){.wk{padding:12px 16px}.wk-res{grid-template-columns:1fr}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2305,9 +2321,32 @@ function rosterCount(k){
   const pcnt=`<div class="tw"><table class="stk"><thead><tr><th>이름</th><th class="num">횟수</th><th>날짜</th></tr></thead><tbody>${ppl.map(([n,ds])=>`<tr><td class="nw" data-l="이름">${esc(n)}</td><td class="num" data-l="횟수">${ds.length}</td><td data-l="날짜">${ds.map(md).join(', ')}</td></tr>`).join('')||'<tr><td colspan="3" class="empty-cell">아직 배정된 사람이 없습니다.</td></tr>'}</tbody></table></div>`;
   return `<div class="grid2">${card('rcount','조별 횟수','달력에서 자동 집계',cnt)}${card('rpeople','사람별 횟수','날짜별로 바꾼 인원까지 반영',pcnt)}</div>`;
 }
+/* ---------- 주말 당직 지원자: 단톡 내용 붙여넣기 → 토/일 자동 기입 ---------- */
+function parseWkend(text){
+  const NOT=/^(오전|오후|지원|미지원|토요일|일요일|사용자가)$/;const who={},order=[];let cur=null,inMsg=false;
+  String(text||'').split(/\r?\n/).forEach(raw=>{const l=raw.replace(/ /g,' ').trim();if(!l)return;
+    if(/^\d+$/.test(l)||/^(오전|오후)\s*\d{1,2}:\d{2}$/.test(l)||/^\d{4}년\s*\d{1,2}월\s*\d{1,2}일/.test(l)||/^[\[*]/.test(l)||/삭제한 대화/.test(l))return;
+    if(/^[가-힣]{2,4}$/.test(l)&&!NOT.test(l)){if(l!==cur){cur=l;inMsg=false}return}
+    const m=l.match(/^(토|일|토\s*[,/·&]?\s*일|토요일|일요일)\s*[-–:~]?\s*(지원|가능|O|o)\s*$/);
+    if(m&&cur&&!/미지원|불가/.test(l)){if(!inMsg){who[cur]=new Set();inMsg=true;if(!order.includes(cur))order.push(cur)}const d=m[1];if(/토/.test(d))who[cur].add('토');if(/일/.test(d.replace('토요일','')))who[cur].add('일')}
+  });
+  const sat=order.filter(n=>who[n].has('토')),sun=order.filter(n=>who[n].has('일'));return {sat,sun,n:order.length};
+}
+function wkendList(){const [a,z]=periodDays();const out=[];for(let x=a;x<=z;x=addDays(x,1)){const d=parse(x).getDay();if(d===6)out.push(x);else if(d===0&&x===a)out.push(addDays(x,-1))}return out}
+function wkendCard(){
+  if(!CAN())return '';S.wk=S.wk||{};const L=wkendList();if(!L.length)return '';
+  if(!S.wk.sat||!L.includes(S.wk.sat)){const t=todayIso();S.wk.sat=L.find(x=>addDays(x,1)>=t)||L[L.length-1]}
+  const sat=S.wk.sat,sun=addDays(sat,1),cal=S.doc.cal;const r=S.wk.res;
+  const cur=x=>{const e=effMembers('duty',x);return cal.duty?.[x]?`${esc(cal.duty[x])}${e.list.length?` · ${e.list.length}명`:''}`:'비어 있음'};
+  const col=(lab,x,list)=>`<div class="wk-col"><div class="wk-d"><b class="${lab==='일'?'red':'blue'}">${md(x)} (${lab})</b><span class="muted">지금: ${cur(x)}</span></div>${list?`<div class="wk-n"><span class="wk-c">${list.length}명</span>${list.map(n=>`<span class="pchip ro">${esc(n)}</span>`).join('')||'<span class="muted">지원자 없음</span>'}</div>`:''}</div>`;
+  return card('wkend','주말 당직 지원자 넣기','단톡방의 지원 신청 글을 그대로 복사해 붙여넣으면 토·일 지원자를 나눠 달력에 넣습니다. ‘토 - 지원’, ‘일 - 지원’ 줄만 읽고, 시간·숫자·삭제된 대화는 건너뜁니다.',
+   `<div class="wk"><div class="wk-top"><label class="wk-sel">주말<select class="in sm" id="wkSat">${L.map(x=>`<option value="${x}" ${x===sat?'selected':''}>${md(x)}(토) · ${md(addDays(x,1))}(일)</option>`).join('')}</select></label><button type="button" class="btn sm" data-wkparse="1">분류하기</button>${r?`<button type="button" class="btn sm primary" data-wkapply="1">달력에 넣기</button><button type="button" class="btn sm ghost" data-wkclear="1">지우기</button>`:''}</div>
+    <textarea id="wkText" class="in" rows="${r?4:6}" placeholder="[주말 당직지원차 체크] 단톡 내용을 여기에 붙여넣으세요">${esc(S.wk.text||'')}</textarea>
+    ${r?`<div class="wk-res">${col('토',sat,r.sat)}${col('일',sun,r.sun)}</div><p class="muted wk-note">신청한 사람 ${r.n}명을 찾았습니다. 같은 사람이 두 번 올렸으면 마지막 글을 따릅니다. ‘달력에 넣기’를 누르면 그날 칸이 ‘지원’으로 바뀌고 지원자가 들어갑니다.</p>`:''}</div>`);
+}
 function viewRoster(k){
   const sub=curSub(k);let body='';
-  if(sub==='cal')body=rosterCal(k)+rosterSetup(k);
+  if(sub==='cal')body=rosterCal(k)+(k==='duty'?wkendCard():'')+rosterSetup(k);
   else if(sub==='roster')body=rosterEditor(k);
   else if(sub==='count')body=rosterCount(k);
   else if(sub==='order')body=editHint()+(flow(blocksOf('assign','order'))||'<div class="empty-state">배정 순번표가 없습니다.</div>')+addBlockBar('assign','order');
@@ -2456,6 +2495,10 @@ function switchMonth(id){if(!id||id===S.id)return;if(S.dirtyM){toast('이번 달
 /* ================= actions ================= */
 function act(t){
   const d=t.dataset;
+  if(d.wkparse){S.wk=S.wk||{};S.wk.text=$('#wkText').value;S.wk.res=parseWkend(S.wk.text);S.keepScroll=true;render();if(!S.wk.res.n)toast('‘토 - 지원’ 같은 줄을 찾지 못했습니다');return true}
+  if(d.wkapply){const r=S.wk?.res;if(!r)return true;const sat=S.wk.sat,sun=addDays(sat,1);S.edit=true;
+    mutate(()=>{[[sat,r.sat],[sun,r.sun]].forEach(([x,l])=>{if(!l.length)return;const v=S.doc.cal.duty[x];if(!v||groupOf(v)==null)S.doc.cal.duty[x]=v&&/지원/.test(v)?v:'지원';S.doc.cal.dutyMembers[x]=l.slice()})},`토 ${r.sat.length}명 · 일 ${r.sun.length}명 넣었습니다 · 저장을 눌러 확정`);return true}
+  if(d.wkclear){S.wk={sat:S.wk?.sat};S.keepScroll=true;render();return true}
   if(d.tmnew){const k=d.tmnew;S.edit=true;mutate(()=>{teamsOf(k).push({name:'',members:[]})});setTimeout(()=>{const L=teamsOf(k);document.getElementById(`tmIn-${k}-${L.length-1}`)?.focus()},30);return true}
   if(d.tmdel){const [k,ti]=sp(d.tmdel);mutate(()=>{teamsOf(k).splice(+ti,1)},'묶음을 지웠습니다');return true}
   if(d.tmrem){const [k,ti,ni]=sp(d.tmrem);mutate(()=>{teamsOf(k)[+ti].members.splice(+ni,1)});return true}
@@ -2741,6 +2784,7 @@ function onInput(t){
 document.addEventListener('submit',e=>{const id=e.target.id;if(id==='loginForm'){e.preventDefault();doLogin()}if(id==='signupForm'){e.preventDefault();doSignup()}if(id==='applyForm'){e.preventDefault();doApply()}});
 document.addEventListener('change',e=>{
   const t=e.target;
+  if(t.id==='wkSat'){S.wk=S.wk||{};S.wk.text=$('#wkText')?.value||S.wk.text;S.wk.sat=t.value;S.keepScroll=true;render();return}
   if(t.dataset&&t.dataset.tmname){const [k,ti]=sp(t.dataset.tmname);const v=t.value.trim();S.edit=true;mutate(()=>{teamsOf(k)[+ti].name=v});return}
   if(t.id==='perStart'||t.id==='perEnd'){const a=$('#perStart').value,z=$('#perEnd').value;if(!a||!z)return;if(a>z){toast('종료일이 시작일보다 앞설 수 없습니다');render();return}mutate(()=>{S.doc.period={start:a,end:z}},`영업기간을 ${md(a)} ~ ${md(z)}로 바꿨습니다`);return}
   if(t.id==='monthSel')switchMonth(t.value);
