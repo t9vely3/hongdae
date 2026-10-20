@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261020-132038';
+window.OPS_BUILD = '20261020-161419';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1608,6 +1608,31 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 .cs-f input{width:110px;height:32px}
 .cs-f em{font-style:normal;font-size:11px;margin-top:-2px}
 
+/* --- 교육 일정: 시간 · 교육명 · 강의장 · 교육자 --- */
+.ev.edu-it{display:block;background:color-mix(in srgb,var(--ink) 5%,var(--surface));color:var(--ink);border-left:3px solid var(--ink);border-radius:5px;padding:3px 6px;margin-top:3px;white-space:normal;font-weight:500;font-size:11.5px;line-height:1.35}
+.ev.edu-it.c-biz{border-left-color:#2563eb}.ev.edu-it.c-edu{border-left-color:#0d8577}.ev.edu-it.c-due{border-left-color:#e11d48}
+.ev.edu-it::before{display:none!important}
+.ei-1{display:flex;gap:5px;align-items:baseline}
+.ei-1 b{font-variant-numeric:tabular-nums;font-weight:800;flex:none}
+.ei-1 span{font-weight:700;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ei-1 em{font-style:normal;color:var(--muted);margin-right:3px}
+.ei-2{color:var(--muted);font-size:10.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.edu-view{display:flex;flex-direction:column;gap:6px;padding:4px 0}
+.ev2{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:start;padding:8px 10px;border:1px solid var(--line);border-radius:10px}
+.ev2-t{font-weight:800;font-variant-numeric:tabular-nums}
+.ev2 b{display:block;font-size:13.5px}.ev2 small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.eru-h,.eru{display:grid;grid-template-columns:66px minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) 26px;gap:4px;align-items:center}
+.eru-h{font-size:11px;color:var(--muted);font-weight:700;margin:2px 0}
+.eru{margin-bottom:4px}.eru .in{height:30px;min-width:0;padding:0 7px;font-size:12.5px}
+#pop:has(.eru){width:min(600px,calc(100vw - 24px))}
+.eru-h,.eru{grid-template-columns:96px minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) 26px}
+@media (max-width:759px){
+  .eru-h{display:none}
+  .eru{grid-template-columns:84px minmax(0,1fr) minmax(0,1fr) 26px;grid-template-areas:"t n n d" "r r w w";padding:6px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px}
+  .eru .er-t{grid-area:t}.eru .er-n{grid-area:n}.eru .er-r{grid-area:r}.eru .er-w{grid-area:w}.eru .ib{grid-area:d}
+  .ei-1{flex-direction:column;gap:0}
+}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1835,9 +1860,25 @@ function fmt(t,q){
     out+=`<p>${inline(l,q)}</p>`}
   close();return `<div class="fmt">${out}</div>`;
 }
-function eduItems(v){return String(v||'').split('\n').reduce((acc,l)=>{const m=/^\[([^\]]+)\]\s*(.*)$/.exec(l);
-  if(m)acc.push({cat:m[1],t:m[2],m:''});else if(acc.length&&!acc[acc.length-1].m&&/·|\d{1,2}:\d{2}/.test(l))acc[acc.length-1].m=l;else if(l.trim())acc.push({cat:'',t:l,m:''});return acc},[])}
-const eduText=items=>items.map(e=>(e.cat?`[${e.cat}] `:'')+e.t+(e.m?'\n'+e.m:'')).join('\n');
+/* 교육 일정: 하루에 여러 개 · 한 줄에 '시간 | 교육명 | 강의장 | 교육자' 로 저장 */
+const EDU_ROOM=/(회의실|강의장|강의실|세미나|라운지|교육장|\d+\s*호|\d+\s*층|온라인|줌|zoom)/i,EDU_WHO=/(님|멘토|팀장|부장|강사|원장|실장|선임|수석|책임|대표)$/,EDU_TIME=/^(\d{1,2}:\d{2})(\s*[~-]\s*\d{1,2}:\d{2})?/;
+function eduItems(v){
+  const L=String(v||'').split('\n').map(l=>l.trim()).filter(Boolean);const out=[];
+  const mk=o=>{o.time=o.time||'';o.title=o.title||'';o.room=o.room||'';o.who=o.who||'';o.cat=o.cat||'';o.t=(o.time?o.time+' ':'')+o.title;o.m=[o.room,o.who].filter(Boolean).join(' · ');return o};
+  L.forEach(l=>{
+    if(l.includes('|')){let P=l.split('|').map(x=>x.trim());const t0=EDU_TIME.exec(P[0]);if(t0&&P[0].replace(EDU_TIME,'').trim())P=[t0[0].replace(/\s+/g,''),P[0].replace(EDU_TIME,'').trim(),...P.slice(1)];
+      const [time,title0,room,who]=P;const cc=/^\[([^\]]+)\]\s*(.*)$/.exec(title0||'');out.push(mk({time,title:cc?cc[2]:title0,cat:cc?cc[1]:'',room,who}));return}
+    const c=/^\[([^\]]+)\]\s*(.*)$/.exec(l);const last=out[out.length-1];
+    if(c){out.push(mk({title:c[2],cat:c[1]}));return}
+    const tm=EDU_TIME.exec(l);
+    if(last&&!last.room&&EDU_ROOM.test(l)&&l.length<=20){last.room=l;mk(last);return}
+    if(last&&!last.who&&EDU_WHO.test(l)&&l.length<=20){last.who=l;mk(last);return}
+    if(last&&!last.time&&tm&&l.replace(EDU_TIME,'').trim().length<2){last.time=tm[0].replace(/\s+/g,'');mk(last);return}
+    if(last&&/·/.test(l)&&!last.room){const ps=l.split('·').map(x=>x.trim());ps.forEach(x=>{if(EDU_TIME.test(x)&&!last.time)last.time=x;else if(EDU_WHO.test(x)&&!last.who)last.who=x;else if(!last.room)last.room=x});mk(last);return}
+    out.push(mk(tm?{time:tm[0].replace(/\s+/g,''),title:l.replace(EDU_TIME,'').trim()}:{title:l}));
+  });return out}
+function eduSave(x,i,f,v,quiet){const run=()=>{const it=eduItems(S.doc.cal.edu[x]);if(!it[+i])return;if(f==='title'){const c=/^\[([^\]]+)\]\s*(.*)$/.exec(v);it[+i].cat=c?c[1]:'';it[+i].title=c?c[2]:v}else it[+i][f]=v;setCal('edu',x,eduText(it))};if(quiet){pushHist(snap());run();changed()}else mutate(run)}
+const eduText=items=>items.filter(e=>e.time||e.title||e.room||e.who).map(e=>[e.time||'',(e.cat?`[${e.cat}] `:'')+(e.title||''),e.room||'',e.who||''].join(' | ')).join('\n');
 function opsLines(v){return String(v||'').split('\n').map(l=>{const m=/^(\d{2}:\d{2}|휴무)\s+(.*)$/.exec(l);return m?[m[1],m[2]]:['',l]})}
 
 /* ================= data helpers ================= */
@@ -2303,7 +2344,7 @@ function popRoster(k,x){
 function viewLayer(layer){
   const cal=S.doc.cal;
   const cell=x=>{const v=cal[layer]?.[x];if(!v)return S.edit?'<div class="ev-empty">'+icx('plus')+'적기</div>':'';
-    if(layer==='edu'){const it=eduItems(v);return it.slice(0,3).map((e,i)=>`<div class="ev dot${/교육/.test(e.cat||'')?' c-edu':/사업/.test(e.cat||'')?' c-biz':/마감/.test(e.t||'')?' c-due':''}"${S.edit?` data-drag="cal|edu|${x}|${i}"`:''} title="${esc(e.t+(e.m?' / '+e.m:''))}">${e.cat?`<em>${esc(e.cat)}</em>`:''}${esc(e.t)}</div>`).join('')+(it.length>3?`<div class="ev-more">+${it.length-3}개 더</div>`:'')}
+    if(layer==='edu'){const it=eduItems(v);return it.map((e,i)=>`<div class="ev edu-it${/교육/.test(e.cat||'')?' c-edu':/사업/.test(e.cat||'')?' c-biz':/마감/.test(e.title||'')?' c-due':''}"${S.edit?` data-drag="cal|edu|${x}|${i}"`:''} title="${esc([e.time,e.title,e.room,e.who].filter(Boolean).join(' · '))}"><div class="ei-1">${e.time?`<b>${esc(e.time)}</b>`:''}<span>${e.cat?`<em>${esc(e.cat)}</em>`:''}${esc(e.title||'(교육명 없음)')}</span></div>${e.room||e.who?`<div class="ei-2">${[e.room,e.who].filter(Boolean).map(esc).join(' · ')}</div>`:''}</div>`).join('')}
     const L=opsLines(v);return `<div class="ev-ops"${S.edit?` data-drag="cal|ops|${x}|0"`:''}>${L.map(([t,n])=>`<div class="ev-line${/휴무/.test(t||'')?' off':''}">${t?`<b>${esc(t)}</b>`:''}${esc(n)}</div>`).join('')}<span class="ev-dotm">${L.length}</span></div>`};
   return monthCal(layer,{cell,right:'',drop:x=>`cday|${layer}|${x}`});
 }
@@ -2312,11 +2353,13 @@ function popLayer(layer,x){
   let h=popHead(layer,x);
   if(!S.edit){
     if(!v)h+=`<p class="pp-empty">${lab} 일정이 없습니다.</p>`;
-    else if(layer==='edu')h+=`<div class="pp-list">${eduItems(v).map(e=>`<div class="pp-it">${e.cat?`<span class="chip acc">${esc(e.cat)}</span>`:''}<b>${esc(e.t)}</b>${e.m?`<small>${esc(e.m)}</small>`:''}</div>`).join('')}</div>`;
+    else if(layer==='edu')h+=`<div class="edu-view">${eduItems(v).map(e=>`<div class="ev2"><span class="ev2-t">${esc(e.time||'-')}</span><div><b>${e.cat?`<em>${esc(e.cat)}</em> `:''}${esc(e.title||'(교육명 없음)')}</b><small>${[e.room?'강의장 '+e.room:'',e.who?'교육자 '+e.who:''].filter(Boolean).map(esc).join(' · ')}</small></div></div>`).join('')}</div>`;
     else h+=`<div class="pp-shift">${opsLines(v).map(([t,n])=>`<b>${esc(t)}</b><span>${esc(n)}</span>`).join('')}</div>`;
     return h+(CAN()?`<div class="pp-foot"><button type="button" class="btn sm" data-editon="1">이 날 고치기</button></div>`:'');
   }
-  return h+`<div class="pp-sec first"><div class="pp-l">${lab}<small>${layer==='edu'?'[구분] 제목, 다음 줄에 시간 · 장소':'한 줄에 하나씩 · 예: 09:20 정희'}</small></div><textarea class="in" data-cal="${layer}" data-d="${x}" placeholder="${lab} 내용">${esc(v)}</textarea></div>
+  const eduEd=()=>{const it=eduItems(v);const row=(e,i)=>`<div class="eru"><input class="in sm er-t" data-edu="${x}|${i}|time" value="${esc(e.time)}" placeholder="10:00~11:00" aria-label="시간"><input class="in sm er-n" data-edu="${x}|${i}|title" value="${esc((e.cat?`[${e.cat}] `:'')+e.title)}" placeholder="교육명" aria-label="교육명"><input class="in sm er-r" data-edu="${x}|${i}|room" value="${esc(e.room)}" placeholder="강의장" list="eduRooms" aria-label="강의장"><input class="in sm er-w" data-edu="${x}|${i}|who" value="${esc(e.who)}" placeholder="교육자" list="peopleList" aria-label="교육자"><button type="button" class="ib xs" data-edudel="${x}|${i}" title="이 교육 빼기">${icx('x')}</button></div>`;
+    return `<div class="pp-sec first"><div class="pp-l">교육<small>하루에 여러 개 넣을 수 있습니다 · 칸을 벗어나면 바로 반영</small></div><div class="eru-h"><span>시간</span><span>교육명</span><span>강의장</span><span>교육자</span></div>${it.map(row).join('')}<button type="button" class="btn sm" data-eduadd="${x}">${icx('plus')}교육 추가</button><datalist id="eduRooms"><option value="회의실"><option value="대강의장"><option value="소강의장"><option value="상담실"><option value="온라인"></datalist>${peopleList()}</div>`};
+  return h+(layer==='edu'?eduEd():`<div class="pp-sec first"><div class="pp-l">${lab}<small>한 줄에 하나씩 · 예: 09:20 정희</small></div><textarea class="in" data-cal="${layer}" data-d="${x}" placeholder="${lab} 내용">${esc(v)}</textarea></div>`)+`
     <div class="pp-sec"><div class="pp-l">메모<small>휴일·특이사항, 모든 달력에 표시</small></div><textarea class="in sm" data-cal="memo" data-d="${x}" placeholder="예: 한글날">${esc(cal.memo?.[x]||'')}</textarea></div>`;
 }
 function popHtml(){
@@ -2928,6 +2971,8 @@ function act(t){
   if(d.logrm){if(!logOwner())return true;const [ei,ii]=sp(d.logrm);mutate(()=>{const e=S.doc.changeLog[+ei];e.items.splice(+ii,1);if(!e.items.length)S.doc.changeLog.splice(+ei,1)},'기록 한 줄을 지웠습니다 · 저장을 눌러 확정');return true}
   if(d.logedit){if(!logOwner())return true;S.logEd=d.logedit;S.keepScroll=true;render();setTimeout(()=>$('#logIn')?.focus(),20);return true}
   if(d.logsave){const [ei,ii]=sp(d.logsave);const v=$('#logIn').value.trim();S.logEd=null;mutate(()=>{S.doc.changeLog[+ei].items[+ii].t=v},'기록을 고쳤습니다 · 저장을 눌러 확정');return true}
+  if(d.eduadd){const x=d.eduadd;mutate(()=>{const it=eduItems(S.doc.cal.edu[x]);it.push({time:'',title:'새 교육',room:'',who:''});setCal('edu',x,eduText(it))});setTimeout(()=>{const L=document.querySelectorAll('#pop .er-n');const el=L[L.length-1];if(el){el.focus();el.select()}},40);return true}
+  if(d.edudel){const [x,i]=sp(d.edudel);mutate(()=>{const it=eduItems(S.doc.cal.edu[x]);it.splice(+i,1);setCal('edu',x,eduText(it))},'교육을 뺐습니다');return true}
   if(d.tnapply){tnApply();return true}
   if(d.acolsel){const k=d.acolsel;const D=asgData(S.doc);S.asel=new Set(D[k].map((x,i)=>k+'|'+i));S.acell=null;S.keepScroll=true;render();return true}
   if(d.amove){const {col,i}=S.acell||{};if(col==null)return true;const j=i+Number(d.amove);const L=asgData(S.doc)[col];if(j<0||j>=L.length)return true;asgEdit(M=>{const [x]=M[col].splice(i,1);M[col].splice(j,0,x);if(col==='off')S.doc.offOrder=M.off.map(y=>nmKey(y.n))});S.acell={col,i:j};S.asel=new Set([col+'|'+j]);S.keepScroll=true;render();return true}
@@ -3321,6 +3366,7 @@ document.addEventListener('submit',e=>{const id=e.target.id;if(id==='loginForm')
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='acIn'){const {col,i}=S.acell||{};if(col==null)return;const v=t.value.trim();asgEdit(M=>{M[col][i].n=v;if(col==='off')S.doc.offOrder=M.off.map(y=>nmKey(y.n))},v?`${v} 입력`:'이름을 지웠습니다');return}
+  if(t.dataset&&t.dataset.edu){const [x,i,f]=sp(t.dataset.edu);const v=t.value.trim();setTimeout(()=>{const ae=document.activeElement;const nx=ae?.dataset?.edu,nb=ae?.dataset?.edudel||ae?.dataset?.eduadd;if(nb)return void eduSave(x,i,f,v,true);eduSave(x,i,f,v);if(nx){const n=document.querySelector(`#pop [data-edu="${nx}"]`);if(n){n.focus();n.select?.()}}},0);return}
   if(t.dataset&&t.dataset.tvname!=null){const i=+t.dataset.tvname;const v=t.value.trim();S.edit=true;mutate(()=>{ensureTurns()[i].name=v},v?`이름을 ${v}(으)로 고쳤습니다`:'이름을 지웠습니다');return}
   if(t.dataset&&t.dataset.tvamt!=null){const i=+t.dataset.tvamt;const v=num(t.value);S.edit=true;mutate(()=>{ensureTurns()[i].amt=v},`매출 ${comma(String(v))}원`);return}
   if(t.dataset&&t.dataset.tvadd!=null){const i=+t.dataset.tvadd;const v=t.value.replace(/[^\d]/g,'');S.edit=true;mutate(()=>{const L=ensureTurns();L[i].add=v},v?`${turnsOf()[i].name} 추가모집 ${v}건`:'추가모집을 지웠습니다');return}
