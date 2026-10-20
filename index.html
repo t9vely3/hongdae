@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261020-172240';
+window.OPS_BUILD = '20261020-173256';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1651,6 +1651,44 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 .cl-need{font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted)}.cl-need.cut{color:var(--ink)}td.cl-sum small{display:block;font-size:10.5px;font-weight:600}
 .cl-vip{display:inline-block;padding:1px 8px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:11.5px;font-weight:700}
 
+/* --- 디비턴 판독 --- */
+.jt{display:inline-block;font-weight:800;font-size:18px;padding:8px 14px;border-radius:9px;white-space:nowrap;letter-spacing:-.02em}
+.jt.sm{font-size:11.5px;padding:3px 8px;border-radius:6px;font-weight:700}
+.jt-official{color:#146b57;background:#daeae3}.jt-ai{color:#27549c;background:#dce5f4}.jt-oa{color:#8a5510;background:#f4e7d3}.jt-fb{color:#71469a;background:#eadff3}.jt-etc{color:#4b5563;background:#e5e7eb}
+.jd{padding:4px 24px 22px}.jd-l{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:8px}
+#jq{width:100%;height:50px;font-size:17px;font-weight:600;padding:0 14px}
+.jd-opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.jd-res{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--sunk)}
+.jd-empty{margin:0;padding:20px 18px;color:var(--muted);font-size:13.5px}
+.jd-main{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;padding:16px 18px}
+.jd-why{flex:1 1 240px;font-size:13.5px;line-height:1.6;min-width:0}
+.jd-step{display:inline-block;font-size:10.5px;font-weight:700;color:var(--muted);border:1px solid var(--line-strong);border-radius:4px;padding:0 6px;margin-right:7px}
+.jd-flag{border-top:1px solid #e3c79c;background:#f8ecda;color:#8f5310;padding:10px 18px;font-size:13px}
+.jd-flag b{font-size:11px;border:1px solid currentColor;border-radius:4px;padding:0 5px;margin-right:8px}
+.jd-sub{border-top:1px solid var(--line);background:var(--surface);padding:10px 18px;font-size:12.5px}
+.jd-sub code{background:var(--sunk);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.jd-cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;align-items:start}
+.jd-cols>div{display:flex;flex-direction:column;gap:20px;min-width:0}.jd-cols .card{margin:0}
+@media (max-width:900px){.jd-cols{grid-template-columns:1fr}}
+.jd-leg>div{display:flex;gap:12px;align-items:center;padding:10px 20px;border-top:1px solid var(--line);font-size:12.5px}
+.jd-leg .jt{width:84px;text-align:center;flex:none}
+.jd-fls{max-height:330px;overflow:auto}
+.jd-fls button{display:block;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:9px 20px;font:inherit;cursor:pointer}
+.jd-fls button:hover{background:var(--sunk)}.jd-fls b{display:block;font-size:13px}.jd-fls small{display:block;font-size:11.5px;color:#8f5310}
+.jd-fl{font-size:12px;color:#8f5310}
+.jm{padding:0 24px 22px}.jm-sec{margin-top:22px}
+.jm-h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-bottom:8px}.jm-h b{font-size:14px}.jm-h .in{margin-left:auto;width:200px}
+.jm-scroll{max-height:440px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.jm-tab td{padding:4px 6px!important}.jm-tab .in{width:100%;min-width:0}
+.jm-add{display:grid;grid-template-columns:2fr 1.2fr 1fr 1.4fr auto;gap:6px;margin-top:8px}
+.jm-add.k{grid-template-columns:1fr 1fr 3fr auto}.jm-add.d{grid-template-columns:1.2fr 2fr 1fr auto}
+.jm-kw{display:grid;grid-template-columns:24px 1fr 150px auto;gap:6px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.jm-kw .jm-w{grid-column:2/-1;font-size:12px}
+.jm-n{font-size:12px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.jm-act{display:flex;gap:2px}
+.jm-pr{display:flex;flex-direction:column;gap:4px;max-width:340px}.jm-pr>div{display:flex;align-items:center;gap:8px}.jm-pr .jt{width:100px;text-align:center}
+@media (max-width:759px){.jm{padding:0 14px 18px}.jm-add,.jm-add.k,.jm-add.d{grid-template-columns:1fr 1fr}.jm-kw{grid-template-columns:24px 1fr}.jm-kw select,.jm-kw .jm-act{grid-column:2}.jd{padding:4px 16px 18px}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1805,7 +1843,7 @@ const PAGES={
   edu:{label:'교육 일정',g:'m',desc:'날짜를 누르면 그날 교육을 보고 고칠 수 있습니다.'},
   ops:{label:'운영부 근무',g:'m',subs:[['cal','근무 달력'],['info','역할·근무 순서']],desc:'운영부 출근 시간대와 휴무를 날짜별로 관리합니다.'},
   sales:{label:'영업 현황',g:'m',subs:[['acp','ACP·리뷰'],['log','조정·재배정 기록']],desc:'디비턴 기준 매출 대비 차액과 ACP·리뷰 달성 여부는 자동으로 계산됩니다.'},
-  dbturn:{label:'디비턴',g:'m',subs:[['turns','디비턴 현황'],['assign','디비 배정표']],desc:'매출표를 붙여넣으면 턴을 나누고, 디비 배정표를 자동으로 만듭니다.'},
+  dbturn:{label:'디비턴',g:'m',subs:[['turns','디비턴 현황'],['assign','디비 배정표'],['judge','디비턴 판독']],desc:'매출표를 붙여넣으면 턴을 나누고, 디비 배정표를 자동으로 만듭니다. 문의과목을 넣으면 어느 턴인지 판독합니다.'},
   calls:{label:'통화량',g:'m',desc:'매일 퇴근 전까지 개인·내선 통화량을 적습니다. 합산 60분에서 상담·등록·하루 매출만큼 기준이 줄어듭니다.'},
   rules:{label:'DB 규정',g:'c',subs:[['turn','디비턴·배정'],['rights','권한 기간·규정'],['visit','방문·더블 처리'],['reassign','재배정'],['penalty','패널티·메모'],['duty','당직·배정조 운영'],['group','계열사 지침']],desc:'주제별로 나눴습니다. 검색하면 모든 주제에서 찾아 줍니다.'},
   tuition:{label:'수강료',g:'c',subs:[['weekday','평일'],['weekend','주말'],['vacation','방학특강']],desc:'청소년가는 총 수업시간(분) × 163원에서 천 원 아래를 버린 금액입니다.'},
@@ -2205,9 +2243,9 @@ function tnApply(){
 }
 function secPage(tab){
   const sec=curSub(tab);const counts={};PAGES[tab].subs.forEach(([k])=>counts[k]=blocksOf(tab,k).length);
-  if(tab==='dbturn'){counts.turns=turnsOf().length;counts.assign=assignOf(S.doc).off.length}
+  if(tab==='dbturn'){counts.turns=turnsOf().length;counts.assign=assignOf(S.doc).off.length;counts.judge=null}
   const hideIds=tab==='dbturn'?(sec==='turns'?b=>b.kind==='turns':sec==='assign'?b=>b.id==='dbAssign'||b.id==='dbAssignPrev':()=>false):()=>false;
-  const extra=tab==='dbturn'&&sec==='turns'?tnCard()+turnsTable():tab==='dbturn'&&sec==='assign'?assignPage():'';
+  const extra=tab==='dbturn'&&sec==='turns'?tnCard()+turnsTable():tab==='dbturn'&&sec==='assign'?assignPage():tab==='dbturn'&&sec==='judge'?judgePage():'';
   const rest=(tab==='dbturn'?[...blocksOf('sales',sec),...blocksOf('dbturn',sec)]:blocksOf(tab,sec)).filter(b=>!hideIds(b));
   return pageHead(tab,'','',counts)+(isCommonTab(tab)?comBar():'')+editHint()+extra+(flow(rest)||(S.edit||extra?'':'<div class="empty-state">이 주제에 카드가 없습니다. 편집을 켜고 새 카드를 추가할 수 있습니다.</div>'))+addBlockBar(tab,sec);
 }
@@ -2791,7 +2829,7 @@ const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${Stri
 const hms=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
 function callRoster(){const t=S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT;return t.split(/\r?\n/).map(l=>l.trim().split(/\s+/)).filter(a=>a.length>=3).map(a=>({team:a[0],rank:a.slice(1,-1).join(' '),name:a[a.length-1]}))}
 function callsSub(){if(S.callsSub||!S.db)return;S.callsSub=true;S.callsAll=S.callsAll||{};
-  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});S.callsAll=n;if(S.tab==='calls'&&!document.activeElement?.closest?.('.cl-tab')){S.keepScroll=true;render()}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
+  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});S.callsAll=n;if(S.tab==='calls'){S.keepScroll=true;render()}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
 async function callsWrite(id,patch){
   S.callsAll=S.callsAll||{};const cur=S.callsAll[id]||{};
   const merged={...cur,...patch,rows:{...(cur.rows||{}),...Object.fromEntries(Object.entries(patch.rows||{}).map(([n,v])=>[n,{...(cur.rows?.[n]||{}),...v}]))},updatedAt:new Date().toISOString().slice(0,19)};
@@ -2999,6 +3037,7 @@ function act(t){
   if(d.logsave){const [ei,ii]=sp(d.logsave);const v=$('#logIn').value.trim();S.logEd=null;mutate(()=>{S.doc.changeLog[+ei].items[+ii].t=v},'기록을 고쳤습니다 · 저장을 눌러 확정');return true}
   if(d.eduadd){const x=d.eduadd;mutate(()=>{const it=eduItems(S.doc.cal.edu[x]);it.push({time:'',title:'새 교육',room:'',who:''});setCal('edu',x,eduText(it))});setTimeout(()=>{const L=document.querySelectorAll('#pop .er-n');const el=L[L.length-1];if(el){el.focus();el.select()}},40);return true}
   if(d.edudel){const [x,i]=sp(d.edudel);mutate(()=>{const it=eduItems(S.doc.cal.edu[x]);it.splice(+i,1);setCal('edu',x,eduText(it))},'교육을 뺐습니다');return true}
+  if(jAct(d))return true;
   if(d.tnapply){tnApply();return true}
   if(d.acolsel){const k=d.acolsel;const D=asgData(S.doc);S.asel=new Set(D[k].map((x,i)=>k+'|'+i));S.acell=null;S.keepScroll=true;render();return true}
   if(d.amove){const {col,i}=S.acell||{};if(col==null)return true;const j=i+Number(d.amove);const L=asgData(S.doc)[col];if(j<0||j>=L.length)return true;asgEdit(M=>{const [x]=M[col].splice(i,1);M[col].splice(j,0,x);if(col==='off')S.doc.offOrder=M.off.map(y=>nmKey(y.n))});S.acell={col,i:j};S.asel=new Set([col+'|'+j]);S.keepScroll=true;render();return true}
@@ -3216,6 +3255,94 @@ document.addEventListener('paste',e=>{if(e.target.closest?.('input,textarea'))re
   if(S.pop&&GK[S.pop.key]&&CAN()){e.preventDefault();const {key:k,date:x}=S.pop;S.edit=true;
     if(DCLIP){mutate(()=>{setCal(k,x,DCLIP.v);if(DCLIP.m)S.doc.cal[GK[k].mem][x]=DCLIP.m.slice();else delete S.doc.cal[GK[k].mem][x]},`${md(x)}에 붙여넣음`);return}
     const v=String(t||'').trim();if(!v)return;const g=v.match(/^([A-E])\s*조?/i);mutate(()=>{setCal(k,x,g?g[1].toUpperCase()+'조':v);delete S.doc.cal[GK[k].mem][x]},`${md(x)}에 붙여넣음`)}});
+
+/* ================= 디비턴 판독 (문의과목 → 배정턴) ================= */
+const JSEED={"snsFirst":true,"priority":["official","ai","oa","fb","etc"],"updatedAt":"2026-10-12","courses":[{"n":"클로드코드 앱인토스 수익화","d":"AI마케팅&데이터","t":"ai","f":""},{"n":"바이브코딩 : Claude AI로 웹사이트 구축","d":"AI개발","t":"ai","f":""},{"n":"AI Canvas로 완성하는 노코드 머신러닝","d":"AI개발","t":"ai","f":""},{"n":"딥러닝·비전·자연어 올인원 로드맵","d":"AI개발","t":"etc","f":"코딩·IT 개발 과정"},{"n":"챗GPT와 친해지는 첫걸음","d":"AI베이직","t":"ai","f":""},{"n":"나만의 매력적인 AI 콘텐츠 제작","d":"AI베이직","t":"ai","f":""},{"n":"AI로 만드는 영상·쇼츠 크리에이터","d":"AI베이직","t":"ai","f":""},{"n":"시니어 클래스 : AI와 대화의 기술","d":"AI베이직","t":"ai","f":""},{"n":"AI 에이전트(클로드)","d":"AI베이직","t":"ai","f":""},{"n":"AI 프롬프트 엔지니어링","d":"AI베이직","t":"ai","f":""},{"n":"스마트 AI 생활활용(시니어)","d":"AI베이직","t":"ai","f":""},{"n":"WRTN AI (뤼튼)","d":"AI베이직","t":"ai","f":""},{"n":"AI영상 크리에이터 10일 완성","d":"AI콘텐츠제작","t":"ai","f":""},{"n":"3D 브랜드 광고 콘텐츠 제작","d":"AI콘텐츠제작","t":"ai","f":"이름에 AI 없음, CG로 오분류 주의"},{"n":"Vrew AI로 완성하는 나만의 영상","d":"AI콘텐츠제작","t":"ai","f":""},{"n":"문해력 & AI 글쓰기 마스터 과정","d":"AI콘텐츠제작","t":"ai","f":""},{"n":"AI로 시작하는 8컷 웹툰 메이커","d":"AI콘텐츠제작","t":"ai","f":""},{"n":"생성형 AI 광고 콘텐츠 제작","d":"AI콘텐츠제작","t":"ai","f":""},{"n":"AI 비쥬얼 디자인","d":"AI콘텐츠제작","t":"ai","f":""},{"n":"AI 크리에이터(영상·모션)","d":"AI콘텐츠제작","t":"ai","f":""},{"n":"ChatGPT 오피스 자동화","d":"AI업무자동화","t":"ai","f":"이름에 오피스, OA로 오분류 주의"},{"n":"AI 올인원 : 기획·문서·자동화 끝판왕","d":"AI업무자동화","t":"ai","f":""},{"n":"n8n과 함께 업무효율 극대화","d":"AI업무자동화","t":"ai","f":""},{"n":"n8n 활용 AI 업무 비서 만들기","d":"AI업무자동화","t":"ai","f":""},{"n":"마케팅 자동화의 모든 것","d":"AI마케팅&데이터","t":"ai","f":"이름에 AI 없음"},{"n":"칼퇴를 부르는 데이터 비밀병기","d":"AI마케팅&데이터","t":"ai","f":"이름에 AI 없음"},{"n":"ChatGPT 데이터 스토리","d":"AI마케팅&데이터","t":"ai","f":""},{"n":"AI 데이터로 똑똑하게 투자하는 법","d":"AI마케팅&데이터","t":"ai","f":""},{"n":"전략 퍼포먼스 마케팅 실무 올인원","d":"AI마케팅&데이터","t":"ai","f":"이름에 AI 없음"},{"n":"AI 마케팅 영상 제작","d":"AI마케팅&데이터","t":"ai","f":""},{"n":"AI전문가 자격증 취득과정","d":"AI자격증","t":"ai","f":""},{"n":"AICE 어소시에이트 취득과정","d":"AI자격증","t":"ai","f":""},{"n":"구글애널리틱스(GA4) 자격증","d":"AI자격증","t":"ai","f":"이름에 AI 없음"},{"n":"AICE 주니어 취득 과정","d":"AI자격증","t":"ai","f":""},{"n":"국가공인 AI 자격증(AICE)","d":"AI자격증","t":"ai","f":""},{"n":"AI-POT(프롬프트 활용능력)","d":"AI자격증","t":"ai","f":""},{"n":"그래픽 기초 : 포토샵","d":"웹UIUX디자인","t":"official","f":""},{"n":"그래픽 기초 : 일러스트","d":"웹UIUX디자인","t":"official","f":""},{"n":"Figma(웹앱 화면설계)","d":"웹UIUX디자인","t":"official","f":""},{"n":"UX/UI 디자인","d":"웹UIUX디자인","t":"official","f":""},{"n":"UX/UI 포트폴리오","d":"웹UIUX디자인","t":"official","f":""},{"n":"UX/UI 웹디자인 전문가 과정","d":"웹UIUX디자인","t":"official","f":""},{"n":"AI 바이브코딩 웹제작","d":"웹UIUX디자인","t":"ai","f":"AI융합-디자인 중복"},{"n":"프리미어 프로(영상 편집)","d":"모션/영상편집","t":"official","f":""},{"n":"애프터이펙트","d":"모션/영상편집","t":"official","f":""},{"n":"Cinema 4D(3D모션)","d":"모션/영상편집","t":"official","f":""},{"n":"블렌더(3D모션)","d":"모션/영상편집","t":"official","f":""},{"n":"모션그래픽디자이너 전문가(취업)과정","d":"모션/영상편집","t":"official","f":""},{"n":"모션그래픽 포트폴리오","d":"모션/영상편집","t":"official","f":""},{"n":"AI 활용한 유튜브 영상편집","d":"모션/영상편집","t":"ai","f":"AI융합-디자인 중복"},{"n":"AI 융합 모션그래픽 디자인","d":"모션/영상편집","t":"ai","f":"AI융합-디자인 중복"},{"n":"마야 3D모델링(지브러쉬)","d":"CG/특수효과","t":"official","f":""},{"n":"마야 리깅 & 애니메이션","d":"CG/특수효과","t":"official","f":""},{"n":"특수효과와 FX(후디니)","d":"CG/특수효과","t":"official","f":""},{"n":"록뎁(언리얼) 렌더링","d":"CG/특수효과","t":"official","f":""},{"n":"VFX 합성(누크)","d":"CG/특수효과","t":"official","f":""},{"n":"CG 포트폴리오","d":"CG/특수효과","t":"official","f":""},{"n":"CG 애니메이션 전문가(취업)과정","d":"CG/특수효과","t":"official","f":""},{"n":"AI 융합 특수효과 전문가","d":"CG/특수효과","t":"ai","f":"AI융합-디자인 중복"},{"n":"인디자인 디지털출판 과정","d":"시각편집디자인","t":"official","f":""},{"n":"패키지/브랜딩 디자인","d":"시각편집디자인","t":"official","f":""},{"n":"시각디자이너 전문가(취업)과정","d":"시각편집디자인","t":"official","f":""},{"n":"디자인 실무포트폴리오","d":"시각편집디자인","t":"official","f":""},{"n":"AI 융합 비주얼 디렉터","d":"시각편집디자인","t":"ai","f":"AI융합-디자인 중복"},{"n":"공간디자인 기초","d":"인테리어·제품","t":"official","f":""},{"n":"오토캐드(설계)","d":"인테리어·제품","t":"official","f":""},{"n":"리터칭 및 도면 표현","d":"인테리어·제품","t":"official","f":""},{"n":"스케치업 프로(3D공간구성)","d":"인테리어·제품","t":"official","f":""},{"n":"3Ds max(3D 공간구성)","d":"인테리어·제품","t":"official","f":""},{"n":"라이노(제품3D)","d":"인테리어·제품","t":"official","f":""},{"n":"Inventor(기계3D)","d":"인테리어·제품","t":"official","f":""},{"n":"BIM(건축3D)","d":"인테리어·제품","t":"official","f":""},{"n":"실내건축국가자격증","d":"인테리어·제품","t":"official","f":""},{"n":"전산응용건축제도기능사","d":"인테리어·제품","t":"official","f":""},{"n":"전산응용기계제도기능사","d":"인테리어·제품","t":"official","f":""},{"n":"인테리어/기계제품 취업과정","d":"인테리어·제품","t":"official","f":""},{"n":"포트폴리오","d":"인테리어·제품","t":"official","f":""},{"n":"빠르게 완성하는 AI 공간디자인","d":"인테리어·제품","t":"ai","f":"AI융합-디자인 중복"},{"n":"비주얼 아이디어 & 컬러 디자인","d":"웹툰/드로잉","t":"official","f":""},{"n":"아이패드 드로잉","d":"웹툰/드로잉","t":"official","f":""},{"n":"디지털아트드로잉 마스터과정","d":"웹툰/드로잉","t":"official","f":""},{"n":"스토리보드 & 비주얼 스토리텔링","d":"웹툰/드로잉","t":"official","f":""},{"n":"캐릭터 콘텐츠 크리에이터(이모티콘, 굿즈)","d":"웹툰/드로잉","t":"official","f":""},{"n":"웹툰 & AI 어시스트","d":"웹툰/드로잉","t":"ai","f":"AI융합-디자인 중복"},{"n":"AI 융합 비주얼 아트","d":"웹툰/드로잉","t":"ai","f":"AI융합-디자인 중복"},{"n":"컴퓨터그래픽기능사","d":"일반/OA/그래픽 자격증","t":"official","f":"그래픽자격증 소속"},{"n":"웹디자인개발기능사","d":"일반/OA/그래픽 자격증","t":"official","f":"그래픽자격증 소속, 코딩 규칙과 접점"},{"n":"GTQ, GTQI(그래픽자격증)","d":"일반/OA/그래픽 자격증","t":"official","f":"그래픽자격증 소속"},{"n":"ACP(어도비자격증)","d":"일반/OA/그래픽 자격증","t":"official","f":"그래픽자격증 소속"},{"n":"컴퓨터활용능력 1급","d":"일반/OA/그래픽 자격증","t":"oa","f":""},{"n":"컴퓨터활용능력 2급","d":"일반/OA/그래픽 자격증","t":"oa","f":""},{"n":"MOS","d":"일반/OA/그래픽 자격증","t":"oa","f":""},{"n":"재경관리사","d":"일반/OA/그래픽 자격증","t":"oa","f":""},{"n":"세무실무전문가과정","d":"일반/OA/그래픽 자격증","t":"oa","f":""},{"n":"세무실무중급과정","d":"일반/OA/그래픽 자격증","t":"oa","f":""},{"n":"회계실무기초과정","d":"일반/OA/그래픽 자격증","t":"oa","f":""},{"n":"1인 창업 마스터","d":"창업마스터과정","t":"etc","f":""},{"n":"스타트업 마스터","d":"창업마스터과정","t":"etc","f":""},{"n":"프리랜서 마스터","d":"창업마스터과정","t":"etc","f":""},{"n":"AI아카데미(지점)","d":"기타 유입","t":"etc","f":"이름에 AI 있으나 예외"},{"n":"국비지원","d":"기타 유입","t":"etc","f":""},{"n":"내일배움카드","d":"기타 유입","t":"etc","f":""},{"n":"과목 없음","d":"기타 유입","t":"etc","f":""}],"keywords":[{"label":"디자인 자격증","words":"ACP,에이씨피,어도비자격증,어도비,GTQ,GTQI,지티큐,컴퓨터그래픽,컴그,컴퓨터그래픽스기능사,그래픽기능사,웹디자인기능사,웹디자인개발,포토샵자격증,일러스트자격증,그래픽자격증,디자인자격증","t":"official","f":""},{"label":"디자인 실무","words":"포토샵,포샵,포토샾,일러스트,일러,피그마,Figma,인디자인,프리미어,프리미어프로,프리미에,애프터이펙트,애프터,애펙,에펙,시네마4D,시네마포디,C4D,블렌더,블랜더,마야,MAYA,3DSMAX,3DS,맥스,삼디맥스,지브러쉬,지브러시,ZBrush,후디니,휴디니,누크,NUKE,언리얼,언리얼엔진,록뎁,오토캐드,캐드,CAD,스케치업,스케치엎,라이노,Rhino,인벤터,Inventor,BIM,레빗,디자인,영상,영상편집,편집,모션,모션그래픽,3D,삼디,드로잉,데생,웹툰,만화,이모티콘,굿즈,캐릭터,인테리어,실내건축,공간디자인,공간,건축,기계제도,제도,포트폴리오,포폴,애니메이션,애니,렌더링,렌더,그래픽,VFX,합성,CG,씨지,스토리보드,콘티,UIUX,UI,UX,유아이,유엑스,브랜딩,패키지,출판,촬영,사진,유튜브","t":"official","f":""},{"label":"AI아카데미 예외","words":"AI아카데미,지점AI","t":"etc","f":"지점 AI아카데미 유입"},{"label":"바이브코딩·노코드 예외","words":"바이브코딩,노코드,AI캔버스,AI Canvas","t":"ai","f":""},{"label":"코딩·IT 개발","words":"IT,아이티,C언어,씨언어,C++,C#,파이썬,파이선,Python,자바,Java,자바스크립트,자스,리액트,리엑트,React,뷰,Vue,노드,Node,뷰js,노드js,스프링,Spring,코틀린,스위프트,플러터,백엔드,백앤드,프론트엔드,프론트,풀스택,서버,서버구축,데이터베이스,SQL,에스큐엘,오라클,MySQL,정보처리,정보처리기사,정처기,코딩,코딩테스트,프로그래밍,프로그래머,개발자,앱개발,웹개발,안드로이드,아이오에스,딥러닝,머신러닝,신경망,네트워크,클라우드,AWS,리눅스,도커,알고리즘,깃허브,블록체인,정보보안,해킹,유니티,게임개발,컴공,자료구조,임베디드","t":"etc","f":"코딩·IT는 전부 기타턴"},{"label":"AI 표기","words":"AI,에이아이,인공지능,챗GPT,챗지피티,ChatGPT,GPT,지피티,프롬프트,프롬트,생성형,n8n,엔에이트엔,뤼튼,WRTN,미드저니,미드저니AI,클로드,Claude,Vrew,브루,AICE,에이스자격,GA4,지에이포,구글애널리틱스,애널리틱스,코파일럿,스테이블디퓨전,제미나이,퍼플렉시티,딥시크,노션AI,캡컷AI","t":"ai","f":""},{"label":"기타 소화 양식","words":"국비,국비지원,내일배움,내배카,내일배움카드,고용노동부,창업,창업마스터,창업과정,1인창업,프리랜서,스타트업,과목없음,미정,없음,문의,IT관련","t":"etc","f":""},{"label":"사무자동화·회계세무","words":"OA,오에이,OA과정,컴활,컴퓨터활용,컴퓨터활용능력,MOS,모스,엠오에스,마이크로소프트오피스,ITQ,아이티큐,회계,전산회계,회계실무,세무,전산세무,세무실무,재경,재경관리사,더존,케이렙,KcLep,전산세무회계,엑셀,액셀,Excel,워드,아래한글,한컴,한글타자,파워포인트,피피티,PPT,문서작성,문서,사무자동화,사무,오피스,경리,부기,전표","t":"oa","f":""}],"depts":[{"d":"AI개발","a":"AI 개발,인공지능개발,AI개발과","t":"ai"},{"d":"AI베이직","a":"AI기초,AI 베이직,AI입문","t":"ai"},{"d":"AI콘텐츠제작","a":"AI 콘텐츠,AI콘텐츠,AI콘텐츠제작과","t":"ai"},{"d":"AI업무자동화","a":"업무자동화,AI 업무,AI자동화","t":"ai"},{"d":"AI마케팅&데이터","a":"AI마케팅,AI 마케팅,데이터,데이터분석","t":"ai"},{"d":"AI자격증","a":"AI 자격증,AI자격","t":"ai"},{"d":"웹UIUX디자인","a":"웹UIUX,UIUX,웹디자인,유아이유엑스,웹퍼블리싱","t":"official"},{"d":"모션/영상편집","a":"모션,영상편집,영상,모션그래픽,영상과","t":"official"},{"d":"CG/특수효과","a":"CG,씨지,특수효과,VFX,3D애니메이션","t":"official"},{"d":"시각편집디자인","a":"시각디자인,편집디자인,시각,그래픽디자인","t":"official"},{"d":"인테리어·제품","a":"인테리어,제품디자인,실내건축,공간디자인,건축인테리어","t":"official"},{"d":"웹툰/드로잉","a":"웹툰,드로잉,일러스트레이션,만화","t":"official"},{"d":"일반/OA/그래픽 자격증","a":"일반,그래픽자격증,일반자격증,자격증","t":"official"}]};
+const JTURNS=[['official','홍대공식턴','디자인 계열 과목 유입'],['ai','홍대AI턴','AI 학과 과목과 이름에 AI가 붙은 과목'],['oa','홍대OA턴','문서작업·회계세무 등 사무자동화'],['fb','홍대페북턴','SNS 광고로 들어온 디비 전체'],['etc','홍대기타턴','코딩·IT, 창업, 국비지원 등 나머지']];
+const JL=Object.fromEntries(JTURNS.map(t=>[t[0],t[1]]));
+const jnorm=x=>String(x||'').toLowerCase().replace(/[\s·:,()\[\]{}・\-–—_/\\&.'"’]/g,'');
+function jRules(){const r=S.callsAll?.['_judge']?.rules;return r&&Array.isArray(r.courses)?r:JSEED}
+function jCourse(c,how){return {turn:c.t,step:'과목',why:`<b>${esc(c.n)}</b> · ${esc(c.d)} 학과의 등록 과정입니다.${how?` (${how})`:''}`,flag:c.f||''}}
+function jDept(d,how){return {turn:d.t,step:'학과',why:`<b>${esc(d.d)}</b> 학과로 들어온 건이라 학과 기본값으로 배정합니다.${how?` (${how})`:''}`,flag:d.d==='일반/OA/그래픽 자격증'?'학과 단위로는 공식턴입니다. 컴활·MOS·회계세무처럼 OA 과정명이 함께 적혀 있으면 그 과정 기준으로 다시 보세요':''}}
+function jStrong(text,r){const q=jnorm(text);if(!q)return null;
+  for(const c of r.courses)if(jnorm(c.n)===q)return jCourse(c);
+  for(const d of r.depts){if(jnorm(d.d)===q)return jDept(d);for(const a of String(d.a||'').split(','))if(jnorm(a)&&jnorm(a)===q)return jDept(d,'학과 다른 이름')}
+  if(q.length>=3)for(const d of r.depts)if(jnorm(d.d).includes(q))return jDept(d,'학과명 일부');
+  if(q.length>=3)for(const c of r.courses)if(jnorm(c.n).indexOf(q)===0)return jCourse(c);
+  if(q.length>=3)for(const c of r.courses){const n=jnorm(c.n);if(n.includes(q)||q.includes(n))return jCourse(c,'과정명 일부')}
+  return null}
+function jOne(text,r){const st=jStrong(text,r);if(st)return st;const q=jnorm(text);
+  for(const k of r.keywords)for(const w0 of String(k.words||'').split(',')){const w=jnorm(w0);if(w.length>=2&&q.includes(w))return {turn:k.t,step:'키워드',why:`<b>${esc(w0.trim())}</b> · ${esc(k.label)} 규칙`,flag:(k.f?k.f+' / ':'')+'등록된 과정명이 아니라 확인이 필요합니다'}}
+  return null}
+const jNone=()=>({turn:'etc',step:'미분류',why:'과정 목록과 학과, 키워드 어디에도 걸리지 않아 기타턴으로 보냅니다.',flag:'판정 근거가 없습니다. 아래 기준 관리에서 과정이나 키워드를 추가해 주세요'});
+function judge(input,sns){const r=jRules();const text=String(input||'').trim();if(!text)return null;
+  const pr=r.priority&&r.priority.length?r.priority:['official','ai','oa','fb','etc'];const rank=t=>{const i=pr.indexOf(t);return i<0?99:i};let out;
+  if(!/[,;|\n\t]/.test(text)){out=jOne(text,r);if(out&&out.step==='키워드')out.why='홈페이지 표기와 달라 키워드로 판정했습니다. '+out.why+'.';if(!out)out=jNone()}
+  else{const hits=[];text.split(/[,;|\n\t]+/).map(x=>x.trim()).filter(Boolean).forEach(sg=>{const h=jOne(sg,r);if(h){hits.push({s:sg,h});return}sg.split(/[\s/·・]+/).map(x=>x.trim()).filter(Boolean).forEach(tk=>{const th=jOne(tk,r);if(th)hits.push({s:tk,h:th})})});
+    if(!hits.length)out=jNone();else{const subj=hits.filter(x=>x.h.step!=='학과');const pool=subj.length?subj:hits;let best=pool[0];pool.forEach(x=>{if(rank(x.h.turn)<rank(best.h.turn))best=x});
+      const many=new Set(pool.map(x=>x.h.turn)).size>1;const parts=hits.map(x=>`${esc(x.s)} → ${JL[x.h.turn]}${x.h.step==='학과'?'(학과)':''}`).join(', ');
+      const tail=subj.length&&subj.length<hits.length?`과정이 학과보다 앞서므로 학과 표기는 참고만 하고 <b>${JL[best.h.turn]}</b>으로 보냅니다.`:many?`배정우선순위에 따라 <b>${JL[best.h.turn]}</b>으로 보냅니다.`:'모두 같은 턴입니다.';
+      out={turn:best.h.turn,step:'복합',why:`한 칸에 여러 항목이 적혀 있습니다. ${parts}. ${tail}`,flag:many?'성격이 다른 항목이 섞여 있으니 상담 내용을 한 번 확인해 주세요':(best.h.flag||'')}}}
+  out.base=out.turn;
+  if(sns&&r.snsFirst!==false&&out.turn!=='fb'){const was=JL[out.turn];out.turn='fb';out.why=`SNS 광고 유입이라 출처가 과목보다 우선합니다. 과목 기준으로는 ${was}입니다.`;if(out.base==='ai'||out.base==='official')out.flag=`출처와 과목이 충돌합니다 (${was} 대 홍대페북턴)`}
+  return out}
+const jDuty=t=>t==='official'||t==='oa'||t==='ai'?'홍대당직':'당직기타';
+function jResHtml(){const J=S.jd||(S.jd={q:'',sns:false,duty:false});const r=J.q.trim()?judge(J.q,J.sns):null;
+  if(!r)return '<p class="jd-empty">문의과목이나 학과를 적으면 배정할 턴이 여기에 나옵니다.</p>';
+  const sub=[J.duty?`당직 배정은 <b>${jDuty(r.turn)}</b>으로 넣습니다.`:'',r.turn==='etc'?'담당자란에 메인·서브 없이 <code>[홍대기타1]이름</code> 형태로 적습니다.':''].filter(Boolean).join(' ');
+  return `<div class="jd-main"><span class="jt jt-${r.turn}">${JL[r.turn]}</span><span class="jd-why"><span class="jd-step">${esc(r.step)} 기준</span>${r.why}</span></div>${r.flag?`<div class="jd-flag"><b>확인 필요</b>${esc(r.flag)}</div>`:''}${sub?`<div class="jd-sub">${sub}</div>`:''}`}
+function jSave(r,msg){r.updatedAt=todayIso();callsWrite('_judge',{rules:r}).then(()=>{if(!S.callsErr)toast(msg||'판독 기준을 저장했습니다');S.keepScroll=true;render()})}
+function jEdit(fn,msg){const r=clone(jRules());fn(r);S.callsAll=S.callsAll||{};S.callsAll._judge={...(S.callsAll._judge||{}),rules:r};jSave(r,msg)}
+function judgePage(){callsSub();const J=S.jd||(S.jd={q:'',sns:false,duty:false});const r=jRules();const can=CAN();
+  const look=`<div class="jd"><label class="jd-l" for="jq">문의과목 또는 학과</label><input id="jq" class="in" type="text" autocomplete="off" list="jqList" value="${esc(J.q)}" placeholder="예: 웹툰 & AI 어시스트, 포토샵, 컴활"><datalist id="jqList">${r.courses.map(c=>`<option value="${esc(c.n)}">`).join('')}</datalist>
+    <div class="jd-opts"><label class="chk"><input type="checkbox" id="jSns" ${J.sns?'checked':''}>SNS 광고 유입</label><label class="chk"><input type="checkbox" id="jDuty" ${J.duty?'checked':''}>당직 근무 중</label></div><div class="jd-res" id="jRes">${jResHtml()}</div></div>`;
+  const bulkRows=(J.bulk||[]).map(l=>{const x=judge(l,J.sns);return `<tr><td>${esc(l)}</td><td><span class="jt sm jt-${x.turn}">${JL[x.turn]}</span></td>${J.duty?`<td class="muted">${jDuty(x.turn)}</td>`:''}<td class="jd-fl">${esc(x.flag||'')}</td></tr>`}).join('');
+  const bulk=`<div class="wk"><textarea id="jBulk" class="in" rows="4" placeholder="과목명을 한 줄에 하나씩 붙여넣으세요">${esc(J.bulkText||'')}</textarea><div class="wk-top"><button type="button" class="btn sm primary" data-jbulk="1">판독하기</button>${J.bulk?`<span class="muted">${J.bulk.length}건</span>`:''}</div>
+    ${bulkRows?`<div class="tw"><table class="stk"><thead><tr><th>과목</th><th>배정턴</th>${J.duty?'<th>당직</th>':''}<th>확인 필요</th></tr></thead><tbody>${bulkRows}</tbody></table></div>`:''}</div>`;
+  const legend=`<div class="jd-leg">${JTURNS.map(([k,l,d])=>`<div><span class="jt sm jt-${k}">${l}</span><span>${d}</span></div>`).join('')}</div>`;
+  const fl=r.courses.filter(c=>c.f);const flags=`<div class="jd-fls">${fl.map(c=>`<button type="button" data-jpick="${esc(c.n)}"><b>${esc(c.n)}</b><small>${esc(c.f)}</small></button>`).join('')||'<p class="muted">없음</p>'}</div>`;
+  const top=`<div class="jd-cols"><div>${card('jlook','디비턴 판독','과목명을 적으면 바로 판독합니다. 여러 과목이 한 칸에 섞여 있으면 쉼표로 이어 적으세요.',look)}${card('jbulk','여러 건 한꺼번에 판독','위의 SNS·당직 설정이 그대로 적용됩니다.',bulk)}</div><div>${card('jleg','턴 구분','',legend)}${card('jflag',`자주 헷갈리는 과목 ${fl.length}개`,'누르면 바로 판독합니다.',flags)}</div></div>`;
+  if(!can)return top;
+  const T=sel=>JTURNS.map(([k,l])=>`<option value="${k}" ${k===sel?'selected':''}>${l}</option>`).join('');
+  const f=jnorm(S.jf||'');
+  const crow=r.courses.map((c,i)=>f&&!jnorm(c.n).includes(f)&&!jnorm(c.d).includes(f)?'':`<tr><td><input class="in sm" data-jc="${i}|n" value="${esc(c.n)}"></td><td><input class="in sm" data-jc="${i}|d" value="${esc(c.d)}"></td><td><select class="in sm" data-jc="${i}|t">${T(c.t)}</select></td><td><input class="in sm" data-jc="${i}|f" value="${esc(c.f||'')}" placeholder="확인 필요 사유"></td><td><button type="button" class="ib xs" data-jcdel="${i}" title="삭제">${icx('x')}</button></td></tr>`).join('');
+  const courses=`<div class="jm-sec"><div class="jm-h"><b>과목별 배정턴</b><span class="muted">${r.courses.length}개 · 목록에 있는 과목명이 키워드보다 먼저 적용됩니다</span><input id="jf" class="in sm" placeholder="과목·학과 찾기" value="${esc(S.jf||'')}"></div>
+    <div class="tw jm-scroll"><table class="stk jm-tab"><thead><tr><th>과목</th><th>학과</th><th>배정턴</th><th>메모(확인 필요)</th><th></th></tr></thead><tbody>${crow}</tbody></table></div>
+    <div class="jm-add"><input class="in sm" id="jnN" placeholder="새 과목명"><input class="in sm" id="jnD" placeholder="학과"><select class="in sm" id="jnT">${T('etc')}</select><input class="in sm" id="jnF" placeholder="메모(선택)"><button type="button" class="btn sm" data-jcadd="1">${icx('plus')}추가</button></div></div>`;
+  const kws=`<div class="jm-sec"><div class="jm-h"><b>키워드 규칙</b><span class="muted">목록에 없는 과목은 위에서부터 순서대로 찾습니다</span></div>${r.keywords.map((k,i)=>`<div class="jm-kw"><span class="jm-n">${i+1}</span><input class="in sm" data-jk="${i}|label" value="${esc(k.label)}"><select class="in sm" data-jk="${i}|t">${T(k.t)}</select><span class="jm-act"><button type="button" class="ib xs" data-jkmv="${i}|-1" title="위로">${icx('up')}</button><button type="button" class="ib xs" data-jkmv="${i}|1" title="아래로">${icx('down')}</button><button type="button" class="ib xs" data-jkdel="${i}" title="삭제">${icx('x')}</button></span><textarea class="in sm jm-w" data-jk="${i}|words" rows="2">${esc(k.words)}</textarea></div>`).join('')}
+    <div class="jm-add k"><input class="in sm" id="jkL" placeholder="규칙 이름"><select class="in sm" id="jkT">${T('etc')}</select><input class="in sm" id="jkW" placeholder="키워드를 쉼표로 구분"><button type="button" class="btn sm" data-jkadd="1">${icx('plus')}추가</button></div></div>`;
+  const depts=`<div class="jm-sec"><div class="jm-h"><b>학과</b><span class="muted">과정명 없이 학과만 들어올 때 씁니다. 줄임말은 다른 이름 칸에 넣어 두세요</span></div><div class="tw"><table class="stk jm-tab"><thead><tr><th>학과</th><th>다른 이름</th><th>배정턴</th><th></th></tr></thead><tbody>${r.depts.map((d,i)=>`<tr><td class="nw"><b>${esc(d.d)}</b></td><td><input class="in sm" data-jd="${i}|a" value="${esc(d.a||'')}"></td><td><select class="in sm" data-jd="${i}|t">${T(d.t)}</select></td><td><button type="button" class="ib xs" data-jddel="${i}" title="삭제">${icx('x')}</button></td></tr>`).join('')}</tbody></table></div>
+    <div class="jm-add d"><input class="in sm" id="jdN" placeholder="새 학과명"><input class="in sm" id="jdA" placeholder="다른 이름을 쉼표로 구분"><select class="in sm" id="jdT">${T('official')}</select><button type="button" class="btn sm" data-jdadd="1">${icx('plus')}추가</button></div></div>`;
+  const pr=(r.priority&&r.priority.length?r.priority:['official','ai','oa','fb','etc']);
+  const prio=`<div class="jm-sec"><div class="jm-h"><b>배정 우선순위</b><span class="muted">한 칸에 여러 과목이 섞여 있으면 위쪽 턴으로 보냅니다</span></div><div class="jm-pr">${pr.map((t,i)=>`<div><span class="jm-n">${i+1}</span><span class="jt sm jt-${t}">${JL[t]}</span><button type="button" class="ib xs" data-jpmv="${i}|-1" title="위로">${icx('up')}</button><button type="button" class="ib xs" data-jpmv="${i}|1" title="아래로">${icx('down')}</button></div>`).join('')}</div>
+    <label class="chk" style="margin-top:12px"><input type="checkbox" id="jSnsFirst" ${r.snsFirst!==false?'checked':''}>SNS 유입은 과목과 상관없이 홍대페북턴으로 보낸다</label>
+    <div class="wk-top" style="margin-top:12px"><button type="button" class="btn sm ghost" data-jreset="1">처음 기준으로 되돌리기</button>${r.updatedAt?`<span class="muted">마지막 수정 ${esc(r.updatedAt)}</span>`:''}</div></div>`;
+  const open=!!S.jmOpen;
+  return top+card('jman','판독 기준 관리',open?'고치면 바로 저장되어 모두에게 반영됩니다.':'과목·키워드·학과별 배정턴을 고칩니다. 편집 권한이 있는 사람만 보입니다.',open?`<div class="jm">${courses}${kws}${depts}${prio}</div>`:'',{right:`<button type="button" class="btn sm" data-jman="1">${open?'접기':'열기'}</button>`,cls:'wide'});
+}
+document.addEventListener('input',function(e){const t=e.target;if(t.id==='jq'){S.jd.q=t.value;const el=$('#jRes');if(el)el.innerHTML=jResHtml()}else if(t.id==='jBulk'){S.jd.bulkText=t.value}});
+document.addEventListener('change',function(e){const t=e.target;const d=t.dataset||{};
+  if(t.id==='jSns'||t.id==='jDuty'){S.jd[t.id==='jSns'?'sns':'duty']=t.checked;S.keepScroll=true;render();return}
+  if(t.id==='jf'){S.jf=t.value;S.keepScroll=true;render();return}
+  if(t.id==='jSnsFirst'){jEdit(r=>{r.snsFirst=t.checked});return}
+  if(d.jc){const [i,k]=sp(d.jc);jEdit(r=>{r.courses[+i][k]=t.value.trim()});return}
+  if(d.jk){const [i,k]=sp(d.jk);jEdit(r=>{r.keywords[+i][k]=k==='words'?t.value.replace(/\s*\n\s*/g,','):t.value.trim()});return}
+  if(d.jd){const [i,k]=sp(d.jd);jEdit(r=>{r.depts[+i][k]=t.value.trim()});return}
+});
+function jAct(d){
+  if(d.jpick!=null){S.jd.q=d.jpick;S.keepScroll=true;render();setTimeout(()=>{$('#jq')?.scrollIntoView({block:'center',behavior:'smooth'})},30);return true}
+  if(d.jbulk){S.jd.bulkText=$('#jBulk')?.value||'';S.jd.bulk=S.jd.bulkText.split('\n').map(x=>x.trim()).filter(Boolean);S.keepScroll=true;render();return true}
+  if(d.jman){S.jmOpen=!S.jmOpen;S.keepScroll=true;render();return true}
+  if(d.jcdel!=null){jEdit(r=>{r.courses.splice(+d.jcdel,1)},'과목을 지웠습니다');return true}
+  if(d.jcadd){const n=$('#jnN')?.value.trim();if(!n){toast('새 과목명을 적어 주세요');return true}jEdit(r=>{r.courses.unshift({n,d:$('#jnD').value.trim()||'미분류',t:$('#jnT').value,f:$('#jnF').value.trim()})},'과목을 추가했습니다');return true}
+  if(d.jkdel!=null){jEdit(r=>{r.keywords.splice(+d.jkdel,1)},'규칙을 지웠습니다');return true}
+  if(d.jkmv){const [i,m]=sp(d.jkmv).map(Number);jEdit(r=>{const j=i+m;if(j<0||j>=r.keywords.length)return;[r.keywords[i],r.keywords[j]]=[r.keywords[j],r.keywords[i]]},'순서를 바꿨습니다');return true}
+  if(d.jkadd){const l=$('#jkL')?.value.trim(),w=$('#jkW')?.value.trim();if(!l||!w){toast('규칙 이름과 키워드를 적어 주세요');return true}jEdit(r=>{r.keywords.push({label:l,words:w,t:$('#jkT').value,f:''})},'규칙을 추가했습니다');return true}
+  if(d.jddel!=null){jEdit(r=>{r.depts.splice(+d.jddel,1)},'학과를 지웠습니다');return true}
+  if(d.jdadd){const n=$('#jdN')?.value.trim();if(!n){toast('새 학과명을 적어 주세요');return true}jEdit(r=>{r.depts.push({d:n,a:$('#jdA').value.trim(),t:$('#jdT').value})},'학과를 추가했습니다');return true}
+  if(d.jpmv){const [i,m]=sp(d.jpmv).map(Number);jEdit(r=>{r.priority=(r.priority&&r.priority.length?r.priority:['official','ai','oa','fb','etc']).slice();const j=i+m;if(j<0||j>=r.priority.length)return;[r.priority[i],r.priority[j]]=[r.priority[j],r.priority[i]]},'우선순위를 바꿨습니다');return true}
+  if(d.jreset){if(confirm('판독 기준을 처음 값으로 되돌릴까요?'))jEdit(r=>{Object.assign(r,clone(JSEED))},'처음 기준으로 되돌렸습니다');return true}
+  return false}
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
@@ -3400,7 +3527,7 @@ document.addEventListener('change',e=>{
   if(t.dataset&&t.dataset.tvname!=null){const i=+t.dataset.tvname;const v=t.value.trim();S.edit=true;mutate(()=>{ensureTurns()[i].name=v},v?`이름을 ${v}(으)로 고쳤습니다`:'이름을 지웠습니다');return}
   if(t.dataset&&t.dataset.tvamt!=null){const i=+t.dataset.tvamt;const v=num(t.value);S.edit=true;mutate(()=>{ensureTurns()[i].amt=v},`매출 ${comma(String(v))}원`);return}
   if(t.dataset&&t.dataset.tvadd!=null){const i=+t.dataset.tvadd;const v=t.value.replace(/[^\d]/g,'');S.edit=true;mutate(()=>{const L=ensureTurns();L[i].add=v},v?`${turnsOf()[i].name} 추가모집 ${v}건`:'추가모집을 지웠습니다');return}
-  if(t.dataset&&t.dataset.cl){const [n,k]=sp(t.dataset.cl);let v=t.value.trim();if(k==='pt'||k==='et'){v=v?String(secOf(v)):''}else if(k==='amt')v=manOf(v);else v=v.replace(/[^\d]/g,'');callsWrite(S.cdate||todayIso(),{rows:{[n]:{[k]:v}}}).then(()=>{if(!document.activeElement?.closest?.('.cl-tab')){S.keepScroll=true;render()}else{toast('저장했습니다')}});return}
+  if(t.dataset&&t.dataset.cl){const [n,k]=sp(t.dataset.cl);let v=t.value.trim();if(k==='pt'||k==='et'){v=v?String(secOf(v)):''}else if(k==='amt')v=manOf(v);else v=v.replace(/[^\d]/g,'');callsWrite(S.cdate||todayIso(),{rows:{[n]:{[k]:v}}}).then(()=>{S.keepScroll=true;render()});return}
   if(t.dataset&&t.dataset.cset){const k=t.dataset.cset;const v=Math.max(0,Math.round(+t.value||0));callsWrite('_settings',{...(S.callsAll?.['_settings']?.v2?{}:CALL_DEF),[k]:v,v2:true}).then(()=>{toast('통화량 기준을 바꿨습니다');S.keepScroll=true;render()});return}
   if(t.id==='cDate'&&t.value){S.cdate=t.value;S.keepScroll=true;render();return}
   if(t.id==='cEx'){callsWrite(S.cdate||todayIso(),{exempt:t.checked}).then(()=>{S.keepScroll=true;render()});return}
