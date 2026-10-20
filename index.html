@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261020-170517';
+window.OPS_BUILD = '20261020-172240';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1649,6 +1649,7 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 
 .cl-in.m{max-width:80px}.cl-amt small{display:block;font-size:10.5px;color:var(--muted)}.cl-tab th small{font-size:10px;font-weight:500;color:var(--muted)}
 .cl-need{font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted)}.cl-need.cut{color:var(--ink)}td.cl-sum small{display:block;font-size:10.5px;font-weight:600}
+.cl-vip{display:inline-block;padding:1px 8px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:11.5px;font-weight:700}
 
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
@@ -2804,13 +2805,13 @@ function viewCalls(){
   let fail=0,done=0;
   const body=R.map((p,i)=>{const r=rows[p.name]||{};const pt=+r.pt||0,et=+r.et||0,pc=+r.pc||0,ec=+r.ec||0,s1=+r.s1||0,s2=+r.s2||0;
     const CS=callSet();const tot=pt+et,cnt=pc+ec,need=callNeed(r);const filled=['pt','et','pc','ec','s1','s2','rg','amt'].some(k=>r[k]!=null&&r[k]!=='');if(filled)done++;
-    const bad=!ex&&tot<need;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
+    const vip=/^(부장|선임\s*팀장)$/.test(String(p.rank||'').trim());const bad=!ex&&!vip&&tot<need;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
     const inp=(k,v,cls='',ph='')=>can?`<input class="cl-in ${cls}" data-cl="${esc(p.name)}|${k}" value="${esc(v??'')}" placeholder="${ph}" inputmode="${k==='pt'||k==='et'?'text':'numeric'}">`:esc(v??'');
     return `<tr class="${first?'cl-first':''}${filled?'':' cl-empty'}">${first?`<td class="cl-team" rowspan="${span}">${esc(p.team)}</td>`:''}<td class="ctr cl-rank">${esc(p.rank)}</td><td class="nw"><b>${esc(p.name)}</b></td>
       <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('rg',r.rg,'n')}</td><td class="ctr cl-amt">${inp('amt',r.amt?(+r.amt).toLocaleString():'','m','')}${r.amt&&salesDed(r,CS)?`<small>-${salesDed(r,CS)}분</small>`:''}</td>
       <td class="ctr cl-p">${inp('pt',r.pt?hms(pt):'','t','0:00:00')}</td><td class="ctr cl-p">${inp('pc',r.pc,'n')}</td>
       <td class="ctr cl-e">${inp('et',r.et?hms(et):'','t','0:00:00')}</td><td class="ctr cl-e">${inp('ec',r.ec,'n')}</td>
-      <td class="ctr cl-need${need<CS.base*60&&!ex?' cut':''}">${ex?'-':mmss(need)}</td><td class="ctr cl-sum${bad?' bad':filled?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled?' ok':''}">${cnt}</td></tr>`}).join('');
+      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td></tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
     <div class="cl-stat"><span><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span>입력 ${done}/${R.length}명</span><span class="${fail&&!ex?'red':''}">미달 ${ex?'-':fail+'명'}</span>${can?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
