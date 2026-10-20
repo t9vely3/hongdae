@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261020-101410';
+window.OPS_BUILD = '20261020-132038';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1602,6 +1602,12 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 .thsel:hover{border-bottom-color:var(--ink)}
 .asg-tb .muted{font-size:11.5px}
 
+.cs{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 18px;padding:16px 24px}
+.cs-f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.cs-f span{font-weight:700;color:var(--ink2)}
+.cs-f input{width:110px;height:32px}
+.cs-f em{font-style:normal;font-size:11px;margin-top:-2px}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1677,6 +1683,15 @@ td.act .btn+.btn{margin-left:6px}
 .updbar .ub-x{border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;cursor:pointer;padding:6px 4px}
 @media (max-width:600px){.updbar{top:auto;bottom:16px;font-size:12.5px}.updbar .ub-t{flex:1}}
 @media (max-width:960px){.top .logo .lt b{font-size:14.5px}.top .logo small{display:none}.mechip .lo span{display:none}.mechip .nm{max-width:90px;overflow:hidden;text-overflow:ellipsis}}
+
+/* 회원 관리: 게시판 권한 · 묶어 보기 */
+.bd-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;max-width:420px}
+.bd{border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:2px 9px;font:inherit;font-size:11.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.bd:hover{border-color:var(--ink);color:var(--ink)}
+.bd.on{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.bd-note{display:block;margin-top:4px;font-size:11.5px;color:var(--muted)}
+tr.mgrp td{background:var(--sunk);padding:8px 16px!important;border-top:2px solid var(--line-strong)}
+tr.mgrp b{font-size:13px;margin-right:8px}tr.mgrp small{font-size:11.5px;color:var(--muted)}
 
 .top .dchip{display:none!important}
 </style>
@@ -1862,7 +1877,7 @@ function renderChrome(){
   $('#editBtn').setAttribute('aria-pressed',S.edit);
   $('#editBtn').hidden=!CAN();document.querySelector('.menu-wrap').hidden=!CAN();
   {const mb=$('#memBtn');mb.hidden=!isOwnerA();const n=isOwnerA()?pendingList().filter(([,u])=>!u.owner).length:0;const bd=mb.querySelector('.bd');bd.textContent=n||'';bd.hidden=!n;mb.setAttribute('aria-current',S.tab==='members');
-   const me=$('#meChip');me.hidden=!A.user;if(A.user){me.querySelector('.nm').textContent=(A.prof?.name||A.user.email||'')+(A.prof?.rank?' '+A.prof.rank:'')+(CAN()?'':' · 열람')}}
+   const me=$('#meChip');me.hidden=!A.user;if(A.user){me.querySelector('.nm').textContent=(A.prof?.name||A.user.email||'')+(A.prof?.rank?' '+A.prof.rank:'')+(isOwnerA()||A.prof?.role==='edit'?'':(A.prof?.boards||[]).length?' · 일부 편집':' · 열람')}}
   $('#undoBtn').disabled=!S.hist.length;$('#redoBtn').disabled=!S.fut.length;
   $('#newBtn').disabled=!S.db;$('#editBtn').disabled=!S.doc;$('#setBtn').disabled=!S.doc;
   $('#savebar').hidden=!S.dirty;
@@ -2400,7 +2415,11 @@ const rankList=()=>(A.lists&&A.lists.ranks&&A.lists.ranks.length)?A.lists.ranks:
 const A={fb:null,auth:null,fdb:null,user:null,prof:null,mode:'login',busy:false,err:'',users:{},unsubU:null,unsubMe:null,started:false};
 const isOwnerA=()=>!!A.user&&(A.user.email||'').toLowerCase()===OWNER_MAIL;
 const approved=()=>isOwnerA()||(A.prof&&A.prof.status==='approved');
-const CAN=()=>isOwnerA()||(approved()&&A.prof?.role==='edit');
+const BOARDS=[['duty','당직표'],['assign','배정표'],['edu','교육 일정'],['ops','운영부 근무'],['sales','영업 현황'],['dbturn','디비턴'],['rules','DB 규정'],['tuition','수강료'],['org','조직도'],['lead','업무분장']];
+const myBoards=()=>(A.prof&&Array.isArray(A.prof.boards))?A.prof.boards:[];
+/* 편집 권한: 관리자·‘편집’은 모든 화면, ‘열람’도 허용된 화면(게시판)만 편집 */
+const CAN=()=>isOwnerA()||(approved()&&(A.prof?.role==='edit'||myBoards().includes(typeof S!=='undefined'?S.tab:'')));
+const canAny=()=>isOwnerA()||(approved()&&(A.prof?.role==='edit'||myBoards().length>0));
 const fmtAt=s=>{if(!s)return '';const d=new Date(s);if(isNaN(d))return String(s);return `${String(d.getFullYear()).slice(2)}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
 const AUTH_MSG={"auth/invalid-credential":"이메일 또는 비밀번호가 맞지 않습니다.","auth/invalid-login-credentials":"이메일 또는 비밀번호가 맞지 않습니다.","auth/wrong-password":"비밀번호가 맞지 않습니다.","auth/user-not-found":"가입되지 않은 이메일입니다. ‘가입 신청’에서 먼저 신청해 주세요.","auth/email-already-in-use":"이미 있는 계정입니다. 그 비밀번호로 로그인하면 이어서 신청할 수 있습니다.","auth/weak-password":"비밀번호는 6자 이상이어야 합니다.","auth/invalid-email":"이메일 형식이 맞지 않습니다.","auth/too-many-requests":"시도가 너무 많습니다. 잠시 뒤 다시 해 주세요.","auth/network-request-failed":"인터넷 연결을 확인해 주세요.","permission-denied":"저장 권한이 없습니다. 관리자에게 문의해 주세요."};
 const authMsg=e=>AUTH_MSG[e?.code]||('처리하지 못했습니다. ('+(e?.code||e?.message||'오류')+')');
@@ -2504,14 +2523,17 @@ function viewMembers(){
   const who=u=>`<b>${esc(u.name||'(이름 없음)')}</b><small class="acct">${esc(u.email||'')}</small>`;
   const pRows=pend.map(([id,u])=>`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td><td class="nw" data-l="신청">${esc(fmtAt(u.createdAt))}</td>
     <td class="act" data-l="처리"><button type="button" class="btn sm" data-approve="${esc(id)}|view">${icx('check')}열람으로 승인</button><button type="button" class="btn sm primary" data-approve="${esc(id)}|edit">${icx('check')}편집으로 승인</button><button type="button" class="btn sm danger" data-reject="${esc(id)}">${icx('x')}반려</button></td></tr>`).join('');
-  const mRows=mem.map(([id,u])=>`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td>
-    <td data-l="권한">${u.owner?'<span class="chip">관리자 · 모든 권한</span>':`<div class="seg rolesel">${['view','edit'].map(r=>`<button type="button" class="${u.role===r?'on':''}" data-role="${esc(id)}|${r}">${ROLE_L[r]}</button>`).join('')}</div>`}</td><td class="nw" data-l="승인">${esc(fmtAt(u.decidedAt))}</td>
-    <td class="act" data-l="처리">${u.owner?'':S.confirm==='mem:'+id?`<span class="muted">이용을 중지할까요?</span><button type="button" class="btn sm danger" data-kickgo="${esc(id)}">중지</button><button type="button" class="btn sm" data-cancel="1">취소</button>`:`<button type="button" class="btn sm ghost" data-kick="${esc(id)}">이용 중지</button>`}</td></tr>`).join('');
+  const G=S.memGroup||'all';const gKey=u=>G==='dept'?(u.dept||'부서 없음'):G==='rank'?(u.rank||'직급 없음'):'';
+  if(G!=='all')mem.sort((x,y)=>{const a=gKey(x[1]),b=gKey(y[1]);const ia=G==='dept'?deptList().indexOf(a):rankIx(a),ib=G==='dept'?deptList().indexOf(b):rankIx(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b,'ko')||rankIx(x[1].rank)-rankIx(y[1].rank)||(x[1].name||'').localeCompare(y[1].name||'','ko')});
+  let lastG=null;const cntG={};mem.forEach(([,u])=>{const k=gKey(u);cntG[k]=(cntG[k]||0)+1});
+  const mRows=mem.map(([id,u])=>{const k=gKey(u);const hd=G!=='all'&&k!==lastG?`<tr class="mgrp"><td colspan="6"><b>${esc(k)}</b><small>${cntG[k]}명</small></td></tr>`:'';lastG=k;return hd+`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td>
+    <td data-l="권한">${u.owner?'<span class="chip">관리자 · 모든 권한</span>':`<div class="seg rolesel">${['view','edit'].map(r=>`<button type="button" class="${u.role===r?'on':''}" data-role="${esc(id)}|${r}">${ROLE_L[r]}</button>`).join('')}</div>${u.role==='edit'?'<small class="bd-note">모든 화면 편집</small>':`<div class="bd-chips" aria-label="편집할 수 있는 화면">${BOARDS.map(([b,l])=>`<button type="button" class="bd${(u.boards||[]).includes(b)?' on':''}" data-uboard="${esc(id)}|${b}">${l}</button>`).join('')}</div>`}`}</td><td class="nw" data-l="승인">${esc(fmtAt(u.decidedAt))}</td>
+    <td class="act" data-l="처리">${u.owner?'':S.confirm==='mem:'+id?`<span class="muted">이용을 중지할까요?</span><button type="button" class="btn sm danger" data-kickgo="${esc(id)}">중지</button><button type="button" class="btn sm" data-cancel="1">취소</button>`:`<button type="button" class="btn sm ghost" data-kick="${esc(id)}">이용 중지</button>`}</td></tr>`}).join('');
   const rRows=rej.map(([id,u])=>`<tr><td class="nw" data-l="부서">${esc(u.dept||'-')}</td><td data-l="이름">${who(u)}</td><td class="nw" data-l="상태">${u.status==='removed'?'이용 중지':'반려'} · ${esc(fmtAt(u.decidedAt))}</td><td class="act" data-l="처리"><button type="button" class="btn sm" data-approve="${esc(id)}|view">다시 승인</button></td></tr>`).join('');
   const t=(head,rows,empty)=>`<div class="tw"><table class="stk"><thead><tr>${head.map(h=>`<th${h==='처리'?' class="act"':''}>${h}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${head.length}" class="empty-cell">${empty}</td></tr>`}</tbody></table></div>`;
   return pageHead('members','회원 관리')+
     card('mpend',`가입 신청${pend.length?' '+pend.length+'건':''}`,'승인할 때 열람만 할지, 편집까지 할지 고릅니다.',t(['부서','직급','이름','신청','처리'],pRows,'새 가입 신청이 없습니다.'))+
-    card('mlist',`회원 ${mem.length}명`,'‘열람’은 보기만, ‘편집’은 당직표·규정 등을 고치고 저장할 수 있습니다. 관리자(김태욱)는 항상 모든 권한을 가집니다.',t(['부서','직급','이름','권한','승인','처리'],mRows,'아직 승인한 회원이 없습니다.'))+listsCard()+
+    card('mlist',`회원 ${mem.length}명`,'‘편집’은 모든 화면을 고칠 수 있습니다. ‘열람’인 사람도 아래에서 화면(게시판)을 골라 주면 그 화면만 고칠 수 있습니다. 관리자(김태욱)는 항상 모든 권한을 가집니다.',t(['부서','직급','이름','권한','승인','처리'],mRows,'아직 승인한 회원이 없습니다.'),{right:`<div class="seg">${[['all','전체'],['dept','부서별'],['rank','직급별']].map(([k,l])=>`<button type="button" class="${(S.memGroup||'all')===k?'on':''}" data-mgroup="${k}">${l}</button>`).join('')}</div>`})+listsCard()+
     (rRows?card('mrej','반려 · 이용 중지','',t(['부서','이름','상태','처리'],rRows,'')):'')+
     card('mimport','자료 가져오기','Claude 운영표에서 내려받은 자료 파일(.json)을 한 번 올리면 이 사이트로 옮겨집니다. 같은 달이 이미 있으면 덮어씁니다.',`<div class="imp"><label class="btn sm">파일 고르기<input type="file" id="impFile" accept=".json,application/json" hidden></label><span class="muted">${A.impFile?esc(A.impFile.name):'고른 파일 없음'}</span><button type="button" class="btn sm primary" id="impGo" ${A.impFile?'':'disabled'}>가져오기</button></div>`);
 }
@@ -2698,7 +2720,9 @@ const CALL_ROSTER_DEFAULT=`1-1팀 부장 김태원
 4-1팀 경력 전교준
 4-1팀 경력 양민우
 4-2팀 팀장 박승수`;
-const CALL_BASE=30*60,CALL_PER=10*60;
+const CALL_DEF={base:30,s1:10,s2:10,iv:0,min:0};
+function callSet(){const c=S.callsAll?.['_settings']||{};const o={};Object.keys(CALL_DEF).forEach(k=>{const v=c[k];o[k]=v===''||v==null||isNaN(+v)?CALL_DEF[k]:+v});return o}
+function callNeed(r){const c=callSet();return Math.max(c.min*60,(c.base-(+r.s1||0)*c.s1-(+r.s2||0)*c.s2-(+r.iv||0)*c.iv)*60)}
 const secOf=v=>{v=String(v??'').trim();if(!v)return 0;if(/^\d+$/.test(v))return +v*60;const m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);if(m)return m[3]!=null?(+m[1])*3600+(+m[2])*60+(+m[3]):(+m[1])*60+(+m[2]);const k=v.match(/(?:(\d+)\s*시간)?\s*(?:(\d+)\s*분)?\s*(?:(\d+)\s*초)?/);return k?(+(k[1]||0))*3600+(+(k[2]||0))*60+(+(k[3]||0)):0};
 const hms=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
 function callRoster(){const t=S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT;return t.split(/\r?\n/).map(l=>l.trim().split(/\s+/)).filter(a=>a.length>=3).map(a=>({team:a[0],rank:a.slice(1,-1).join(' '),name:a[a.length-1]}))}
@@ -2709,30 +2733,33 @@ async function callsWrite(id,patch){
   const merged={...cur,...patch,rows:{...(cur.rows||{}),...Object.fromEntries(Object.entries(patch.rows||{}).map(([n,v])=>[n,{...(cur.rows?.[n]||{}),...v}]))},updatedAt:new Date().toISOString().slice(0,19)};
   S.callsAll[id]=merged;
   try{if(typeof A!=='undefined'&&A.fdb)await A.fdb.collection('ops_calls').doc(id).set({...patch,updatedAt:merged.updatedAt},{merge:true});else await S.db.doc('calls/'+id).set(merged);S.callsErr=null}
-  catch(e){S.callsErr=e?.code||'오류';toast(e?.code==='permission-denied'?'저장 권한이 없습니다. Firebase 규칙을 새로 게시해 주세요.':'저장하지 못했습니다. 다시 적어 주세요.')}
+  catch(e){S.callsErr=e?.code||'오류';S.callsDenied=e?.code==='permission-denied';toast(e?.code==='permission-denied'?'저장되지 않았습니다. Firebase 규칙이 아직 바뀌지 않았습니다(아래 안내 참고).':'저장하지 못했습니다. 다시 적어 주세요.');S.keepScroll=true;render()}
 }
 function callCan(){return typeof approved==='function'?approved():CAN()}
 function viewCalls(){
   callsSub();const d=S.cdate||(S.cdate=todayIso());const day=S.callsAll?.[d]||{};const rows=day.rows||{};const R=callRoster();const can=callCan();const ex=!!day.exempt;
   let fail=0,done=0;
   const body=R.map((p,i)=>{const r=rows[p.name]||{};const pt=+r.pt||0,et=+r.et||0,pc=+r.pc||0,ec=+r.ec||0,s1=+r.s1||0,s2=+r.s2||0,iv=+r.iv||0;
-    const tot=pt+et,cnt=pc+ec,need=Math.max(0,CALL_BASE-CALL_PER*(s1+s2));const filled=['pt','et','pc','ec','s1','s2','iv'].some(k=>r[k]!=null&&r[k]!=='');if(filled)done++;
+    const CS=callSet();const tot=pt+et,cnt=pc+ec,need=callNeed(r);const filled=['pt','et','pc','ec','s1','s2','iv'].some(k=>r[k]!=null&&r[k]!=='');if(filled)done++;
     const bad=!ex&&tot<need;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
     const inp=(k,v,cls='',ph='')=>can?`<input class="cl-in ${cls}" data-cl="${esc(p.name)}|${k}" value="${esc(v??'')}" placeholder="${ph}" inputmode="${k==='pt'||k==='et'?'text':'numeric'}">`:esc(v??'');
     return `<tr class="${first?'cl-first':''}${filled?'':' cl-empty'}">${first?`<td class="cl-team" rowspan="${span}">${esc(p.team)}</td>`:''}<td class="ctr cl-rank">${esc(p.rank)}</td><td class="nw"><b>${esc(p.name)}</b></td>
       <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('iv',r.iv,'n')}</td>
       <td class="ctr cl-p">${inp('pt',r.pt?hms(pt):'','t','0:00:00')}</td><td class="ctr cl-p">${inp('pc',r.pc,'n')}</td>
       <td class="ctr cl-e">${inp('et',r.et?hms(et):'','t','0:00:00')}</td><td class="ctr cl-e">${inp('ec',r.ec,'n')}</td>
-      <td class="ctr cl-sum${bad?' bad':filled?' ok':''}"><b>${hms(tot)}</b>${need<CALL_BASE&&!ex?`<small>기준 ${Math.round(need/60)}분</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled?' ok':''}">${cnt}</td></tr>`}).join('');
+      <td class="ctr cl-sum${bad?' bad':filled?' ok':''}"><b>${hms(tot)}</b>${need<CS.base*60&&!ex?`<small>기준 ${Math.round(need/60)}분</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled?' ok':''}">${cnt}</td></tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
     <div class="cl-stat"><span><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span>입력 ${done}/${R.length}명</span><span class="${fail&&!ex?'red':''}">미달 ${ex?'-':fail+'명'}</span>${can?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
-  const rule=`<div class="cl-rule"><b>기준</b> 합산 통화량 30분 · 상담 1건마다 10분 차감(최소 기준 없음) · 지점매출 달성 시 전체 제외 <b>합산</b> 개인 + 내선 <b>입력</b> 통화량은 0:15:12 또는 15:12처럼 적고, 칸을 벗어나면 바로 저장됩니다.${S.callsErr?` <span class="red">저장 오류: ${esc(S.callsErr)}</span>`:''}</div>`;
+  const C=callSet();const ded=[C.s1?`상담(본인) 1건 ${C.s1}분`:'',C.s2?`상담(대리) 1건 ${C.s2}분`:'',C.iv?`면접 1건 ${C.iv}분`:''].filter(Boolean).join(' · ');
+  const rule=`<div class="cl-rule"><b>기준</b> 합산 통화량 ${C.base}분${ded?` · 차감: ${ded}`:''} · 최소 기준 ${C.min?C.min+'분':'없음'} · 지점매출 달성 시 전체 제외 <b>합산</b> 개인 + 내선 <b>입력</b> 통화량은 0:15:12 또는 15:12처럼 적고, 칸을 벗어나면 바로 저장됩니다.</div>${S.callsDenied?`<div class="banner">통화량이 저장되지 않고 있습니다. Firebase 콘솔 → Firestore Database → <b>규칙</b> 탭에 새 규칙 파일 내용을 붙여넣고 <b>게시</b>를 눌러 주세요. 게시할 때 빨간 오류가 뜨면 그 화면을 보내 주세요.</div>`:''}`;
   const table=`<div class="tw"><table class="stk cl-tab"><thead><tr><th rowspan="2">팀</th><th rowspan="2" class="ctr">직급</th><th rowspan="2">이름</th><th colspan="2" class="ctr">상담</th><th rowspan="2" class="ctr">면접</th><th class="ctr cl-p" rowspan="2">개인<br>통화량</th><th class="ctr cl-p" rowspan="2">개인<br>건수</th><th class="ctr cl-e" rowspan="2">내선<br>통화량</th><th class="ctr cl-e" rowspan="2">내선<br>건수</th><th class="ctr" rowspan="2">합산<br>통화량</th><th class="ctr" rowspan="2">합산<br>건수</th></tr><tr><th class="ctr">본인</th><th class="ctr">대리</th></tr></thead><tbody>${body}</tbody></table></div>`;
   const imp=can?card('clext','내선 통화내역 붙여넣기','전화 기록(No·상담일자·…·상담원·내선번호·고객전화번호·상담시간)을 복사해 붙여넣으면 상담원별로 시간과 건수를 더해 오늘 내선 칸에 넣습니다.',
     `<div class="wk"><textarea id="clExt" class="in" rows="4" placeholder="내선 통화내역을 붙여넣으세요">${esc(S.clExt||'')}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clext="1">합산해서 내선 칸에 넣기</button>${S.clExtRes?`<span class="muted">${esc(S.clExtRes)}</span>`:''}</div></div>`):'';
   const ros=can&&isOwnerOrEditor()?card('clros','통화량 명단','한 줄에 ‘팀 직급 이름’ 순서로 적습니다. 예) 1-1팀 부장 김태원',`<div class="wk"><textarea id="clRos" class="in" rows="${S.clRosOpen?14:3}">${esc(S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT)}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clros="1">명단 저장</button></div></div>`):'';
-  return head+bar+rule+card('cltab','일별 통화량','',table,{cls:'wide'})+imp+ros;
+  const num=(k,l,u)=>`<label class="cs-f"><span>${l}</span><input type="number" min="0" step="1" class="in sm" data-cset="${k}" value="${C[k]}"><em>${u}</em></label>`;
+  const setc=CAN()?card('clset','통화량 기준 설정','여기서 바꾸면 모든 날짜의 미달 계산에 바로 적용됩니다. 0으로 두면 차감하지 않습니다.',`<div class="cs">${num('base','기준 통화량','분')}${num('s1','상담(본인) 1건마다 차감','분')}${num('s2','상담(대리) 1건마다 차감','분')}${num('iv','면접 1건마다 차감','분')}${num('min','최소 기준','분')}<button type="button" class="btn sm ghost" data-csreset="1">처음 값으로</button></div>`):'';
+  return head+bar+rule+card('cltab','일별 통화량','',table,{cls:'wide'})+imp+setc+ros;
 }
 function isOwnerOrEditor(){return CAN()}
 function parseExt(text,day){
@@ -2841,7 +2868,7 @@ function pickDoc(id){
   ls.set('month',id||'');
 }
 function askSave(){
-  if(typeof CAN==='function'&&!CAN())return;
+  if(typeof canAny==='function'?!canAny():(typeof CAN==='function'&&!CAN()))return;
   if(!S.db)return;
   if(!S.dirty){toast('바뀐 내용이 없습니다');return}
   if(S.dirtyC&&!S.revOk){S.revAsk=true;S.keepScroll=true;render();return}
@@ -2854,7 +2881,7 @@ function saveAskHtml(){
     <div class="dlg-b"><button type="button" class="btn" data-saveno="1">아니오</button><button type="button" class="btn primary" id="saveYes" data-saveyes="1">예</button></div><p class="dlg-s">Enter는 예, Esc는 아니오</p></div></div>`;
 }
 async function save(){
-  if(!S.db||!S.dirty||!CAN())return;
+  if(!S.db||!S.dirty||!canAny())return;
   if(S.dirtyC&&!S.revOk){S.revAsk=true;render();return}
   const btn=$('#saveBtn');btn.disabled=true;btn.textContent='저장 중…';
   const now=new Date().toISOString().slice(0,19);
@@ -2894,6 +2921,7 @@ function act(t){
   if(d.cstep!=null){const n=+d.cstep;S.cdate=n===0?todayIso():addDays(S.cdate||todayIso(),n);S.keepScroll=true;render();return true}
   if(d.clext){const t=$('#clExt').value;S.clExt=t;const r=parseExt(t,S.cdate||todayIso());const ns=Object.keys(r.sum);if(!ns.length){S.clExtRes='상담원 이름과 상담시간을 찾지 못했습니다';S.keepScroll=true;render();return true}
     const rows={};ns.forEach(n=>rows[n]={et:String(r.sum[n].t),ec:String(r.sum[n].c)});callsWrite(S.cdate||todayIso(),{rows}).then(()=>{S.clExtRes=`${r.rows}건 · ${ns.length}명 내선 칸에 넣었습니다${r.skip?` (다른 날짜 ${r.skip}건 제외)`:''}`;S.keepScroll=true;render()});return true}
+  if(d.csreset){callsWrite('_settings',{...CALL_DEF}).then(()=>{toast('처음 기준으로 되돌렸습니다');S.keepScroll=true;render()});return true}
   if(d.clros){const t=$('#clRos').value;callsWrite('_roster',{text:t}).then(()=>{toast('통화량 명단을 저장했습니다');S.keepScroll=true;render()});return true}
   if(d.logall){S.logAll=!S.logAll;S.keepScroll=true;render();return true}
   if(d.logdel!=null){if(!logOwner())return true;const i=+d.logdel;mutate(()=>{S.doc.changeLog.splice(i,1)},'기록을 지웠습니다 · 저장을 눌러 확정');return true}
@@ -2954,6 +2982,8 @@ function act(t){
   if(d.approve){const [id,r]=sp(d.approve);updUser(id,{status:'approved',role:r},`${ROLE_L[r]} 권한으로 승인했습니다`);return true}
   if(d.reject){updUser(d.reject,{status:'rejected'},'반려했습니다');return true}
   if(d.role){const [id,r]=sp(d.role);updUser(id,{role:r},`${ROLE_L[r]} 권한으로 바꿨습니다`);return true}
+  if(d.uboard){const [id,b]=sp(d.uboard);const u=A.users[id]||{};const L=(u.boards||[]).slice();const i=L.indexOf(b);i>=0?L.splice(i,1):L.push(b);setField(id,{boards:L},`${u.name||''} · ${BOARDS.find(x=>x[0]===b)[1]} ${i>=0?'편집 해제':'편집 허용'}`);return true}
+  if(d.mgroup){S.memGroup=d.mgroup;S.keepScroll=true;render();return true}
   if(d.kick){S.confirm='mem:'+d.kick;S.keepScroll=true;render();return true}
   if(listAct(d))return true;
   if(d.kickgo){const id=d.kickgo;S.confirm=null;updUser(id,{status:'removed',role:'view'},'이용을 중지했습니다');return true}
@@ -3295,6 +3325,7 @@ document.addEventListener('change',e=>{
   if(t.dataset&&t.dataset.tvamt!=null){const i=+t.dataset.tvamt;const v=num(t.value);S.edit=true;mutate(()=>{ensureTurns()[i].amt=v},`매출 ${comma(String(v))}원`);return}
   if(t.dataset&&t.dataset.tvadd!=null){const i=+t.dataset.tvadd;const v=t.value.replace(/[^\d]/g,'');S.edit=true;mutate(()=>{const L=ensureTurns();L[i].add=v},v?`${turnsOf()[i].name} 추가모집 ${v}건`:'추가모집을 지웠습니다');return}
   if(t.dataset&&t.dataset.cl){const [n,k]=sp(t.dataset.cl);let v=t.value.trim();if(k==='pt'||k==='et'){v=v?String(secOf(v)):''}else v=v.replace(/[^\d]/g,'');callsWrite(S.cdate||todayIso(),{rows:{[n]:{[k]:v}}}).then(()=>{if(!document.activeElement?.closest?.('.cl-tab')){S.keepScroll=true;render()}else{toast('저장했습니다')}});return}
+  if(t.dataset&&t.dataset.cset){const k=t.dataset.cset;const v=Math.max(0,Math.round(+t.value||0));callsWrite('_settings',{[k]:v}).then(()=>{toast('통화량 기준을 바꿨습니다');S.keepScroll=true;render()});return}
   if(t.id==='cDate'&&t.value){S.cdate=t.value;S.keepScroll=true;render();return}
   if(t.id==='cEx'){callsWrite(S.cdate||todayIso(),{exempt:t.checked}).then(()=>{S.keepScroll=true;render()});return}
   if(t.id==='wkSat'){S.wk=S.wk||{};S.wk.text=$('#wkText')?.value||S.wk.text;S.wk.sat=t.value;S.keepScroll=true;render();return}
