@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261020-161419';
+window.OPS_BUILD = '20261020-161752';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1633,6 +1633,20 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
   .ei-1{flex-direction:column;gap:0}
 }
 
+/* 교육 칸: 시간 → 교육명 → 강의장·교육자 세로로 */
+.ev.edu-it{padding:4px 7px;text-align:left}
+.ei-1{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:1px!important;min-width:0}
+.ei-1 b{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:-.01em}
+.ei-1 span{display:block!important;width:100%;text-align:left;font-size:12px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere;-webkit-line-clamp:unset}
+.ei-2{margin-top:1px}
+.edu-view{gap:0;padding:0}
+.ev2{display:block;padding:10px 2px;border:0;border-radius:0;border-bottom:1px solid var(--line)}
+.ev2:last-child{border-bottom:0}
+.ev2-t{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:2px}
+.ev2 b{font-size:14px;line-height:1.4;word-break:keep-all}
+.ev2 small{margin-top:3px}
+.ev2 b em{font-style:normal;color:var(--muted);font-weight:600}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2353,7 +2367,7 @@ function popLayer(layer,x){
   let h=popHead(layer,x);
   if(!S.edit){
     if(!v)h+=`<p class="pp-empty">${lab} 일정이 없습니다.</p>`;
-    else if(layer==='edu')h+=`<div class="edu-view">${eduItems(v).map(e=>`<div class="ev2"><span class="ev2-t">${esc(e.time||'-')}</span><div><b>${e.cat?`<em>${esc(e.cat)}</em> `:''}${esc(e.title||'(교육명 없음)')}</b><small>${[e.room?'강의장 '+e.room:'',e.who?'교육자 '+e.who:''].filter(Boolean).map(esc).join(' · ')}</small></div></div>`).join('')}</div>`;
+    else if(layer==='edu')h+=`<div class="edu-view">${eduItems(v).map(e=>`<div class="ev2">${e.time?`<span class="ev2-t">${esc(e.time)}</span>`:''}<div><b>${e.cat?`<em>${esc(e.cat)}</em> `:''}${esc(e.title||'(교육명 없음)')}</b>${e.room||e.who?`<small>${[e.room,e.who].filter(Boolean).map(esc).join(' · ')}</small>`:''}</div></div>`).join('')}</div>`;
     else h+=`<div class="pp-shift">${opsLines(v).map(([t,n])=>`<b>${esc(t)}</b><span>${esc(n)}</span>`).join('')}</div>`;
     return h+(CAN()?`<div class="pp-foot"><button type="button" class="btn sm" data-editon="1">이 날 고치기</button></div>`:'');
   }
