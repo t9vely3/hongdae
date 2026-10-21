@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261020-180719';
+window.OPS_BUILD = '20261021-094401';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1698,6 +1698,26 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 
 .jm-add>*{min-width:0;width:100%}
 
+/* 통화량 기준 카드 · 날짜 줄 정리 */
+.cl-bar{align-items:center!important}
+.cl-date .btn,.cl-date input{height:36px}
+.cl-stat{gap:8px!important}
+.cs-p{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:13px;color:var(--muted)}
+.cs-p b{color:var(--ink);font-weight:800}.cs-p.red,.cs-p.red b{color:#dc2626}
+.cl-stat .chk{height:36px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);display:inline-flex;align-items:center;gap:8px}
+#b-clrule{margin-bottom:16px}
+.cr{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;padding:4px 24px 0}
+.cr-t{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:130px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--sunk)}
+.cr-t:first-child{background:var(--ink);border-color:var(--ink)}.cr-t:first-child .cr-l{color:rgba(255,255,255,.7)}.cr-t:first-child b{color:#fff}
+.cr-l{font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.cr-t b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.cr-op{align-self:center;font-size:12px;font-weight:700;color:var(--muted);padding:0 2px}
+.cr-in{display:flex;align-items:center;gap:4px;flex-wrap:wrap}.cr-in input{width:54px;height:30px;padding:0 6px}.cr-in em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.cr-t:first-child .cr-in em{color:rgba(255,255,255,.7)}
+.cr-help{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:14px 24px 20px;font-size:12.5px;color:var(--muted)}
+.cr-help b{color:var(--ink);margin-right:6px}.cr-help .btn{margin-left:auto}
+@media (max-width:759px){.cr,.cr-help{padding-left:16px;padding-right:16px}.cr-t{flex:1 1 calc(50% - 8px);min-width:0}.cr-op{display:none}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2863,16 +2883,25 @@ function viewCalls(){
       <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td></tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
-    <div class="cl-stat"><span><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span>입력 ${done}/${R.length}명</span><span class="${fail&&!ex?'red':''}">미달 ${ex?'-':fail+'명'}</span>${can?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
-  const C=callSet();const ded=[C.sc?`상담(본인·대리) 1건 ${C.sc}분`:'',C.rg?`등록(COD·추등 포함) 1건 ${C.rg}분`:'',C.m1&&C.d1?`하루 매출 ${C.m1}만원 이상 ${C.d1}분`:'',C.m2&&C.d2?`${C.m2}만원 이상 ${C.d2}분`:''].filter(Boolean).join(' · ');
-  const rule=`<div class="cl-rule"><b>기준</b> 합산 통화량 ${C.base}:00에서${ded?` 차감 → ${ded}`:''} · 최소 기준 ${C.min?C.min+'분':'없음'} · 지점매출 달성 시 전체 제외 <b>합산</b> 개인 + 내선 <b>입력</b> 통화량은 0:15:12 또는 15:12처럼 적습니다. 엔터·방향키로 옆 칸으로 넘어가면 바로 저장됩니다.</div>${S.callsDenied?`<div class="banner">통화량이 저장되지 않고 있습니다. Firebase 콘솔 → Firestore Database → <b>규칙</b> 탭에 새 규칙 파일 내용을 붙여넣고 <b>게시</b>를 눌러 주세요. 게시할 때 빨간 오류가 뜨면 그 화면을 보내 주세요.</div>`:''}`;
+    <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
+  const C=callSet();const _ded=[C.sc?`상담(본인·대리) 1건 ${C.sc}분`:'',C.rg?`등록(COD·추등 포함) 1건 ${C.rg}분`:'',C.m1&&C.d1?`하루 매출 ${C.m1}만원 이상 ${C.d1}분`:'',C.m2&&C.d2?`${C.m2}만원 이상 ${C.d2}분`:''].filter(Boolean).join(' · ');
+  const ed=CAN()&&S.clRuleEd;
+  const tile=(lab,body,keys)=>`<div class="cr-t"><span class="cr-l">${lab}</span>${ed?`<div class="cr-in">${keys.map(([k,u,pre])=>`${pre?`<em>${pre}</em>`:''}<input type="number" min="0" step="1" class="in sm" data-cset="${k}" value="${C[k]}"><em>${u}</em>`).join('')}</div>`:`<b>${body}</b>`}</div>`;
+  const rule=card('clrule','통화량 기준',ed?'숫자를 고치고 칸을 벗어나면 모든 날짜에 바로 적용됩니다. 0으로 두면 빼지 않습니다.':'하루 합산 통화량(개인 + 내선)이 아래 기준을 넘으면 통과입니다.',
+    `<div class="cr">${tile('기본 기준',`${C.base}:00`,[['base','분']])}<span class="cr-op">에서 빼기</span>
+      ${tile('상담 1건 (본인·대리)',C.sc?`−${C.sc}분`:'빼지 않음',[['sc','분']])}
+      ${tile('등록 1건 (COD·추등 포함)',C.rg?`−${C.rg}분`:'빼지 않음',[['rg','분']])}
+      ${tile(`하루 매출 ${ed?'1단계':C.m1+'만원 이상'}`,C.m1&&C.d1?`−${C.d1}분`:'빼지 않음',[['m1','만원 이상'],['d1','분','−']])}
+      ${tile(`하루 매출 ${ed?'2단계':C.m2+'만원 이상'}`,C.m2&&C.d2?`−${C.d2}분`:'빼지 않음',[['m2','만원 이상'],['d2','분','−']])}
+      ${tile('최소 기준',C.min?`${C.min}:00`:'없음',[['min','분']])}</div>
+    <div class="cr-help"><span><b>입력</b>통화량은 0:15:12 또는 15:12처럼 적습니다</span><span><b>이동</b>엔터·방향키로 옆 칸으로 넘어가면 바로 저장됩니다</span><span><b>제외</b>지점매출 달성에 체크하면 그날은 전원 통과입니다</span>${ed?`<button type="button" class="btn sm ghost" data-csreset="1">처음 값으로</button>`:''}</div>`,
+    {right:CAN()?`<button type="button" class="btn sm${ed?' primary':''}" data-clruled="1">${ed?'다 고쳤어요':'기준 고치기'}</button>`:''})
+    +(S.callsDenied?`<div class="banner">통화량이 저장되지 않고 있습니다. Firebase 콘솔 → Firestore Database → <b>규칙</b> 탭에 새 규칙 파일 내용을 붙여넣고 <b>게시</b>를 눌러 주세요. 게시할 때 빨간 오류가 뜨면 그 화면을 보내 주세요.</div>`:'');
   const table=`<div class="tw"><table class="stk cl-tab"><thead><tr><th rowspan="2">팀</th><th rowspan="2" class="ctr">직급</th><th rowspan="2">이름</th><th colspan="2" class="ctr">상담</th><th rowspan="2" class="ctr">등록<br><small>COD·추등</small></th><th rowspan="2" class="ctr">하루 매출<br><small>만원</small></th><th class="ctr cl-p" rowspan="2">개인<br>통화량</th><th class="ctr cl-p" rowspan="2">개인<br>건수</th><th class="ctr cl-e" rowspan="2">내선<br>통화량</th><th class="ctr cl-e" rowspan="2">내선<br>건수</th><th class="ctr cl-need" rowspan="2">기준<br><small>${callSet().base}:00에서 차감</small></th><th class="ctr" rowspan="2">합산<br>통화량</th><th class="ctr" rowspan="2">합산<br>건수</th></tr><tr><th class="ctr">본인</th><th class="ctr">대리</th></tr></thead><tbody>${body}</tbody></table></div>`;
   const imp=can?card('clext','내선 통화내역 붙여넣기','전화 기록(No·상담일자·…·상담원·내선번호·고객전화번호·상담시간)을 복사해 붙여넣으면 상담원별로 시간과 건수를 더해 오늘 내선 칸에 넣습니다.',
     `<div class="wk"><textarea id="clExt" class="in" rows="4" placeholder="내선 통화내역을 붙여넣으세요">${esc(S.clExt||'')}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clext="1">합산해서 내선 칸에 넣기</button>${S.clExtRes?`<span class="muted">${esc(S.clExtRes)}</span>`:''}</div></div>`):'';
   const ros=can&&isOwnerOrEditor()?card('clros','통화량 명단','한 줄에 ‘팀 직급 이름’ 순서로 적습니다. 예) 1-1팀 부장 김태원',`<div class="wk"><textarea id="clRos" class="in" rows="${S.clRosOpen?14:3}">${esc(S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT)}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clros="1">명단 저장</button></div></div>`):'';
-  const num=(k,l,u)=>`<label class="cs-f"><span>${l}</span><input type="number" min="0" step="1" class="in sm" data-cset="${k}" value="${C[k]}"><em>${u}</em></label>`;
-  const setc=CAN()?card('clset','통화량 기준 설정','여기서 바꾸면 모든 날짜의 미달 계산에 바로 적용됩니다. 0으로 두면 차감하지 않습니다.',`<div class="cs">${num('base','기준 통화량','분')}${num('sc','상담(본인·대리) 1건마다 차감','분')}${num('rg','등록(COD·추등 포함) 1건마다 차감','분')}${num('m1','하루 매출 1단계','만원 이상')}${num('d1','1단계 차감','분')}${num('m2','하루 매출 2단계','만원 이상')}${num('d2','2단계 차감','분')}${num('min','최소 기준','분')}<button type="button" class="btn sm ghost" data-csreset="1">처음 값으로</button></div>`):'';
-  return head+bar+rule+card('cltab','일별 통화량','',table,{cls:'wide'})+imp+setc+ros;
+  return head+bar+rule+card('cltab','일별 통화량','',table,{cls:'wide'})+imp+ros;
 }
 function isOwnerOrEditor(){return CAN()}
 function parseExt(text,day){
@@ -3039,6 +3068,7 @@ function act(t){
   if(d.cstep!=null){const n=+d.cstep;S.cdate=n===0?todayIso():addDays(S.cdate||todayIso(),n);S.keepScroll=true;render();return true}
   if(d.clext){const t=$('#clExt').value;S.clExt=t;const r=parseExt(t,S.cdate||todayIso());const ns=Object.keys(r.sum);if(!ns.length){S.clExtRes='상담원 이름과 상담시간을 찾지 못했습니다';S.keepScroll=true;render();return true}
     const rows={};ns.forEach(n=>rows[n]={et:String(r.sum[n].t),ec:String(r.sum[n].c)});callsWrite(S.cdate||todayIso(),{rows}).then(()=>{S.clExtRes=`${r.rows}건 · ${ns.length}명 내선 칸에 넣었습니다${r.skip?` (다른 날짜 ${r.skip}건 제외)`:''}`;S.keepScroll=true;render()});return true}
+  if(d.clruled){S.clRuleEd=!S.clRuleEd;S.keepScroll=true;render();return true}
   if(d.csreset){callsWrite('_settings',{...CALL_DEF,v2:true}).then(()=>{toast('처음 기준으로 되돌렸습니다');S.keepScroll=true;render()});return true}
   if(d.clros){const t=$('#clRos').value;callsWrite('_roster',{text:t}).then(()=>{toast('통화량 명단을 저장했습니다');S.keepScroll=true;render()});return true}
   if(d.logall){S.logAll=!S.logAll;S.keepScroll=true;render();return true}
