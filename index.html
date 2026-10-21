@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261021-105441';
+window.OPS_BUILD = '20261021-110233';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3330,7 +3330,14 @@ const JSEED={"snsFirst":true,"priority":["official","ai","oa","fb","etc"],"updat
 const JTURNS=[['official','홍대공식턴','디자인 계열 과목 유입'],['ai','홍대AI턴','AI 학과 과목과 이름에 AI가 붙은 과목'],['oa','홍대OA턴','문서작업·회계세무 등 사무자동화'],['fb','홍대페북턴','SNS 광고로 들어온 디비 전체'],['etc','홍대기타턴','코딩·IT, 창업, 국비지원 등 나머지']];
 const JL=Object.fromEntries(JTURNS.map(t=>[t[0],t[1]]));
 const jnorm=x=>String(x||'').toLowerCase().replace(/[\s·:,()\[\]{}・\-–—_/\\&.'"’]/g,'');
-function jRules(){const r=S.callsAll?.['_judge']?.rules;return r&&Array.isArray(r.courses)?r:JSEED}
+const JMIG_OFF=['AI콘텐츠제작','모션/영상편집','시각편집디자인','인테리어·제품','일반/OA/그래픽 자격증','창업마스터과정'];
+function jMig(r){r.mig=r.mig||[];if(r.mig.includes('20261021'))return false;
+  r.courses.forEach(c=>{if(JMIG_OFF.includes(c.d))c.t='official'});
+  r.depts.forEach(d=>{if(JMIG_OFF.includes(d.d))d.t='official'});
+  if(!r.depts.some(d=>d.d==='창업마스터과정'))r.depts.push({d:'창업마스터과정',a:'창업마스터,창업 마스터,창업과정',t:'official'});
+  r.mig.push('20261021');return true}
+jMig(JSEED);
+function jRules(){const r=S.callsAll?.['_judge']?.rules;if(r&&Array.isArray(r.courses)){if(!(r.mig||[]).includes('20261021')&&!S.jMigDone&&CAN()){S.jMigDone=true;setTimeout(()=>jEdit(x=>{jMig(x)},'학과 6곳을 공식턴으로 바꿨습니다'),0)}return r}return JSEED}
 function jCourse(c,how){return {turn:c.t,step:'과목',why:`<b>${esc(c.n)}</b> · ${esc(c.d)} 학과의 등록 과정입니다.${how?` (${how})`:''}`,flag:c.f||''}}
 function jDept(d,how){return {turn:d.t,step:'학과',why:`<b>${esc(d.d)}</b> 학과로 들어온 건이라 학과 기본값으로 배정합니다.${how?` (${how})`:''}`,flag:d.d==='일반/OA/그래픽 자격증'?'학과 단위로는 공식턴입니다. 컴활·MOS·회계세무처럼 OA 과정명이 함께 적혀 있으면 그 과정 기준으로 다시 보세요':''}}
 function jStrong(text,r){const q=jnorm(text);if(!q)return null;
@@ -3380,7 +3387,7 @@ function judgePage(){callsSub();const J=S.jd||(S.jd={q:'',sns:false,duty:false})
     <div class="jm-add"><input class="in sm" id="jnN" placeholder="새 과목명"><input class="in sm" id="jnD" placeholder="학과"><select class="in sm" id="jnT">${T('etc')}</select><input class="in sm" id="jnF" placeholder="메모(선택)"><button type="button" class="btn sm" data-jcadd="1">${icx('plus')}추가</button></div></div>`;
   const kws=`<div class="jm-sec"><div class="jm-h"><b>키워드 규칙</b><span class="muted">목록에 없는 과목은 위에서부터 순서대로 찾습니다</span></div>${r.keywords.map((k,i)=>`<div class="jm-kw"><span class="jm-n">${i+1}</span><input class="in sm" data-jk="${i}|label" value="${esc(k.label)}"><select class="in sm" data-jk="${i}|t">${T(k.t)}</select><span class="jm-act"><button type="button" class="ib xs" data-jkmv="${i}|-1" title="위로">${icx('up')}</button><button type="button" class="ib xs" data-jkmv="${i}|1" title="아래로">${icx('down')}</button><button type="button" class="ib xs" data-jkdel="${i}" title="삭제">${icx('x')}</button></span><textarea class="in sm jm-w" data-jk="${i}|words" rows="2">${esc(k.words)}</textarea></div>`).join('')}
     <div class="jm-add k"><input class="in sm" id="jkL" placeholder="규칙 이름"><select class="in sm" id="jkT">${T('etc')}</select><input class="in sm" id="jkW" placeholder="키워드를 쉼표로 구분"><button type="button" class="btn sm" data-jkadd="1">${icx('plus')}추가</button></div></div>`;
-  const depts=`<div class="jm-sec"><div class="jm-h"><b>학과</b><span class="muted">과정명 없이 학과만 들어올 때 씁니다. 줄임말은 다른 이름 칸에 넣어 두세요</span></div><div class="tw"><table class="stk jm-tab"><thead><tr><th>학과</th><th>다른 이름</th><th>배정턴</th><th></th></tr></thead><tbody>${r.depts.map((d,i)=>`<tr><td class="nw"><b>${esc(d.d)}</b></td><td><input class="in sm" data-jd="${i}|a" value="${esc(d.a||'')}"></td><td><select class="in sm" data-jd="${i}|t">${T(d.t)}</select></td><td><button type="button" class="ib xs" data-jddel="${i}" title="삭제">${icx('x')}</button></td></tr>`).join('')}</tbody></table></div>
+  const depts=`<div class="jm-sec"><div class="jm-h"><b>학과</b><span class="muted">과정명 없이 학과만 들어올 때 씁니다. 줄임말은 다른 이름 칸에 넣어 두세요</span></div><div class="tw"><table class="stk jm-tab"><thead><tr><th>학과</th><th>다른 이름</th><th>배정턴</th><th>과목 한꺼번에</th></tr></thead><tbody>${r.depts.map((d,i)=>`<tr><td class="nw"><b>${esc(d.d)}</b></td><td><input class="in sm" data-jd="${i}|a" value="${esc(d.a||'')}"></td><td><select class="in sm" data-jd="${i}|t">${T(d.t)}</select></td><td class="nw"><button type="button" class="btn xs" data-jdall="${i}" title="이 학과에 속한 과목을 모두 이 턴으로">과목 모두 이 턴으로</button><button type="button" class="ib xs" data-jddel="${i}" title="삭제">${icx('x')}</button></td></tr>`).join('')}</tbody></table></div>
     <div class="jm-add d"><input class="in sm" id="jdN" placeholder="새 학과명"><input class="in sm" id="jdA" placeholder="다른 이름을 쉼표로 구분"><select class="in sm" id="jdT">${T('official')}</select><button type="button" class="btn sm" data-jdadd="1">${icx('plus')}추가</button></div></div>`;
   const pr=(r.priority&&r.priority.length?r.priority:['official','ai','oa','fb','etc']);
   const prio=`<div class="jm-sec"><div class="jm-h"><b>배정 우선순위</b><span class="muted">한 칸에 여러 과목이 섞여 있으면 위쪽 턴으로 보냅니다</span></div><div class="jm-pr">${pr.map((t,i)=>`<div><span class="jm-n">${i+1}</span><span class="jt sm jt-${t}">${JL[t]}</span><button type="button" class="ib xs" data-jpmv="${i}|-1" title="위로">${icx('up')}</button><button type="button" class="ib xs" data-jpmv="${i}|1" title="아래로">${icx('down')}</button></div>`).join('')}</div>
@@ -3407,6 +3414,8 @@ function jAct(d){
   if(d.jkdel!=null){jEdit(r=>{r.keywords.splice(+d.jkdel,1)},'규칙을 지웠습니다');return true}
   if(d.jkmv){const [i,m]=sp(d.jkmv).map(Number);jEdit(r=>{const j=i+m;if(j<0||j>=r.keywords.length)return;[r.keywords[i],r.keywords[j]]=[r.keywords[j],r.keywords[i]]},'순서를 바꿨습니다');return true}
   if(d.jkadd){const l=$('#jkL')?.value.trim(),w=$('#jkW')?.value.trim();if(!l||!w){toast('규칙 이름과 키워드를 적어 주세요');return true}jEdit(r=>{r.keywords.push({label:l,words:w,t:$('#jkT').value,f:''})},'규칙을 추가했습니다');return true}
+  if(d.jdall!=null){const r0=jRules();const dp=r0.depts[+d.jdall];if(!dp)return true;const n=r0.courses.filter(c=>c.d===dp.d&&c.t!==dp.t).length;if(!n){toast('이미 모두 같은 턴입니다');return true}
+    jEdit(r=>{r.courses.forEach(c=>{if(c.d===dp.d)c.t=dp.t})},`${dp.d} 과목 ${n}개를 ${JL[dp.t]}으로 바꿨습니다`);return true}
   if(d.jddel!=null){jEdit(r=>{r.depts.splice(+d.jddel,1)},'학과를 지웠습니다');return true}
   if(d.jdadd){const n=$('#jdN')?.value.trim();if(!n){toast('새 학과명을 적어 주세요');return true}jEdit(r=>{r.depts.push({d:n,a:$('#jdA').value.trim(),t:$('#jdT').value})},'학과를 추가했습니다');return true}
   if(d.jpmv){const [i,m]=sp(d.jpmv).map(Number);jEdit(r=>{r.priority=(r.priority&&r.priority.length?r.priority:['official','ai','oa','fb','etc']).slice();const j=i+m;if(j<0||j>=r.priority.length)return;[r.priority[i],r.priority[j]]=[r.priority[j],r.priority[i]]},'우선순위를 바꿨습니다');return true}
