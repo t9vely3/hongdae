@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261021-110233';
+window.OPS_BUILD = '20261021-111143';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1735,6 +1735,19 @@ tr.clc-y td.cl-nm,tr.clc-y td.cl-rank{background:#fde68a!important}
 tr.clc-b td.cl-nm,tr.clc-b td.cl-rank{background:#bfdbfe!important}
 tr.clc-r td.cl-nm,tr.clc-r td.cl-rank{background:#fecaca!important}
 
+/* 내용 수정 기록 팝업 */
+.rv-dlg{max-width:620px!important;max-height:min(80vh,720px);display:flex;flex-direction:column;padding:22px 0 8px!important}
+.rv-h{display:flex;align-items:flex-start;gap:12px;padding:0 24px 12px}.rv-h>div{flex:1}.rv-h h3{margin:0 0 4px;font-size:18px}.rv-h p{margin:0;font-size:12.5px;color:var(--muted)}
+.rv-f{display:flex;flex-wrap:wrap;gap:6px;padding:0 24px 12px;border-bottom:1px solid var(--line)}
+.rv-f button{border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:3px 10px;font:inherit;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
+.rv-f button.on{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.rv-l{overflow:auto;padding:4px 24px 12px}
+.rv-e{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.rv-e:last-child{border-bottom:0}
+.rv-d b{display:block;font-size:13.5px;font-variant-numeric:tabular-nums}.rv-d small{font-size:11.5px;color:var(--muted)}
+.rv-p{display:flex;flex-wrap:wrap;gap:6px}.rv-b p{margin:6px 0 0;font-size:12.5px;color:var(--ink2)}
+.rv-go{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line-strong);background:var(--sunk);border-radius:8px;padding:4px 10px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink)}
+.rv-go:hover{background:var(--ink);color:var(--surface);border-color:var(--ink)}.rv-go .i{width:12px;height:12px}.rv-go.off{cursor:default;opacity:.6}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2527,12 +2540,18 @@ const revDate=d=>{const p=String(d||'').split('-');return p.length===3?`${p[0]}.
 function revLine(tab){
   const revs=(S.com?.revs||[]),mine=revs.filter(r=>(r.pages||[]).includes(PAGES[tab].label));
   const last=mine[mine.length-1];
-  return `<div class="revline">${last?`이 내용 수정일 <b>${revDate(last.date)}</b>${last.note?` · ${esc(last.note)}`:''}`:'처음 올린 뒤 아직 고친 적이 없습니다'}${revs.length?`<button type="button" class="lnk" data-revs="1">수정 기록 ${revs.length}건 ${S.showRevs?'닫기':'보기'}</button>`:''}</div>`;
+  return `<div class="revline">${last?`이 내용 수정일 <b>${revDate(last.date)}</b>${last.note?` · ${esc(last.note)}`:''}`:'처음 올린 뒤 아직 고친 적이 없습니다'}${revs.length&&CAN()?`<button type="button" class="lnk" data-revs="1">수정 기록 ${revs.length}건 보기</button>`:''}</div>`;
 }
-function revPanel(){
-  if(!S.showRevs||!isCommonTab(S.tab))return '';
-  const revs=(S.com?.revs||[]).slice().reverse();
-  return `<div class="card"><div class="card-hd"><h2>내용 수정 기록</h2><p class="sub">고칠 때 고른 수정 날짜 순서입니다.</p></div><div class="tw"><table class="stk"><thead><tr><th>수정 날짜</th><th>바뀐 곳</th><th>메모</th><th>저장한 사람</th></tr></thead><tbody>${revs.map(r=>`<tr><td class="nw" data-l="수정 날짜"><b>${revDate(r.date)}</b></td><td data-l="바뀐 곳">${esc((r.pages||[]).join(', ')||'-')}</td><td data-l="메모">${esc(r.note||'')}</td><td class="nw" data-l="저장한 사람">${esc(r.by||'')}</td></tr>`).join('')}</tbody></table></div></div>`;
+function revPanel(){return ''}
+function revsPop(){
+  if(!S.showRevs||!CAN())return '';
+  const revs=(S.com?.revs||[]).slice().reverse();const tabOf=l=>Object.keys(PAGES).find(k=>PAGES[k].label===l);
+  const f=S.revF||'';const L=f?revs.filter(r=>(r.pages||[]).includes(f)):revs;
+  const all=[...new Set(revs.flatMap(r=>r.pages||[]))];
+  return `<div class="ovl" id="revsOvl"><div class="dlg rv-dlg" role="dialog" aria-modal="true" aria-labelledby="rvT">
+    <div class="rv-h"><div><h3 id="rvT">내용 수정 기록</h3><p>바뀐 화면 이름을 누르면 그 화면으로 넘어갑니다.</p></div><button type="button" class="ib" data-revsx="1" aria-label="닫기">${icx('x')}</button></div>
+    ${all.length>1?`<div class="rv-f"><button type="button" class="${!f?'on':''}" data-revf="">전체 ${revs.length}</button>${all.map(l=>`<button type="button" class="${f===l?'on':''}" data-revf="${esc(l)}">${esc(l)}</button>`).join('')}</div>`:''}
+    <div class="rv-l">${L.map(r=>`<div class="rv-e"><div class="rv-d"><b>${revDate(r.date)}</b><small>${esc(r.by||'')}</small></div><div class="rv-b"><div class="rv-p">${(r.pages||[]).map(l=>{const t=tabOf(l);return t?`<button type="button" class="rv-go" data-tab="${t}">${esc(l)}${icx('arrow')}</button>`:`<span class="rv-go off">${esc(l)}</span>`}).join('')||'<span class="muted">-</span>'}</div>${r.note?`<p>${esc(r.note)}</p>`:''}</div></div>`).join('')||'<p class="muted">기록이 없습니다.</p>'}</div></div></div>`;
 }
 function renHtml(){
   if(!S.renAsk||!S.doc)return '';const [a,z]=periodDays();
@@ -3005,7 +3024,7 @@ function render0(){
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
   const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),dbturn:()=>secPage('dbturn'),judge:()=>pageHead('judge','디비턴 판독')+judgePage(),calls:viewCalls,tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
-  const y=scrollY;callsSub();page.innerHTML=v().replace('%%TOP%%',top+noticeBox(S.tab)+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml();
+  const y=scrollY;callsSub();page.innerHTML=v().replace('%%TOP%%',top+noticeBox(S.tab)+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml()+revsPop();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
   placePop();buildToc();
 }
@@ -3148,6 +3167,8 @@ function act(t){
   if(d.renx){S.renAsk=false;S.keepScroll=true;render();return true}
   if(d.rengo){const lb=$('#renLabel').value.trim(),a=$('#renStart').value,z=$('#renEnd').value;if(!lb){toast('이름을 적어 주세요');return true}if(!a||!z||a>z){toast('시작일과 종료일을 확인해 주세요');return true}
     S.renAsk=false;mutate(()=>{S.doc.label=lb;S.doc.period={start:a,end:z}});save();return true}
+  if(d.revsx){S.showRevs=false;S.keepScroll=true;render();return true}
+  if(d.revf!=null){S.revF=d.revf;S.keepScroll=true;render();return true}
   if(d.revs){S.showRevs=!S.showRevs;S.keepScroll=true;render();return true}
   if(d.revx){S.revAsk=false;S.keepScroll=true;render();return true}
   if(d.revgo){const dt=$('#revDate').value;if(!dt){toast('수정 날짜를 골라 주세요');return true}S.revOk={date:dt,note:$('#revNote').value.trim(),by:(typeof A!=='undefined'&&A.prof?.name)||''};S.revAsk=false;save();return true}
@@ -3170,7 +3191,7 @@ function act(t){
   if(d.rand){if(!CAN())return true;S.rand=d.rand;S.pop=null;S.keepScroll=true;render();return true}
   if(d.randx){S.rand=null;S.keepScroll=true;render();return true}
   if(d.randgo){const [k,mode]=sp(d.randgo);S.edit=true;S.rand=null;let r;mutate(()=>{r=autoFill(k,{days:[1,2,3,4,5],groups:[...GROUPS],mode,skipHol:true,weekend:k==='duty'})});toast(r.n||r.wk?`${r.n}일 배치 · 조별 ${r.min}~${r.max}회${r.wk?` · 주말 ${r.wk}일 지원`:''} · 저장을 눌러 확정`:'채울 빈 날이 없습니다');return true}
-  if(d.tab){document.body.classList.remove('sb-open');S.pop=null;S.rand=null;S.tab=d.tab;ls.set('tab',S.tab);S.msg=null;S.confirm=null;S.panel=null;render();scrollTo(0,0);return true}
+  if(d.tab){document.body.classList.remove('sb-open');S.pop=null;S.showRevs=false;S.rand=null;S.tab=d.tab;ls.set('tab',S.tab);S.msg=null;S.confirm=null;S.panel=null;render();scrollTo(0,0);return true}
   if(d.sub){S.pop=null;const [p,k]=sp(d.sub);S.sub[p]=k;ls.set('subs',JSON.stringify(S.sub));S.confirm=null;S.keepScroll=true;render();return true}
   if(d.goto){const [k,x]=sp(d.goto);S.pop=null;S.cm=x.slice(0,7);S.tab=k;ls.set('tab',k);if(GK[k]){S.rsel[k]=x;S.rv[k]=null;S.sub[k]='cal'}else{S.csel[k]=x;if(k==='ops')S.sub.ops='cal'}render();scrollTo(0,0);return true}
   if(d.date){S.date=d.date;if(S.tab!=='today'){S.tab='today';ls.set('tab','today');scrollTo(0,0)}render();return true}
@@ -3546,6 +3567,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#msw')){$('#mMenu').hidden=true;$('#mBtn').setAttribute('aria-expanded','false')}
   if(e.target.id==='sbScrim'){document.body.classList.remove('sb-open');return}
   if(e.target.id==='ovl'){S.rand=null;S.keepScroll=true;render();return}
+  if(e.target.id==='revsOvl'){S.showRevs=false;S.keepScroll=true;render();return}
   const closing=!!S.pop&&!e.target.closest('#pop,[data-pop]');if(closing)S.pop=null;
   const t=e.target.closest('button,[data-date],[data-rsel],[data-csel],[data-pop],[data-acell],a');if(!t){if(closing){S.keepScroll=true;render()}return}
   if(act(t))return;
@@ -3574,6 +3596,7 @@ document.addEventListener('keydown',e=>{
   const mod=e.ctrlKey||e.metaKey,inField=e.target.closest?.('input,textarea,[contenteditable]');
   if(e.key==='Escape'&&D){endDrag(false);return}
   if(asgActive()&&!inField&&e.key!=='Escape'&&!(mod&&['c','x','v','z','y','s'].includes(e.key.toLowerCase()))){if(asgKey(e)){e.preventDefault();return}}
+  if(e.key==='Escape'&&S.showRevs){S.showRevs=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.brush){S.brush=null;S.keepScroll=true;render();return}
   if(S.pop&&GK[S.pop.key]&&CAN()&&!inField&&!mod){const k=S.pop.key,x=S.pop.date;const key=e.key.toUpperCase();const gi='12345'.indexOf(e.key);const G=GROUPS.includes(key)?key:gi>=0?GROUPS[gi]:null;
     if(G){e.preventDefault();S.edit=true;mutate(()=>{setCal(k,x,G+'조');delete S.doc.cal[GK[k].mem][x]});const n=stepDay(k,x,1);if(n)S.pop={key:k,date:n};S.keepScroll=true;render();return}
