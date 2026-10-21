@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261021-094401';
+window.OPS_BUILD = '20261021-105441';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1718,6 +1718,23 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 .cr-help b{color:var(--ink);margin-right:6px}.cr-help .btn{margin-left:auto}
 @media (max-width:759px){.cr,.cr-help{padding-left:16px;padding-right:16px}.cr-t{flex:1 1 calc(50% - 8px);min-width:0}.cr-op{display:none}}
 
+/* 화면별 공지 */
+.nt{margin:0 0 16px;border:1px solid var(--ink);border-left:5px solid var(--ink);border-radius:12px;background:var(--surface);padding:12px 18px}
+.nt-h{display:flex;align-items:center;gap:10px;margin-bottom:6px}.nt-h b{font-size:12px;font-weight:900;letter-spacing:.04em;background:var(--ink);color:var(--surface);border-radius:6px;padding:2px 8px}
+.nt-h .muted{font-size:11.5px}.nt-h .btn{margin-left:auto}
+.nt-b{font-size:14px;line-height:1.65;white-space:normal;word-break:keep-all}
+.nt.ed textarea{width:100%;margin-top:4px}.nt-f{display:flex;gap:6px;margin-top:8px}
+.nt-add{margin:0 0 10px}.nt-add .lnk{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--muted)}.nt-add .i{width:13px;height:13px}
+/* 통화량 색칠 */
+.cl-ptool{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:0 24px 12px}
+.cl-ptool .btn{margin-left:auto}.cl-ph{font-size:12px}
+.cl-pn{border:0;background:none;padding:2px 4px;margin:-2px -4px;border-radius:6px;font:inherit;cursor:pointer;color:inherit}
+.cl-pn.on{outline:1px dashed var(--line-strong)}.cl-pn.on:hover{background:var(--sunk)}
+tr.clc-g td.cl-nm,tr.clc-g td.cl-rank{background:#bbf7d0!important}
+tr.clc-y td.cl-nm,tr.clc-y td.cl-rank{background:#fde68a!important}
+tr.clc-b td.cl-nm,tr.clc-b td.cl-rank{background:#bfdbfe!important}
+tr.clc-r td.cl-nm,tr.clc-r td.cl-rank{background:#fecaca!important}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2860,7 +2877,7 @@ const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${Stri
 const hms=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
 function callRoster(){const t=S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT;return t.split(/\r?\n/).map(l=>l.trim().split(/\s+/)).filter(a=>a.length>=3).map(a=>({team:a[0],rank:a.slice(1,-1).join(' '),name:a[a.length-1]}))}
 function callsSub(){if(S.callsSub||!S.db)return;S.callsSub=true;S.callsAll=S.callsAll||{};
-  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});S.callsAll=n;if(S.tab==='calls'){S.keepScroll=true;render()}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
+  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;if(S.tab==='calls'||S.tab==='judge'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
 async function callsWrite(id,patch){
   S.callsAll=S.callsAll||{};const cur=S.callsAll[id]||{};
   const merged={...cur,...patch,rows:{...(cur.rows||{}),...Object.fromEntries(Object.entries(patch.rows||{}).map(([n,v])=>[n,{...(cur.rows?.[n]||{}),...v}]))},updatedAt:new Date().toISOString().slice(0,19)};
@@ -2870,20 +2887,20 @@ async function callsWrite(id,patch){
 }
 function callCan(){return typeof approved==='function'?approved():CAN()}
 function viewCalls(){
-  callsSub();const d=S.cdate||(S.cdate=todayIso());const day=S.callsAll?.[d]||{};const rows=day.rows||{};const R=callRoster();const can=callCan();const ex=!!day.exempt;
+  callsSub();const d=S.cdate||(S.cdate=todayIso());const day=S.callsAll?.[d]||{};const rows=day.rows||{};const R=callRoster();const age=Math.round((parse(todayIso())-parse(d))/864e5);const locked=age>3;const own=typeof isOwnerA==='function'&&isOwnerA();const can=callCan()&&(!locked||own);const paint=CAN()&&(!locked||own);const ex=!!day.exempt;
   let fail=0,done=0;
   const body=R.map((p,i)=>{const r=rows[p.name]||{};const pt=+r.pt||0,et=+r.et||0,pc=+r.pc||0,ec=+r.ec||0,s1=+r.s1||0,s2=+r.s2||0;
     const CS=callSet();const tot=pt+et,cnt=pc+ec,need=callNeed(r);const filled=['pt','et','pc','ec','s1','s2','rg','amt'].some(k=>r[k]!=null&&r[k]!=='');if(filled)done++;
-    const vip=/^(부장|선임\s*팀장)$/.test(String(p.rank||'').trim());const bad=!ex&&!vip&&tot<need;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
+    const vip=/^(부장|선임\s*팀장)$/.test(String(p.rank||'').trim());const pc_=r.c||'';const bad=!ex&&!vip&&pc_!=='g'&&tot<need;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
     const inp=(k,v,cls='',ph='')=>can?`<input class="cl-in ${cls}" data-cl="${esc(p.name)}|${k}" value="${esc(v??'')}" placeholder="${ph}" inputmode="${k==='pt'||k==='et'?'text':'numeric'}">`:esc(v??'');
-    return `<tr class="${first?'cl-first':''}${filled?'':' cl-empty'}">${first?`<td class="cl-team" rowspan="${span}">${esc(p.team)}</td>`:''}<td class="ctr cl-rank">${esc(p.rank)}</td><td class="nw"><b>${esc(p.name)}</b></td>
+    return `<tr class="${first?'cl-first':''}${filled?'':' cl-empty'}${pc_?' clc-'+pc_:''}">${first?`<td class="cl-team" rowspan="${span}">${esc(p.team)}</td>`:''}<td class="ctr cl-rank">${esc(p.rank)}</td><td class="nw cl-nm">${paint?`<button type="button" class="cl-pn${S.clBrush!=null?' on':''}" data-clpaint="${esc(p.name)}" title="${S.clBrush!=null?'눌러서 칠하기':'위에서 색을 고른 뒤 누르세요'}"><b>${esc(p.name)}</b></button>`:`<b>${esc(p.name)}</b>`}</td>
       <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('rg',r.rg,'n')}</td><td class="ctr cl-amt">${inp('amt',r.amt?(+r.amt).toLocaleString():'','m','')}${r.amt&&salesDed(r,CS)?`<small>-${salesDed(r,CS)}분</small>`:''}</td>
       <td class="ctr cl-p">${inp('pt',r.pt?hms(pt):'','t','0:00:00')}</td><td class="ctr cl-p">${inp('pc',r.pc,'n')}</td>
       <td class="ctr cl-e">${inp('et',r.et?hms(et):'','t','0:00:00')}</td><td class="ctr cl-e">${inp('ec',r.ec,'n')}</td>
       <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td></tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
-    <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
+    <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can&&CAN()?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
   const C=callSet();const _ded=[C.sc?`상담(본인·대리) 1건 ${C.sc}분`:'',C.rg?`등록(COD·추등 포함) 1건 ${C.rg}분`:'',C.m1&&C.d1?`하루 매출 ${C.m1}만원 이상 ${C.d1}분`:'',C.m2&&C.d2?`${C.m2}만원 이상 ${C.d2}분`:''].filter(Boolean).join(' · ');
   const ed=CAN()&&S.clRuleEd;
   const tile=(lab,body,keys)=>`<div class="cr-t"><span class="cr-l">${lab}</span>${ed?`<div class="cr-in">${keys.map(([k,u,pre])=>`${pre?`<em>${pre}</em>`:''}<input type="number" min="0" step="1" class="in sm" data-cset="${k}" value="${C[k]}"><em>${u}</em>`).join('')}</div>`:`<b>${body}</b>`}</div>`;
@@ -2901,7 +2918,11 @@ function viewCalls(){
   const imp=can?card('clext','내선 통화내역 붙여넣기','전화 기록(No·상담일자·…·상담원·내선번호·고객전화번호·상담시간)을 복사해 붙여넣으면 상담원별로 시간과 건수를 더해 오늘 내선 칸에 넣습니다.',
     `<div class="wk"><textarea id="clExt" class="in" rows="4" placeholder="내선 통화내역을 붙여넣으세요">${esc(S.clExt||'')}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clext="1">합산해서 내선 칸에 넣기</button>${S.clExtRes?`<span class="muted">${esc(S.clExtRes)}</span>`:''}</div></div>`):'';
   const ros=can&&isOwnerOrEditor()?card('clros','통화량 명단','한 줄에 ‘팀 직급 이름’ 순서로 적습니다. 예) 1-1팀 부장 김태원',`<div class="wk"><textarea id="clRos" class="in" rows="${S.clRosOpen?14:3}">${esc(S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT)}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clros="1">명단 저장</button></div></div>`):'';
-  return head+bar+rule+card('cltab','일별 통화량','',table,{cls:'wide'})+imp+ros;
+  const CC=[['g','초록','통과 처리'],['y','노랑',''],['b','파랑',''],['r','빨강','']];
+  const ptool=paint?`<div class="cl-ptool"><span class="muted">색 칠하기</span>${CC.map(([k,l,t])=>`<button type="button" class="csw c-${k}${S.clBrush===k?' on':''}" data-clbrush="${k}" title="${l}${t?' · '+t:''}"></button>`).join('')}<button type="button" class="csw${S.clBrush===''?' on':''}" data-clbrush="" title="색 지우기">${icx('x')}</button>
+    <span class="muted cl-ph">${S.clBrush!=null?`<b>${S.clBrush?CC.find(x=>x[0]===S.clBrush)[1]:'지우기'}</b> 선택됨 · 이름을 누르세요 <button type="button" class="lnk" data-clbrush="off">끝내기</button>`:'초록은 기준 미달이어도 통과로 칩니다'}</span><button type="button" class="btn sm" data-cltop3="1">매출 상위 3명 초록</button></div>`:'';
+  const lockBar=locked?`<div class="banner info">${own?`작성일로부터 3일이 지난 날입니다. 다른 사람은 고칠 수 없고 관리자만 고칠 수 있습니다.`:`작성일로부터 3일이 지나 더 이상 고칠 수 없습니다. 고칠 내용이 있으면 관리자에게 말해 주세요.`}</div>`:'';
+  return head+bar+lockBar+rule+card('cltab','일별 통화량','',ptool+table,{cls:'wide'})+(locked&&!own?'':imp)+ros;
 }
 function isOwnerOrEditor(){return CAN()}
 function parseExt(text,day){
@@ -2984,7 +3005,7 @@ function render0(){
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
   const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),dbturn:()=>secPage('dbturn'),judge:()=>pageHead('judge','디비턴 판독')+judgePage(),calls:viewCalls,tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
-  const y=scrollY;page.innerHTML=v().replace('%%TOP%%',top+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml();
+  const y=scrollY;callsSub();page.innerHTML=v().replace('%%TOP%%',top+noticeBox(S.tab)+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
   placePop();buildToc();
 }
@@ -3068,6 +3089,12 @@ function act(t){
   if(d.cstep!=null){const n=+d.cstep;S.cdate=n===0?todayIso():addDays(S.cdate||todayIso(),n);S.keepScroll=true;render();return true}
   if(d.clext){const t=$('#clExt').value;S.clExt=t;const r=parseExt(t,S.cdate||todayIso());const ns=Object.keys(r.sum);if(!ns.length){S.clExtRes='상담원 이름과 상담시간을 찾지 못했습니다';S.keepScroll=true;render();return true}
     const rows={};ns.forEach(n=>rows[n]={et:String(r.sum[n].t),ec:String(r.sum[n].c)});callsWrite(S.cdate||todayIso(),{rows}).then(()=>{S.clExtRes=`${r.rows}건 · ${ns.length}명 내선 칸에 넣었습니다${r.skip?` (다른 날짜 ${r.skip}건 제외)`:''}`;S.keepScroll=true;render()});return true}
+  if(d.clbrush!=null){S.clBrush=d.clbrush==='off'||S.clBrush===d.clbrush?null:d.clbrush;S.keepScroll=true;render();return true}
+  if(d.clpaint){if(S.clBrush==null){toast('위에서 색을 먼저 고르세요');return true}const dd=S.cdate||todayIso();callsWrite(dd,{rows:{[d.clpaint]:{c:S.clBrush}}}).then(()=>{S.keepScroll=true;render()});return true}
+  if(d.cltop3){const dd=S.cdate||todayIso();const rows=S.callsAll?.[dd]?.rows||{};const top=callRoster().map(x=>[x.name,+rows[x.name]?.amt||0]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+    if(!top.length){toast('하루 매출이 적힌 사람이 없습니다');return true}const cut=top[Math.min(2,top.length-1)][1];const pick=top.filter(x=>x[1]>=cut).slice(0,Math.max(3,top.filter(x=>x[1]>=cut).length));
+    const patch={};callRoster().forEach(x=>{if(rows[x.name]?.c==='g')patch[x.name]={c:''}});pick.forEach(([n])=>patch[n]={c:'g'});
+    callsWrite(dd,{rows:patch}).then(()=>{toast(`${pick.map(x=>x[0]).join(', ')} 초록으로 칠했습니다`);S.keepScroll=true;render()});return true}
   if(d.clruled){S.clRuleEd=!S.clRuleEd;S.keepScroll=true;render();return true}
   if(d.csreset){callsWrite('_settings',{...CALL_DEF,v2:true}).then(()=>{toast('처음 기준으로 되돌렸습니다');S.keepScroll=true;render()});return true}
   if(d.clros){const t=$('#clRos').value;callsWrite('_roster',{text:t}).then(()=>{toast('통화량 명단을 저장했습니다');S.keepScroll=true;render()});return true}
@@ -3079,6 +3106,7 @@ function act(t){
   if(d.eduadd){const x=d.eduadd;mutate(()=>{const it=eduItems(S.doc.cal.edu[x]);it.push({time:'',title:'새 교육',room:'',who:''});setCal('edu',x,eduText(it))});setTimeout(()=>{const L=document.querySelectorAll('#pop .er-n');const el=L[L.length-1];if(el){el.focus();el.select()}},40);return true}
   if(d.edudel){const [x,i]=sp(d.edudel);mutate(()=>{const it=eduItems(S.doc.cal.edu[x]);it.splice(+i,1);setCal('edu',x,eduText(it))},'교육을 뺐습니다');return true}
   if(jAct(d))return true;
+  if(ntAct(d))return true;
   if(d.tnapply){tnApply();return true}
   if(d.acolsel){const k=d.acolsel;const D=asgData(S.doc);S.asel=new Set(D[k].map((x,i)=>k+'|'+i));S.acell=null;S.keepScroll=true;render();return true}
   if(d.amove){const {col,i}=S.acell||{};if(col==null)return true;const j=i+Number(d.amove);const L=asgData(S.doc)[col];if(j<0||j>=L.length)return true;asgEdit(M=>{const [x]=M[col].splice(i,1);M[col].splice(j,0,x);if(col==='off')S.doc.offOrder=M.off.map(y=>nmKey(y.n))});S.acell={col,i:j};S.asel=new Set([col+'|'+j]);S.keepScroll=true;render();return true}
@@ -3383,6 +3411,20 @@ function jAct(d){
   if(d.jdadd){const n=$('#jdN')?.value.trim();if(!n){toast('새 학과명을 적어 주세요');return true}jEdit(r=>{r.depts.push({d:n,a:$('#jdA').value.trim(),t:$('#jdT').value})},'학과를 추가했습니다');return true}
   if(d.jpmv){const [i,m]=sp(d.jpmv).map(Number);jEdit(r=>{r.priority=(r.priority&&r.priority.length?r.priority:['official','ai','oa','fb','etc']).slice();const j=i+m;if(j<0||j>=r.priority.length)return;[r.priority[i],r.priority[j]]=[r.priority[j],r.priority[i]]},'우선순위를 바꿨습니다');return true}
   if(d.jreset){if(confirm('판독 기준을 처음 값으로 되돌릴까요?'))jEdit(r=>{Object.assign(r,clone(JSEED))},'처음 기준으로 되돌렸습니다');return true}
+  return false}
+
+/* ================= 화면별 공지 ================= */
+function noticeOf(tab){return S.callsAll?.['_notice']?.tabs?.[tab]||null}
+function noticeBox(tab){const n=noticeOf(tab);const can=CAN();const ed=S.ntEdit===tab;
+  if(ed)return `<div class="nt ed"><div class="nt-h"><b>공지</b><span class="muted">이 화면 맨 위에 모두에게 보입니다</span></div><textarea id="ntText" class="in" rows="4" placeholder="공지 내용을 적어 주세요">${esc(n?.text||'')}</textarea><div class="nt-f"><button type="button" class="btn sm primary" data-ntsave="${tab}">올리기</button><button type="button" class="btn sm" data-ntx="1">취소</button>${n?.text?`<button type="button" class="btn sm ghost" data-ntdel="${tab}">공지 내리기</button>`:''}</div></div>`;
+  if(!n||!n.text)return can?`<div class="nt-add"><button type="button" class="lnk" data-ntedit="${tab}">${icx('plus')}이 화면에 공지 쓰기</button></div>`:'';
+  return `<div class="nt"><div class="nt-h"><b>공지</b><span class="muted">${esc([n.by,String(n.at||'').replace('T',' ').slice(5,16).replace('-','/')].filter(Boolean).join(' · '))}</span>${can?`<button type="button" class="btn xs" data-ntedit="${tab}">고치기</button>`:''}</div><div class="nt-b">${esc(n.text).replace(/\n/g,'<br>')}</div></div>`}
+function ntWrite(tab,val){const tabs={...(S.callsAll?.['_notice']?.tabs||{})};tabs[tab]=val;return callsWrite('_notice',{tabs})}
+function ntAct(d){
+  if(d.ntedit){S.ntEdit=d.ntedit;S.keepScroll=true;render();setTimeout(()=>$('#ntText')?.focus(),30);return true}
+  if(d.ntx){S.ntEdit=null;S.keepScroll=true;render();return true}
+  if(d.ntsave){const t=($('#ntText')?.value||'').trim();const by=(typeof A!=='undefined'&&A.prof?.name)||'';ntWrite(d.ntsave,t?{text:t,at:new Date().toISOString().slice(0,16),by}:{text:''}).then(()=>{S.ntEdit=null;toast(t?'공지를 올렸습니다':'공지를 내렸습니다');S.keepScroll=true;render()});return true}
+  if(d.ntdel){ntWrite(d.ntdel,{text:''}).then(()=>{S.ntEdit=null;toast('공지를 내렸습니다');S.keepScroll=true;render()});return true}
   return false}
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
