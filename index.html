@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261022-155832';
+window.OPS_BUILD = '20261022-160210';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1795,7 +1795,9 @@ tr.clc-r td.cl-nm,tr.clc-r td.cl-rank{background:#fecaca!important}
 .pr-sub{width:84px;background:#fff}
 .pr-red{color:#e00}
 .pr-r{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:start}
-.pr-asg th{background:#d9d9d9;font-size:12px}.pr-asg td{height:30px;font-size:12px;white-space:nowrap}.pr-asg td.pr-na{background:#d9d9d9}
+.pr-asg th{background:#d9d9d9;font-size:12px}.pr-asg td{height:30px;font-size:12px;white-space:nowrap}
+#prSheet .pr-asg td:nth-child(even){font-size:17px;font-weight:800;letter-spacing:-.02em;padding:2px 2px;white-space:nowrap!important}
+#prSheet .pr-asg td:nth-child(odd){font-size:11px;color:#555}.pr-asg td.pr-na{background:#d9d9d9}
 .pc-y{background:#ffff00}.pc-r{background:#ffc7ce}.pc-b{background:#bdd7ee}.pc-g{background:#c6efce}.pc-s{background:#d9d9d9}
 .pr-note{border:1px solid #333;border-top:0;padding:24px 8px 16px;font-size:12px;line-height:1.6;white-space:normal}
 @media print{
@@ -3602,7 +3604,7 @@ function prAsg(doc,title,fallbackId){let D=null;try{if(doc)D=asgData(doc)}catch(
   if((!D||!D.off||!D.off.length)&&fallbackId){const lb=(S.doc.blocks||[]).find(x=>x.id===fallbackId);if(lb){const col=j=>lb.rows.map(r=>String(r[j]||'').trim()).filter(Boolean).map(n=>({n,c:''}));D={off:col(1),rep:col(2),nae:col(3)}}}
   if(!D)return '';const n=Math.max(D.off.length,D.rep?.length||0,D.nae?.length||0);let rows='';
   for(let i=0;i<n;i++){rows+='<tr>'+ACOL.map(([k])=>{const x=(D[k]||[])[i];return x?`<td>${i+1}</td><td class="${x.c?'pc-'+x.c:''}">${esc(x.n)}</td>`:'<td class="pr-na"></td><td class="pr-na"></td>'}).join('')+'</tr>'}
-  return `<table class="pr-t pr-asg"><colgroup>${ACOL.map(()=>'<col style="width:13%"><col style="width:20.33%">').join('')}</colgroup><thead><tr><th colspan="6" class="pr-h1">${esc(title)}</th></tr><tr>${ACOL.map(([,l])=>`<th>연번</th><th>${l}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`}
+  return `<table class="pr-t pr-asg"><colgroup>${ACOL.map(()=>'<col style="width:9%"><col style="width:24.33%">').join('')}</colgroup><thead><tr><th colspan="6" class="pr-h1">${esc(title)}</th></tr><tr>${ACOL.map(([,l])=>`<th>연번</th><th>${l}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`}
 function printSheet(){
   const [a,z]=periodDays();const cal=S.doc.cal;const mo=+S.id.slice(5);const yr=+S.id.slice(0,4);const PG=S.prG&&S.prG.length&&S.prG.length<5?S.prG:null;
   const start=addDays(a,-parse(a).getDay());const end=addDays(z,6-parse(z).getDay());
