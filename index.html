@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261022-155224';
+window.OPS_BUILD = '20261022-155832';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1811,6 +1811,14 @@ tr.clc-r td.cl-nm,tr.clc-r td.cl-rank{background:#fecaca!important}
 }
 #prSheet .pr-sun{color:#e00}#prSheet .pr-sat{color:#1f63d6}#prSheet .pr-hl{background:#ffff00}#prSheet .pr-red{color:#e00}
 
+.pr-gs{display:inline-flex;align-items:center;gap:4px;margin-left:6px}.pr-gs .muted{font-size:12px;margin-right:2px}
+.pr-gs button{border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;height:30px;padding:0 10px;font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.pr-gs button.on{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.pr-gs button[class*="g-"].on{background:var(--g);border-color:var(--g);color:#fff}
+#prSheet .pr-h1 small{font-size:13px;font-weight:700}
+#prSheet .pr-t tr:last-child>td,#prSheet .pr-t tr:last-child>th{border-bottom:1px solid #333!important}
+#prSheet .pr-t td,#prSheet .pr-t th{border:1px solid #333!important}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3197,6 +3205,7 @@ function act(t){
   if(jAct(d))return true;
   if(ntAct(d))return true;
   if(d.print){S.printOpen=true;S.keepScroll=true;render();return true}
+  if(d.prg){if(d.prg==='all')S.prG=null;else{const L=(S.prG||[]).slice();const i=L.indexOf(d.prg);i>=0?L.splice(i,1):L.push(d.prg);L.sort();S.prG=L.length?L:null}S.keepScroll=true;render();return true}
   if(d.printx){S.printOpen=false;S.keepScroll=true;render();return true}
   if(d.printgo){prFit();window.print();return true}
   if(d.logf){const [k,v]=sp(d.logf);S.logF[k]=v||'';S.logLim=150;S.keepScroll=true;render();return true}
@@ -3595,12 +3604,12 @@ function prAsg(doc,title,fallbackId){let D=null;try{if(doc)D=asgData(doc)}catch(
   for(let i=0;i<n;i++){rows+='<tr>'+ACOL.map(([k])=>{const x=(D[k]||[])[i];return x?`<td>${i+1}</td><td class="${x.c?'pc-'+x.c:''}">${esc(x.n)}</td>`:'<td class="pr-na"></td><td class="pr-na"></td>'}).join('')+'</tr>'}
   return `<table class="pr-t pr-asg"><colgroup>${ACOL.map(()=>'<col style="width:13%"><col style="width:20.33%">').join('')}</colgroup><thead><tr><th colspan="6" class="pr-h1">${esc(title)}</th></tr><tr>${ACOL.map(([,l])=>`<th>연번</th><th>${l}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`}
 function printSheet(){
-  const [a,z]=periodDays();const cal=S.doc.cal;const mo=+S.id.slice(5);const yr=+S.id.slice(0,4);
+  const [a,z]=periodDays();const cal=S.doc.cal;const mo=+S.id.slice(5);const yr=+S.id.slice(0,4);const PG=S.prG&&S.prG.length&&S.prG.length<5?S.prG:null;
   const start=addDays(a,-parse(a).getDay());const end=addDays(z,6-parse(z).getDay());
   let weeks='';for(let w=start;w<=end;w=addDays(w,7)){const ds=[0,1,2,3,4,5,6].map(i=>addDays(w,i));
     weeks+='<tr class="pr-dr">'+ds.map((x,i)=>{const out=x<a||x>z;if(out)return '<td class="pr-out"></td>';const memo=cal.memo?.[x]||'';const hol=HOL.test(memo);const dt=parse(x);
       const lab=(x===a||dt.getDate()===1)?`${dt.getMonth()+1}/${dt.getDate()}`:dt.getDate();return `<td class="${i===0||hol?'pr-sun':i===6?'pr-sat':''}">${lab}${memo&&hol?` <small>(${esc(memo)})</small>`:''}</td>`}).join('')+'</tr>';
-    const cells=ds.map(x=>{if(x<a||x>z)return {out:1};const v=String(cal.duty?.[x]||'').trim();const g=groupOf(v);return {v,g}});
+    const cells=ds.map(x=>{if(x<a||x>z)return {out:1};const v=String(cal.duty?.[x]||'').trim();const g=groupOf(v);if(g&&PG&&!PG.includes(g))return {v:'',g:null,hide:1};return {v,g}});
     let row='';for(let i=0;i<7;){const c=cells[i];if(c.out){let j=i;while(j<7&&cells[j].out)j++;row+=`<td class="pr-out" colspan="${j-i}"></td>`;i=j;continue}
       if(!c.g&&c.v){let j=i+1;while(j<7&&!cells[j].out&&!cells[j].g&&cells[j].v===c.v&&!/^지원$/.test(c.v))j++;const sp=/^지원$/.test(c.v)?'':(/연휴|휴일|휴무/.test(c.v)?'':' pr-hl');row+=`<td colspan="${j-i}" class="pr-txt${sp}">${esc(c.v).replace(/\n/g,'<br>')}</td>`;i=j;continue}
       row+=`<td class="${c.g?'pr-g g-'+c.g:''}">${c.g||''}</td>`;i++}
@@ -3609,19 +3618,19 @@ function printSheet(){
   const R=blk('dutyRule');const items=R?.items||[];const groups=rosterAt('duty',z).groups||{};
   let note='';const lines=(sec)=>{const out=[];items.filter(it=>String(it.label||'').startsWith(sec)).forEach(it=>{const sub=String(it.label).replace(sec,'').trim()||'-';let t=String(it.text||'');
       if(sec==='평일'&&sub==='인원'&&t.includes('\n*')){note=t.slice(t.indexOf('\n*')+1);t=t.slice(0,t.indexOf('\n*'))}
-      const L=t.split('\n').map(x=>x.trim()).filter(Boolean);if(sec==='평일'&&sub==='당직조')GROUPS.forEach(g=>{if((groups[g]||[]).length)L.push(`${g}조 : ${groups[g].join(' ')}`)});out.push([sub,L])});return out};
+      const L=t.split('\n').map(x=>x.trim()).filter(Boolean);if(sec==='평일'&&sub==='당직조')GROUPS.forEach(g=>{if((groups[g]||[]).length&&(!PG||PG.includes(g)))L.push(`${g}조 : ${groups[g].join(' ')}`)});out.push([sub,L])});return out};
   const sect=(sec,cls)=>{const L=lines(sec);const tot=L.reduce((n,[,l])=>n+Math.max(1,l.length),0);let h='';L.forEach(([sub,l],k)=>{(l.length?l:['']).forEach((t,j)=>{h+=`<tr>${k===0&&j===0?`<th class="pr-sec ${cls}" rowspan="${tot}">${sec}</th>`:''}${j===0?`<th class="pr-sub${/인원/.test(sub)&&sec==='주말'?' pr-hl':''}" rowspan="${Math.max(1,l.length)}">${esc(sub)}</th>`:''}<td class="${sec==='주말'&&/인원제한/.test(t)?'pr-hl':''}">${prRed(t)}</td></tr>`})});return h};
   const ruleT=items.length?`<table class="pr-t pr-rule"><colgroup><col style="width:152px"><col style="width:84px"><col></colgroup><thead><tr><th colspan="3" class="pr-h2">당직디비규정</th></tr></thead><tbody>${sect('평일','wk')}${sect('주말','we')}</tbody></table>`:'';
   const pd=prevMonthDoc();const pm=mo===1?12:mo-1;const py=mo===1?yr-1:yr;
   const noteBox=note?`<div class="pr-note">${esc(note).replace(/\n/g,'<br>')}</div>`:'';
-  return `<div id="prSheet"><div class="pr-l"><table class="pr-t pr-cal"><colgroup>${WD.map(()=>'<col style="width:14.2857%">').join('')}</colgroup><thead><tr><th colspan="7" class="pr-h1">컴퓨터 홍대 ${mo}월 영업 영업활동 일정표</th></tr><tr>${WD.map((w,i)=>`<th class="${i===0||i===6?'pr-we':''}">${w}</th>`).join('')}</tr></thead><tbody>${weeks}
+  return `<div id="prSheet"><div class="pr-l"><table class="pr-t pr-cal"><colgroup>${WD.map(()=>'<col style="width:14.2857%">').join('')}</colgroup><thead><tr><th colspan="7" class="pr-h1">컴퓨터 홍대 ${mo}월 영업 영업활동 일정표${PG?` <small>(${PG.map(g=>g+'조').join('·')})</small>`:''}</th></tr><tr>${WD.map((w,i)=>`<th class="${i===0||i===6?'pr-we':''}">${w}</th>`).join('')}</tr></thead><tbody>${weeks}
       <tr class="pr-cr"><th class="pr-bg">비고</th><td colspan="6">하단 당직디비규정 참조</td></tr></tbody></table>
     <table class="pr-t pr-team"><tbody><tr><th rowspan="2" class="pr-bg">각 팀 자율 작성</th>${mgr.map(n=>`<td class="pr-nm">${esc(n)}</td>`).join('')}</tr><tr>${mgr.map(()=>'<td class="pr-blank"></td>').join('')}</tr></tbody></table>${ruleT}</div>
     <div class="pr-r"><div>${prAsg(S.doc,`${yr}년 ${mo}월 디비 배정표`,'dbAssign')}${noteBox}</div><div>${prAsg(pd,`${py}년 ${pm}월 디비 배정표`,pd?null:'dbAssignPrev')}${noteBox}</div></div></div>`;
 }
 function prFit(){const el=document.getElementById('prSheet');if(!el)return;const w=el.scrollWidth,h=el.scrollHeight;el.style.setProperty('--pz',String(Math.min(1060/w,735/h)))}
 addEventListener('beforeprint',prFit);
-function printOvl(){if(!S.printOpen||!S.doc)return '';return `<div id="prOvl"><div class="pr-bar"><b>출력용 영업활동 일정표</b><span class="muted">가로 방향으로 인쇄됩니다. PDF로 저장하려면 인쇄 창에서 대상을 'PDF로 저장'으로 고르세요.</span><button type="button" class="btn primary" data-printgo="1">${icx('check')}인쇄 · PDF 저장</button><button type="button" class="btn" data-printx="1">닫기</button></div><div class="pr-wrap">${printSheet()}</div></div>`}
+function printOvl(){if(!S.printOpen||!S.doc)return '';return `<div id="prOvl"><div class="pr-bar"><b>출력용 영업활동 일정표</b><span class="pr-gs"><span class="muted">조 골라 보기</span><button type="button" class="${!(S.prG&&S.prG.length&&S.prG.length<5)?'on':''}" data-prg="all">전체</button>${GROUPS.map(g=>`<button type="button" class="g-${g}${S.prG&&S.prG.length<5&&S.prG.includes(g)?' on':''}" data-prg="${g}">${g}조</button>`).join('')}</span><span class="muted">가로 방향으로 인쇄됩니다. PDF로 저장하려면 인쇄 창에서 대상을 'PDF로 저장'으로 고르세요.</span><button type="button" class="btn primary" data-printgo="1">${icx('check')}인쇄 · PDF 저장</button><button type="button" class="btn" data-printx="1">닫기</button></div><div class="pr-wrap">${printSheet()}</div></div>`}
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
