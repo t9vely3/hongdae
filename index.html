@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261021-120035';
+window.OPS_BUILD = '20261022-155224';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1765,6 +1765,52 @@ tr.clc-r td.cl-nm,tr.clc-r td.cl-rank{background:#fecaca!important}
 .gnav button.lg{margin-left:6px;border-left:1px solid var(--line)}
 @media (max-width:759px){.lgv-t,.lgv-d{padding-left:16px;padding-right:16px}.lgv-r{width:100%}.lgv-r .in{flex:1;width:auto}.lgv-e{grid-template-columns:44px 1fr auto}.lgv-e ul{grid-column:1/-1}}
 
+/* --- 출력용 일정표 --- */
+#prOvl{position:fixed;inset:0;z-index:300;background:rgba(20,22,28,.55);display:flex;flex-direction:column}
+.pr-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.pr-bar .muted{font-size:12.5px;flex:1}
+.pr-wrap{flex:1;overflow:auto;padding:20px}
+#prSheet{width:1900px;margin:0 auto;background:#fff;color:#111;display:grid;grid-template-columns:1120px 1fr;gap:18px;padding:18px;font-family:'Pretendard',system-ui,sans-serif;font-size:13px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+#prSheet *{box-sizing:border-box}
+#prSheet table{display:table!important;margin:0}#prSheet thead{display:table-header-group!important}#prSheet tbody{display:table-row-group!important}#prSheet tr{display:table-row!important;background:none}
+#prSheet th,#prSheet td{display:table-cell!important;position:static!important;color:inherit;font-size:inherit;letter-spacing:0;text-transform:none;white-space:normal;box-shadow:none;min-width:0;max-width:none;width:auto}
+#prSheet td::before,#prSheet th::before{display:none!important;content:none!important}
+.pr-t{width:100%;border-collapse:collapse;table-layout:fixed}
+.pr-t th,.pr-t td{border:1px solid #333;padding:4px 6px;text-align:center;vertical-align:middle;line-height:1.35;word-break:keep-all}
+.pr-h1{background:#adb9ca;font-size:15px;font-weight:800;padding:14px!important}
+.pr-h2{background:#e7e6e6;font-size:15px;font-weight:800;padding:8px!important}
+.pr-cal thead tr:nth-child(2) th{background:#d9d9d9;font-weight:600}.pr-cal thead th.pr-we{background:#f8cbad}
+.pr-dr td{height:30px;font-weight:600}.pr-dr small{font-weight:600}
+.pr-cr td,.pr-cr th{height:54px}
+.pr-sun{color:#e00}.pr-sat{color:#1f63d6}
+.pr-out{background:#d9d9d9}
+.pr-g{font-weight:600}
+.pr-g.g-A{background:#e2efda}.pr-g.g-B{background:#d9e1f2}.pr-g.g-C{background:#fff2cc}.pr-g.g-D{background:#fce4d6}.pr-g.g-E{background:#ddebf7}
+.pr-hl{background:#ffff00}
+.pr-txt{font-weight:600}
+.pr-bg{background:#fff;font-weight:600}
+.pr-team{margin-top:-1px!important}.pr-team .pr-bg{width:160px!important}.pr-nm{font-weight:600}.pr-blank{height:70px}
+.pr-rule{margin-top:34px}.pr-rule td{text-align:left;font-weight:600}
+.pr-sec{width:152px;font-size:15px}.pr-sec.wk{background:#ddebf7}.pr-sec.we{background:#fce4d6}
+.pr-sub{width:84px;background:#fff}
+.pr-red{color:#e00}
+.pr-r{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:start}
+.pr-asg th{background:#d9d9d9;font-size:12px}.pr-asg td{height:30px;font-size:12px;white-space:nowrap}.pr-asg td.pr-na{background:#d9d9d9}
+.pc-y{background:#ffff00}.pc-r{background:#ffc7ce}.pc-b{background:#bdd7ee}.pc-g{background:#c6efce}.pc-s{background:#d9d9d9}
+.pr-note{border:1px solid #333;border-top:0;padding:24px 8px 16px;font-size:12px;line-height:1.6;white-space:normal}
+@media print{
+  @page{size:A4 landscape;margin:6mm}
+  html,body{background:#fff!important;height:auto!important}
+  body>*:not(.shell){display:none!important}
+  .shell>*:not(#page){display:none!important}
+  #page>*:not(#prOvl){display:none!important}
+  .shell,#page{display:block!important;margin:0!important;padding:0!important}
+  #prOvl{position:static!important;background:none!important;display:block!important}
+  .pr-bar{display:none!important}.pr-wrap{padding:0;overflow:visible}
+  #prSheet{box-shadow:none;margin:0;padding:0;zoom:var(--pz,.55);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+#prSheet .pr-sun{color:#e00}#prSheet .pr-sat{color:#1f63d6}#prSheet .pr-hl{background:#ffff00}#prSheet .pr-red{color:#e00}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2875,7 +2921,7 @@ function viewRoster(k){
   else if(sub==='count')body=rosterCount(k);
   else if(sub==='order')body=editHint()+(flow(blocksOf('assign','order'))||'<div class="empty-state">배정 순번표가 없습니다.</div>')+addBlockBar('assign','order');
   else if(sub==='rule'){const r=blk(GK[k].rule);body=comBar()+editHint()+(r?flow([r],'one'):'<div class="empty-state">규정이 없습니다.</div>')}
-  return pageHead(k,PAGES[k].label)+body;
+  return pageHead(k,PAGES[k].label,k==='duty'?`<button type="button" class="btn" data-print="duty">${icx('list')}출력용 일정표</button>`:'')+body;
 }
 
 /* ================= 통화량 (일별 기입 · 자동 저장) ================= */
@@ -2953,7 +2999,7 @@ function viewCalls(){
     {right:CAN()?`<button type="button" class="btn sm${ed?' primary':''}" data-clruled="1">${ed?'다 고쳤어요':'기준 고치기'}</button>`:''})
     +(S.callsDenied?`<div class="banner">통화량이 저장되지 않고 있습니다. Firebase 콘솔 → Firestore Database → <b>규칙</b> 탭에 새 규칙 파일 내용을 붙여넣고 <b>게시</b>를 눌러 주세요. 게시할 때 빨간 오류가 뜨면 그 화면을 보내 주세요.</div>`:'');
   const table=`<div class="tw"><table class="stk cl-tab"><thead><tr><th rowspan="2">팀</th><th rowspan="2" class="ctr">직급</th><th rowspan="2">이름</th><th colspan="2" class="ctr">상담</th><th rowspan="2" class="ctr">등록<br><small>COD·추등</small></th><th rowspan="2" class="ctr">하루 매출<br><small>만원</small></th><th class="ctr cl-p" rowspan="2">개인<br>통화량</th><th class="ctr cl-p" rowspan="2">개인<br>건수</th><th class="ctr cl-e" rowspan="2">내선<br>통화량</th><th class="ctr cl-e" rowspan="2">내선<br>건수</th><th class="ctr cl-need" rowspan="2">기준<br><small>${callSet().base}:00에서 차감</small></th><th class="ctr" rowspan="2">합산<br>통화량</th><th class="ctr" rowspan="2">합산<br>건수</th></tr><tr><th class="ctr">본인</th><th class="ctr">대리</th></tr></thead><tbody>${body}</tbody></table></div>`;
-  const imp=can?card('clext','내선 통화내역 붙여넣기','전화 기록(No·상담일자·…·상담원·내선번호·고객전화번호·상담시간)을 복사해 붙여넣으면 상담원별로 시간과 건수를 더해 오늘 내선 칸에 넣습니다.',
+  const imp=can?card('clext','내선 통화내역 붙여넣기','가장 쉬운 방법: 통화량 사이트에서 Ctrl+A → Ctrl+C, 이 화면 아무 곳(빈 곳)에서 Ctrl+V. 상담원별 시간과 건수를 더해 지금 보고 있는 날짜의 내선 칸에 넣습니다.',
     `<div class="wk"><textarea id="clExt" class="in" rows="4" placeholder="내선 통화내역을 붙여넣으세요">${esc(S.clExt||'')}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clext="1">합산해서 내선 칸에 넣기</button>${S.clExtRes?`<span class="muted">${esc(S.clExtRes)}</span>`:''}</div></div>`):'';
   const ros=can&&isOwnerOrEditor()?card('clros','통화량 명단','한 줄에 ‘팀 직급 이름’ 순서로 적습니다. 예) 1-1팀 부장 김태원',`<div class="wk"><textarea id="clRos" class="in" rows="${S.clRosOpen?14:3}">${esc(S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT)}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clros="1">명단 저장</button></div></div>`):'';
   const CC=[['g','초록','통과 처리'],['y','노랑',''],['b','파랑',''],['r','빨강','']];
@@ -2963,6 +3009,10 @@ function viewCalls(){
   return head+bar+lockBar+rule+card('cltab','일별 통화량','',ptool+table,{cls:'wide'})+(locked&&!own?'':imp)+ros;
 }
 function isOwnerOrEditor(){return CAN()}
+function clImport(t,quick){const day=S.cdate||todayIso();S.clExt=quick?'':t;const r=parseExt(t,day);const ns=Object.keys(r.sum);
+  if(!ns.length){S.clExtRes='상담원 이름과 통화 시간을 찾지 못했습니다';if(quick)toast('붙여넣은 내용에서 상담원 이름과 통화 시간을 찾지 못했습니다');S.keepScroll=true;render();return}
+  logAdd('calls',[`${md(day)} 내선 통화내역 붙여넣기 (${ns.length}명)`]);const rows={};ns.forEach(n=>rows[n]={et:String(r.sum[n].t),ec:String(r.sum[n].c)});
+  callsWrite(day,{rows}).then(()=>{S.clExtRes=`${r.rows}건 · ${ns.length}명 내선 칸에 넣었습니다${r.skip?` (다른 날짜 ${r.skip}건 제외)`:''}`;toast(`${md(day)} 내선 통화량 ${ns.length}명 넣었습니다`);S.keepScroll=true;render()})}
 function parseExt(text,day){
   const R=callRoster();const names=new Set(R.map(x=>x.name));const sum={};let rows=0,skip=0;
   String(text||'').split(/\r?\n/).forEach(l=>{const c=(l.includes('\t')?l.split('\t'):l.trim().split(/\s{2,}|\s+/)).map(x=>x.trim());if(c.length<2)return;
@@ -3043,7 +3093,7 @@ function render0(){
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
   const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),dbturn:()=>secPage('dbturn'),judge:()=>pageHead('judge','디비턴 판독')+judgePage(),log:viewLog,calls:viewCalls,tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
-  const y=scrollY;callsSub();page.innerHTML=v().replace('%%TOP%%',top+noticeBox(S.tab)+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml()+revsPop();
+  const y=scrollY;callsSub();page.innerHTML=v().replace('%%TOP%%',top+noticeBox(S.tab)+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml()+revsPop()+printOvl();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
   placePop();buildToc();
 }
@@ -3127,8 +3177,7 @@ function act(t){
   if(d.mstep){const ids=Object.keys(S.months).sort();const n=ids[ids.indexOf(S.id)+Number(d.mstep)];if(n){S.keepScroll=true;switchMonth(n)}return true}
   if(d.pershift){const [w,dd]=sp(d.pershift);const [a,z]=periodDays();let na=a,nz=z;if(w==='start')na=addDays(a,+dd);else nz=addDays(z,+dd);if(na>nz){toast('종료일이 시작일보다 앞설 수 없습니다');return true}mutate(()=>{S.doc.period={start:na,end:nz}},`영업기간 ${md(na)} ~ ${md(nz)}`);return true}
   if(d.cstep!=null){const n=+d.cstep;S.cdate=n===0?todayIso():addDays(S.cdate||todayIso(),n);S.keepScroll=true;render();return true}
-  if(d.clext){logAdd('calls',[`${md(S.cdate||todayIso())} 내선 통화내역 붙여넣기`]);const t=$('#clExt').value;S.clExt=t;const r=parseExt(t,S.cdate||todayIso());const ns=Object.keys(r.sum);if(!ns.length){S.clExtRes='상담원 이름과 상담시간을 찾지 못했습니다';S.keepScroll=true;render();return true}
-    const rows={};ns.forEach(n=>rows[n]={et:String(r.sum[n].t),ec:String(r.sum[n].c)});callsWrite(S.cdate||todayIso(),{rows}).then(()=>{S.clExtRes=`${r.rows}건 · ${ns.length}명 내선 칸에 넣었습니다${r.skip?` (다른 날짜 ${r.skip}건 제외)`:''}`;S.keepScroll=true;render()});return true}
+  if(d.clext){clImport($('#clExt').value);return true}
   if(d.clbrush!=null){S.clBrush=d.clbrush==='off'||S.clBrush===d.clbrush?null:d.clbrush;S.keepScroll=true;render();return true}
   if(d.clpaint){if(S.clBrush==null){toast('위에서 색을 먼저 고르세요');return true}const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} ${d.clpaint} 색: ${CL_C[S.clBrush]||'지움'}`]);callsWrite(dd,{rows:{[d.clpaint]:{c:S.clBrush}}}).then(()=>{S.keepScroll=true;render()});return true}
   if(d.cltop3){const dd=S.cdate||todayIso();const rows=S.callsAll?.[dd]?.rows||{};const top=callRoster().map(x=>[x.name,+rows[x.name]?.amt||0]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
@@ -3147,6 +3196,9 @@ function act(t){
   if(d.edudel){const [x,i]=sp(d.edudel);mutate(()=>{const it=eduItems(S.doc.cal.edu[x]);it.splice(+i,1);setCal('edu',x,eduText(it))},'교육을 뺐습니다');return true}
   if(jAct(d))return true;
   if(ntAct(d))return true;
+  if(d.print){S.printOpen=true;S.keepScroll=true;render();return true}
+  if(d.printx){S.printOpen=false;S.keepScroll=true;render();return true}
+  if(d.printgo){prFit();window.print();return true}
   if(d.logf){const [k,v]=sp(d.logf);S.logF[k]=v||'';S.logLim=150;S.keepScroll=true;render();return true}
   if(d.logmore){S.logLim=(S.logLim||150)+150;S.keepScroll=true;render();return true}
   if(d.tnapply){tnApply();return true}
@@ -3364,6 +3416,7 @@ document.addEventListener('copy',e=>{if(e.target.closest?.('input,textarea')&&e.
 document.addEventListener('cut',e=>{if(e.target.closest?.('input,textarea'))return;if(asgActive()){const t=asgCopy(true);if(t!=null){e.clipboardData.setData('text/plain',t);e.preventDefault()}}
   else if(S.pop&&GK[S.pop.key]&&CAN()){const {key:k,date:x}=S.pop;const v=S.doc.cal[k]?.[x]||'';const m=S.doc.cal[GK[k].mem]?.[x];DCLIP={v,m:Array.isArray(m)?m.slice():null};e.clipboardData.setData('text/plain',v);e.preventDefault();mutate(()=>{setCal(k,x,'');delete S.doc.cal[GK[k].mem][x]},`${md(x)} 잘라냄`)}});
 document.addEventListener('paste',e=>{if(e.target.closest?.('input,textarea'))return;const t=e.clipboardData.getData('text/plain');
+  if(S.tab==='calls'&&callCan()&&(Math.round((parse(todayIso())-parse(S.cdate||todayIso()))/864e5)<=3||(typeof isOwnerA==='function'&&isOwnerA()))){e.preventDefault();clImport(t,true);return}
   if(asgActive()){e.preventDefault();asgPaste(t);return}
   if(S.pop&&GK[S.pop.key]&&CAN()){e.preventDefault();const {key:k,date:x}=S.pop;S.edit=true;
     if(DCLIP){mutate(()=>{setCal(k,x,DCLIP.v);if(DCLIP.m)S.doc.cal[GK[k].mem][x]=DCLIP.m.slice();else delete S.doc.cal[GK[k].mem][x]},`${md(x)}에 붙여넣음`);return}
@@ -3533,6 +3586,42 @@ function viewLog(){callsSub();const head=pageHead('log','수정 기록');
   return head+card('logv',`기록 ${L.length}건`,'화면 이름을 누르면 그 화면으로 넘어갑니다. 통화량 입력은 1분 동안 모아서 한 번에 남깁니다.',tools+body+more,{cls:'wide'});
 }
 document.addEventListener('change',function(e){const t=e.target;if(t.id==='logBy'){S.logF.by=t.value;S.keepScroll=true;render()}else if(t.id==='logQ'){S.logF.q=t.value;S.keepScroll=true;render()}});
+
+/* ================= 출력용 영업활동 일정표 (엑셀 양식) ================= */
+function prRed(t){return esc(t).replace(/&quot;순매출&quot;|"순매출"/g,'<b class="pr-red">"순매출"</b>').replace(/(월화 ?:? ?\d+명 ?\/ ?수~금 ?:? ?\d+명)/g,'<span class="pr-red">$1</span>')}
+function prAsg(doc,title,fallbackId){let D=null;try{if(doc)D=asgData(doc)}catch(_){D=null}
+  if((!D||!D.off||!D.off.length)&&fallbackId){const lb=(S.doc.blocks||[]).find(x=>x.id===fallbackId);if(lb){const col=j=>lb.rows.map(r=>String(r[j]||'').trim()).filter(Boolean).map(n=>({n,c:''}));D={off:col(1),rep:col(2),nae:col(3)}}}
+  if(!D)return '';const n=Math.max(D.off.length,D.rep?.length||0,D.nae?.length||0);let rows='';
+  for(let i=0;i<n;i++){rows+='<tr>'+ACOL.map(([k])=>{const x=(D[k]||[])[i];return x?`<td>${i+1}</td><td class="${x.c?'pc-'+x.c:''}">${esc(x.n)}</td>`:'<td class="pr-na"></td><td class="pr-na"></td>'}).join('')+'</tr>'}
+  return `<table class="pr-t pr-asg"><colgroup>${ACOL.map(()=>'<col style="width:13%"><col style="width:20.33%">').join('')}</colgroup><thead><tr><th colspan="6" class="pr-h1">${esc(title)}</th></tr><tr>${ACOL.map(([,l])=>`<th>연번</th><th>${l}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`}
+function printSheet(){
+  const [a,z]=periodDays();const cal=S.doc.cal;const mo=+S.id.slice(5);const yr=+S.id.slice(0,4);
+  const start=addDays(a,-parse(a).getDay());const end=addDays(z,6-parse(z).getDay());
+  let weeks='';for(let w=start;w<=end;w=addDays(w,7)){const ds=[0,1,2,3,4,5,6].map(i=>addDays(w,i));
+    weeks+='<tr class="pr-dr">'+ds.map((x,i)=>{const out=x<a||x>z;if(out)return '<td class="pr-out"></td>';const memo=cal.memo?.[x]||'';const hol=HOL.test(memo);const dt=parse(x);
+      const lab=(x===a||dt.getDate()===1)?`${dt.getMonth()+1}/${dt.getDate()}`:dt.getDate();return `<td class="${i===0||hol?'pr-sun':i===6?'pr-sat':''}">${lab}${memo&&hol?` <small>(${esc(memo)})</small>`:''}</td>`}).join('')+'</tr>';
+    const cells=ds.map(x=>{if(x<a||x>z)return {out:1};const v=String(cal.duty?.[x]||'').trim();const g=groupOf(v);return {v,g}});
+    let row='';for(let i=0;i<7;){const c=cells[i];if(c.out){let j=i;while(j<7&&cells[j].out)j++;row+=`<td class="pr-out" colspan="${j-i}"></td>`;i=j;continue}
+      if(!c.g&&c.v){let j=i+1;while(j<7&&!cells[j].out&&!cells[j].g&&cells[j].v===c.v&&!/^지원$/.test(c.v))j++;const sp=/^지원$/.test(c.v)?'':(/연휴|휴일|휴무/.test(c.v)?'':' pr-hl');row+=`<td colspan="${j-i}" class="pr-txt${sp}">${esc(c.v).replace(/\n/g,'<br>')}</td>`;i=j;continue}
+      row+=`<td class="${c.g?'pr-g g-'+c.g:''}">${c.g||''}</td>`;i++}
+    weeks+=`<tr class="pr-cr">${row}</tr>`}
+  const mgr=staffOf().filter(x=>x.r==='관리').map(x=>x.n);
+  const R=blk('dutyRule');const items=R?.items||[];const groups=rosterAt('duty',z).groups||{};
+  let note='';const lines=(sec)=>{const out=[];items.filter(it=>String(it.label||'').startsWith(sec)).forEach(it=>{const sub=String(it.label).replace(sec,'').trim()||'-';let t=String(it.text||'');
+      if(sec==='평일'&&sub==='인원'&&t.includes('\n*')){note=t.slice(t.indexOf('\n*')+1);t=t.slice(0,t.indexOf('\n*'))}
+      const L=t.split('\n').map(x=>x.trim()).filter(Boolean);if(sec==='평일'&&sub==='당직조')GROUPS.forEach(g=>{if((groups[g]||[]).length)L.push(`${g}조 : ${groups[g].join(' ')}`)});out.push([sub,L])});return out};
+  const sect=(sec,cls)=>{const L=lines(sec);const tot=L.reduce((n,[,l])=>n+Math.max(1,l.length),0);let h='';L.forEach(([sub,l],k)=>{(l.length?l:['']).forEach((t,j)=>{h+=`<tr>${k===0&&j===0?`<th class="pr-sec ${cls}" rowspan="${tot}">${sec}</th>`:''}${j===0?`<th class="pr-sub${/인원/.test(sub)&&sec==='주말'?' pr-hl':''}" rowspan="${Math.max(1,l.length)}">${esc(sub)}</th>`:''}<td class="${sec==='주말'&&/인원제한/.test(t)?'pr-hl':''}">${prRed(t)}</td></tr>`})});return h};
+  const ruleT=items.length?`<table class="pr-t pr-rule"><colgroup><col style="width:152px"><col style="width:84px"><col></colgroup><thead><tr><th colspan="3" class="pr-h2">당직디비규정</th></tr></thead><tbody>${sect('평일','wk')}${sect('주말','we')}</tbody></table>`:'';
+  const pd=prevMonthDoc();const pm=mo===1?12:mo-1;const py=mo===1?yr-1:yr;
+  const noteBox=note?`<div class="pr-note">${esc(note).replace(/\n/g,'<br>')}</div>`:'';
+  return `<div id="prSheet"><div class="pr-l"><table class="pr-t pr-cal"><colgroup>${WD.map(()=>'<col style="width:14.2857%">').join('')}</colgroup><thead><tr><th colspan="7" class="pr-h1">컴퓨터 홍대 ${mo}월 영업 영업활동 일정표</th></tr><tr>${WD.map((w,i)=>`<th class="${i===0||i===6?'pr-we':''}">${w}</th>`).join('')}</tr></thead><tbody>${weeks}
+      <tr class="pr-cr"><th class="pr-bg">비고</th><td colspan="6">하단 당직디비규정 참조</td></tr></tbody></table>
+    <table class="pr-t pr-team"><tbody><tr><th rowspan="2" class="pr-bg">각 팀 자율 작성</th>${mgr.map(n=>`<td class="pr-nm">${esc(n)}</td>`).join('')}</tr><tr>${mgr.map(()=>'<td class="pr-blank"></td>').join('')}</tr></tbody></table>${ruleT}</div>
+    <div class="pr-r"><div>${prAsg(S.doc,`${yr}년 ${mo}월 디비 배정표`,'dbAssign')}${noteBox}</div><div>${prAsg(pd,`${py}년 ${pm}월 디비 배정표`,pd?null:'dbAssignPrev')}${noteBox}</div></div></div>`;
+}
+function prFit(){const el=document.getElementById('prSheet');if(!el)return;const w=el.scrollWidth,h=el.scrollHeight;el.style.setProperty('--pz',String(Math.min(1060/w,735/h)))}
+addEventListener('beforeprint',prFit);
+function printOvl(){if(!S.printOpen||!S.doc)return '';return `<div id="prOvl"><div class="pr-bar"><b>출력용 영업활동 일정표</b><span class="muted">가로 방향으로 인쇄됩니다. PDF로 저장하려면 인쇄 창에서 대상을 'PDF로 저장'으로 고르세요.</span><button type="button" class="btn primary" data-printgo="1">${icx('check')}인쇄 · PDF 저장</button><button type="button" class="btn" data-printx="1">닫기</button></div><div class="pr-wrap">${printSheet()}</div></div>`}
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
@@ -3673,6 +3762,7 @@ document.addEventListener('keydown',e=>{
   const mod=e.ctrlKey||e.metaKey,inField=e.target.closest?.('input,textarea,[contenteditable]');
   if(e.key==='Escape'&&D){endDrag(false);return}
   if(asgActive()&&!inField&&e.key!=='Escape'&&!(mod&&['c','x','v','z','y','s'].includes(e.key.toLowerCase()))){if(asgKey(e)){e.preventDefault();return}}
+  if(e.key==='Escape'&&S.printOpen){S.printOpen=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.showRevs){S.showRevs=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.brush){S.brush=null;S.keepScroll=true;render();return}
   if(S.pop&&GK[S.pop.key]&&CAN()&&!inField&&!mod){const k=S.pop.key,x=S.pop.date;const key=e.key.toUpperCase();const gi='12345'.indexOf(e.key);const G=GROUPS.includes(key)?key:gi>=0?GROUPS[gi]:null;
