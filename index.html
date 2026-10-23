@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-115820';
+window.OPS_BUILD = '20261023-120343';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1875,6 +1875,30 @@ body.tt-drop #b-ttin{outline:3px dashed var(--ink);outline-offset:4px}
 .tt-g td{min-width:0!important;height:auto!important}
 .tt-g td,.tt-c,.tt-c *{white-space:normal!important}.tt-n b{display:inline!important}
 .tt-memo{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* 시간표 읽기 쉽게 · 크게 보기 · 자세히 팝업 */
+.tt-c{padding:6px 8px}.tt-n b{font-size:13px}.tt-m{font-size:11.5px;margin-top:1px}
+.tt-cnt b{font-size:15px}.tt-mk{font-size:10px;font-weight:700;border:1px solid var(--line-strong);border-radius:4px;padding:0 4px;color:var(--muted)}
+#ttBig{position:fixed;inset:0;z-index:250;background:var(--bg,#f6f7f9);display:flex;flex-direction:column}
+.tb-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.tb-bar>b{font-size:15px}.tb-bar .sp{flex:1}.tb-lg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-right:6px}.tb-lg i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.tt-gw.big{flex:1;max-height:none;border:0;background:var(--surface)}
+.tt-gw.big .tt-g th{font-size:calc(15px*var(--z,1));padding:10px 8px}
+.tt-gw.big .tt-g th.tt-tc{min-width:calc(66px*var(--z,1));font-size:calc(14px*var(--z,1))}
+.tt-gw.big .tt-cell .tt-c{width:calc(190px*var(--z,1));padding:calc(8px*var(--z,1)) calc(10px*var(--z,1))}
+.tt-gw.big .tt-n b{font-size:calc(15px*var(--z,1))}.tt-gw.big .tt-m{font-size:calc(13px*var(--z,1))}.tt-gw.big .tt-cnt b{font-size:calc(19px*var(--z,1))}.tt-gw.big .tt-cnt em{font-size:calc(13px*var(--z,1))}
+#ttOvl{z-index:300}
+.dlg.tp{position:relative;max-width:520px;border-top:6px solid var(--c)}
+.tp-x{position:absolute;top:12px;right:12px}
+.tp-st{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--c)}.tp-st i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.dlg.tp h3{font-size:24px;margin:6px 0 12px;line-height:1.3;word-break:keep-all}
+.tp-big{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;padding:14px 16px;border-radius:12px;background:color-mix(in srgb,var(--c) 10%,var(--surface));margin-bottom:14px}
+.tp-big b{font-size:40px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}.tp-big b.c{color:var(--c)}.tp-big>span{font-size:28px;color:var(--muted)}
+.tp-big small{font-size:12.5px;color:var(--muted);margin-left:4px}.tp-big em{font-style:normal;font-weight:800;color:#dc2626;font-size:15px}
+.tp-g{display:grid;gap:0;border-top:1px solid var(--line)}
+.tp-r{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);font-size:15px}.tp-r span{color:var(--muted);font-size:13px;padding-top:2px}.tp-r b{font-weight:700;word-break:keep-all}
+.tp-ed{margin-top:14px}
+.tp-ed label.chk{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;font-size:13px}.tp-ed label.chk input{width:16px!important;height:16px!important;margin:0;padding:0}
 
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
@@ -3759,20 +3783,25 @@ function viewTT(){callsSub();const head=pageHead('tt','시간표');const ids=ttD
     <div class="tt-chips"><button type="button" class="${!F.st?'on':''}" data-ttf="st|">전체</button>${TT_ST.slice(0,4).map(([l,k,col])=>`<button type="button" class="${F.st===k?'on':''}" data-ttf="st|${k}"><i style="background:${col}"></i>${l} ${cntSt(k)}</button>`).join('')}</div>
     <input class="in sm" id="ttQ" placeholder="과목·강사 찾기" value="${esc(F.q)}">${can?`<button type="button" class="btn sm${S.ttTime?' primary':''}" data-tttime="1">${S.ttTime?'시간 다 정했어요':'시간 정하기'}</button>`:''}</div>
     <div class="tt-sum"><span>반 <b>${inTab.length}</b></span><span>정원 <b>${sum('cap')}</b></span><span>배정 <b>${sum('cnt')}</b></span><span class="red">초과 <b>${cntSt('over')}</b></span><span>폐강 <b>${cntSt('closed')}</b></span><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 불러옴</span></div>`;
-  const cardH=c=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" ${can?`data-ttpick="${c.i}"`:''}>
-    <div class="tt-n"><i></i><b>${esc(c.name)}</b></div><div class="tt-m">${esc(c.teacher||'-')} · ${esc(c.days)}</div>
-    <div class="tt-cnt"><b>${c.cap}/${c.cnt}</b>${c.extra?`<em>${esc(c.extra)}</em>`:''}${dif?`<span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
-    <div class="tt-dt">${c.time?`<b>${esc(c.time)}${c.tend?'~'+esc(c.tend):''}</b> · `:''}${esc(String(c.start).slice(5))} ~ ${esc(String(c.end).slice(5))}</div>${c.memo||c.note?`<div class="tt-memo" title="${esc([c.note,c.memo].filter(Boolean).join(' / '))}">${esc([c.note,c.memo].filter(Boolean).join(' / '))}</div>`:''}</div>`};
+  const cardH=c=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" data-ttpick="${c.i}" title="${esc(c.name+' · '+(c.teacher||'')+(mm?' · '+mm:''))}"><div class="tt-n"><i></i><b>${esc(c.name)}</b></div><div class="tt-m">${esc(c.teacher||'-')} · ${esc(c.days)}</div><div class="tt-cnt"><b>${c.cap}/${c.cnt}</b>${c.extra?`<em>${esc(c.extra)}</em>`:''}${dif?`<span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}${mm?'<span class="tt-mk">메모</span>':''}</div></div>`};
+  const grid=(L,big)=>{const rooms=[...new Set(L.map(c=>c.room))];const times=[...new Set(L.map(c=>c.time||''))].sort((a,b)=>!a?-1:!b?1:a.localeCompare(b));
+    return L.length?`<div class="tt-gw${big?' big':''}"><table class="tt-g"><thead><tr><th class="tt-tc"></th>${rooms.map(r=>`<th>${esc(r)}</th>`).join('')}</tr></thead><tbody>${times.map(t=>`<tr><th class="tt-tc">${t?esc(t):'시간<br>미정'}</th>${rooms.map(r=>`<td><div class="tt-cell">${L.filter(c=>c.room===r&&(c.time||'')===t).map(cardH).join('')}</div></td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>'};
   let body;
   if(S.ttTime&&can){const rooms=[...new Set(L.map(c=>c.room))];body=`<div class="tt-tl">${rooms.map(r=>`<div class="tt-tr"><b>${esc(r)}</b>${L.filter(c=>c.room===r).map(c=>`<label class="tt-ti"><input class="in sm" data-tttm="${c.i}" value="${esc(c.time||'')}" placeholder="--:--" inputmode="numeric"><span>${esc(c.name)}</span><small>${esc(c.teacher)} · ${esc(c.days)}</small></label>`).join('')}</div>`).join('')}</div><p class="muted tt-hint">시작 시간만 적으면 됩니다(예: 1400 → 14:00). 엔터를 누르면 다음 반으로 넘어갑니다. 다음 달에 같은 반(과목·강의실·강사·요일)이 오면 시간이 그대로 따라옵니다.</p>`}
-  else{const rooms=[...new Set(L.map(c=>c.room))];const times=[...new Set(L.map(c=>c.time||''))].sort((a,b)=>!a?-1:!b?1:a.localeCompare(b));
-    body=L.length?`<div class="tt-gw"><table class="tt-g"><thead><tr><th class="tt-tc"></th>${rooms.map(r=>`<th>${esc(r)}</th>`).join('')}</tr></thead><tbody>${times.map(t=>`<tr><th class="tt-tc">${t?esc(t):'시간<br>미정'}</th>${rooms.map(r=>`<td><div class="tt-cell">${L.filter(c=>c.room===r&&(c.time||'')===t).map(cardH).join('')}</div></td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>'}
+  else body=grid(L,false);
   const pk=S.ttPick!=null?all[S.ttPick]:null;
-  const pop=pk&&can?`<div class="ovl" id="ttOvl"><div class="dlg tt-dlg" role="dialog" aria-modal="true"><h3>${esc(pk.name)}</h3><p>${esc(pk.room)} · ${esc(pk.teacher)} · ${esc(pk.days)} · ${esc(pk.start)} ~ ${esc(pk.end)} · ${pk.cap}/${pk.cnt} ${esc(pk.st)}</p>
-    <div class="gate-f"><label>시작 시간<input type="text" id="ttPT" value="${esc(pk.time||'')}" placeholder="14:00"></label><label>메모 (이 사이트에만 남음)<input type="text" id="ttPN" value="${esc(pk.note||'')}" placeholder="예: 19:00 반으로 합반 검토"></label><label class="chk"><input type="checkbox" id="ttPH" ${pk.hide?'checked':''}>시간표에서 숨기기</label></div>
-    <div class="dlg-b"><button type="button" class="btn" data-ttpx="1">닫기</button><button type="button" class="btn primary" data-ttpsave="${pk.i}">저장</button></div></div></div>`:'';
+  const pop=pk?(()=>{const S_=ttSt(pk.st);const dif=pk.prev!=null&&pk.prev!==pk.cnt?pk.cnt-pk.prev:0;const row=(k,v)=>v?`<div class="tp-r"><span>${k}</span><b>${v}</b></div>`:'';
+    return `<div class="ovl" id="ttOvl"><div class="dlg tp" role="dialog" aria-modal="true" style="--c:${S_[2]}"><button type="button" class="ib tp-x" data-ttpx="1" aria-label="닫기">${icx('x')}</button>
+    <div class="tp-st"><i></i>${esc(pk.st||'-')}</div><h3>${esc(pk.name)}</h3>
+    <div class="tp-big"><b>${pk.cap}</b><span>/</span><b class="c">${pk.cnt}</b><small>정원 / 배정인원</small>${pk.extra?`<em>${esc(pk.extra)}</em>`:''}${dif?`<span class="tt-d ${dif>0?'up':'dn'}">지난번보다 ${dif>0?'+':''}${dif}</span>`:''}</div>
+    <div class="tp-g">${row('강의실',esc(pk.room))}${row('강사',esc(pk.teacher||'-'))}${row('시간',pk.time?esc(pk.time)+(pk.tend?' ~ '+esc(pk.tend):''):'미정')}${row('요일',esc(pk.days))}${row('기간',esc(pk.start)+' ~ '+esc(pk.end))}${row('그룹웨어 메모',esc(pk.memo))}${!can?row('메모',esc(pk.note)):''}</div>
+    ${can?`<div class="gate-f tp-ed"><label>시작 시간<input type="text" id="ttPT" value="${esc(pk.time||'')}" placeholder="14:00"></label><label>메모 (이 사이트에만 남음)<input type="text" id="ttPN" value="${esc(pk.note||'')}" placeholder="예: 19:00 반으로 합반 검토"></label><label class="chk"><input type="checkbox" id="ttPH" ${pk.hide?'checked':''}>시간표에서 숨기기</label></div>
+    <div class="dlg-b"><button type="button" class="btn" data-ttpx="1">닫기</button><button type="button" class="btn primary" data-ttpsave="${pk.i}">저장</button></div>`:''}</div></div>`})():'';
+  const bigOvl=S.ttBig?`<div id="ttBig" style="--z:${S.ttZoom||1}"><div class="tb-bar"><b>${per.a||''} ~ ${per.z||''} · ${F.wk==='we'?'주말':'평일'}</b><div class="seg">${[['wd','평일'],['we','주말']].map(([k,l])=>`<button type="button" class="${F.wk===k?'on':''}" data-ttf="wk|${k}">${l}</button>`).join('')}</div>
+    <div class="tt-chips">${TT_ST.slice(0,4).map(([l,k,col])=>`<span class="tb-lg"><i style="background:${col}"></i>${l}</span>`).join('')}</div><span class="sp"></span>
+    <button type="button" class="btn sm" data-ttzoom="-1">작게</button><button type="button" class="btn sm" data-ttzoom="1">크게</button><button type="button" class="btn sm primary" data-ttbig="0">닫기 (Esc)</button></div>${grid(L,true)}</div>`:'';
   const hidN=inTab.filter(c=>c.hide).length;
-  return head+pasteCard+card('ttv',`${per.a||''} ~ ${per.z||''} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 칸을 누르면 시간·메모를 고칩니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide'})+pop;
+  return head+pasteCard+card('ttv',`${per.a||''} ~ ${per.z||''} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 반을 누르면 크게 자세히 봅니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide',right:`<button type="button" class="btn sm primary" data-ttbig="1">${icx('arrow')}크게 보기</button>`})+bigOvl+pop;
 }
 const ttTime=v=>{v=String(v||'').replace(/[^\d:]/g,'');if(!v)return '';if(/^\d{3,4}$/.test(v))v=v.padStart(4,'0').replace(/(\d\d)(\d\d)/,'$1:$2');const m=v.match(/^(\d{1,2}):?(\d{2})?$/);if(!m)return '';return `${m[1].padStart(2,'0')}:${m[2]||'00'}`};
 function ttAct(d){
@@ -3780,6 +3809,8 @@ function ttAct(d){
   if(d.ttf){const [k,v]=sp(d.ttf);S.ttF[k]=v||'';S.keepScroll=true;render();return true}
   if(d.tttime){S.ttTime=!S.ttTime;S.keepScroll=true;render();return true}
   if(d.tthid){S.ttHid=!S.ttHid;S.keepScroll=true;render();return true}
+  if(d.ttbig!=null){S.ttBig=d.ttbig==='1';S.keepScroll=true;render();return true}
+  if(d.ttzoom){S.ttZoom=Math.max(.7,Math.min(1.8,Math.round(((S.ttZoom||1)+(+d.ttzoom)*.15)*100)/100));S.keepScroll=true;render();return true}
   if(d.ttpick!=null){if(S.ttTime)return true;S.ttPick=+d.ttpick;S.keepScroll=true;render();setTimeout(()=>$('#ttPT')?.focus(),30);return true}
   if(d.ttpx){S.ttPick=null;S.keepScroll=true;render();return true}
   if(d.ttpsave!=null){const i=+d.ttpsave;const t=ttTime($('#ttPT').value),n=$('#ttPN').value.trim(),h=$('#ttPH').checked;const c=S.callsAll[S.ttId].classes[i];S.ttPick=null;ttSave(S.ttId,L=>{L[i].time=t;L[i].note=n;L[i].hide=h},`${c.name}(${c.room}·${c.teacher}) 시간 ${t||'미정'}${n?' · 메모 '+n:''}${h?' · 숨김':''}`);return true}
@@ -3923,7 +3954,7 @@ document.addEventListener('click',e=>{
   if(e.target.id==='ttOvl'){S.ttPick=null;S.keepScroll=true;render();return}
   if(e.target.id==='revsOvl'){S.showRevs=false;S.keepScroll=true;render();return}
   const closing=!!S.pop&&!e.target.closest('#pop,[data-pop]');if(closing)S.pop=null;
-  const t=e.target.closest('button,[data-date],[data-rsel],[data-csel],[data-pop],[data-acell],a');if(!t){if(closing){S.keepScroll=true;render()}return}
+  const t=e.target.closest('button,[data-date],[data-rsel],[data-csel],[data-pop],[data-acell],[data-ttpick],a');if(!t){if(closing){S.keepScroll=true;render()}return}
   if(act(t))return;
   if(closing){S.keepScroll=true;render()}
   switch(t.id){
@@ -3951,6 +3982,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&D){endDrag(false);return}
   if(asgActive()&&!inField&&e.key!=='Escape'&&!(mod&&['c','x','v','z','y','s'].includes(e.key.toLowerCase()))){if(asgKey(e)){e.preventDefault();return}}
   if(e.key==='Escape'&&S.ttPick!=null){S.ttPick=null;S.keepScroll=true;render();return}
+  if(e.key==='Escape'&&S.ttBig){S.ttBig=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.printOpen){S.printOpen=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.showRevs){S.showRevs=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.brush){S.brush=null;S.keepScroll=true;render();return}
