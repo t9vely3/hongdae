@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-134934';
+window.OPS_BUILD = '20261023-141428';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3809,12 +3809,14 @@ async function ttImportList(r,src){
   toast(old.length?`배정인원 ${ch}반 바뀜 · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:`${classes.length}반을 불러왔습니다`);S.keepScroll=true;render()}
 function ttSave(id,fn,msg){const d=clone(S.callsAll[id]);fn(d.classes);if(msg)logAdd('tt',[msg]);callsWrite(id,{classes:d.classes}).then(()=>{S.keepScroll=true;render()})}
 function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';const ids=ttDocs();const can=ttCan();
-  const ALL={};ids.forEach(k=>(S.callsAll[k].classes||[]).forEach((c,i)=>{ALL[c.id]={...c,i,_d:k}}));const AL=Object.values(ALL);
+  const ALL={};ids.forEach(k=>(S.callsAll[k].classes||[]).forEach((c,i)=>{ALL[c.id]={...c,i,_d:k}}));const isGuk=c=>/\(국\)|국비/.test(c.name||'');const AL0=Object.values(ALL);const gukN=AL0.filter(isGuk).length;const AL=S.ttGuk?AL0:AL0.filter(c=>!isGuk(c));
   const mode=arr=>{const n={};arr.forEach(x=>{if(x)n[x]=(n[x]||0)+1});return (Object.entries(n).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))[0]||[''])[0]};
-  const byM={};AL.forEach(c=>{const m=String(c.start||'').slice(0,7);if(m)(byM[m]=byM[m]||[]).push(c)});
-  const anchors=[...new Set(Object.keys(byM).map(m=>mode(byM[m].map(c=>c.start))))].sort();
-  const cycOf=c=>{let a=anchors[0];anchors.forEach(x=>{if(x<=c.start)a=x});return a};
-  const cycles=anchors.map(a=>{const items=AL.filter(c=>cycOf(c)===a);return {a,z:mode(items.map(c=>c.end)),n:items.length}});
+  const NG=AL0.filter(c=>!isGuk(c)&&c.start);const cyc0=[];let rest=NG.slice();
+  while(rest.length){const a=mode(rest.map(c=>c.start));let z=mode(rest.filter(c=>c.start===a).map(c=>c.end))||a;if(z<a)z=a;const lo=addDays(a,-14);
+    const inC=rest.filter(c=>c.start===a||(c.start>=lo&&c.start<=z));cyc0.push({a,z});rest=rest.filter(c=>!inC.includes(c))}
+  cyc0.sort((x,y)=>x.a.localeCompare(y.a));const anchors=cyc0.map(c=>c.a);
+  const cycOf=c=>{const st=c.start||'';const hit=cyc0.find(x=>st>=addDays(x.a,-14)&&st<=x.z);if(hit)return hit.a;let a=anchors[0];anchors.forEach(x=>{if(x<=st)a=x});return a};
+  const cycles=cyc0.map(x=>({a:x.a,z:x.z,n:AL.filter(c=>cycOf(c)===x.a).length}));
   const yy=d=>d?String(d).slice(2).replace(/-/g,'.'):'';const clab=c=>`${yy(c.a)} ~ ${yy(c.z)}`;
   if(!anchors.includes(S.ttId)){const t=S.ttId&&/^\d{4}-\d{2}-\d{2}$/.test(S.ttId)?S.ttId:todayIso();S.ttId=(cycles.find(c=>c.a<=t&&t<=c.z)||[...cycles].reverse().find(c=>c.a<=t)||cycles[cycles.length-1]||{}).a}
   const pasteCard=can?card('ttin','강의시간표 불러오기 (편집 권한자만 보임)','가장 쉬운 방법: 그룹웨어 강의시간표에서 엑셀로 내려받은 파일을 이 화면에 끌어다 놓으세요. 시간까지 자동으로 들어갑니다. 같은 반은 배정인원만 새 숫자로 바뀌고 메모는 그대로 남습니다.',`<div class="tt-file"><label class="btn primary">${icx('plus')}엑셀 파일 고르기<input type="file" id="ttFileIn" accept=".xlsx,.xls" hidden></label><span class="muted">또는 파일을 화면 아무 곳에 끌어다 놓기 · 화면을 복사(Ctrl+A → Ctrl+C)해 붙여넣어도 됩니다(이때는 시간 없이 배정인원만)</span></div>`):'';
@@ -3831,7 +3833,7 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
     :`<span class="tt-cy"><button type="button" class="ib" data-ttstep="-1" ${ci<=0?'disabled':''} aria-label="이전 기간">${icx('left')}</button><select class="in sm" id="ttPer" title="↑↓ 키로 바로 바꿀 수 있습니다">${cycles.map(c=>`<option value="${c.a}" ${c.a===S.ttId?'selected':''}>${clab(c)} · ${c.n}반</option>`).join('')}</select><button type="button" class="ib" data-ttstep="1" ${ci>=cycles.length-1?'disabled':''} aria-label="다음 기간">${icx('right')}</button></span>`);
   const tools=`<div class="tt-bar">${sel}<div class="seg">${[['wd','평일'],['we','주말']].map(([k,l])=>`<button type="button" class="${F.wk===k?'on':''}" data-ttf="wk|${k}">${l} ${all.filter(c=>(k==='we')===ttWeekend(c)).length}</button>`).join('')}</div>
     <div class="tt-chips"><button type="button" class="${!F.st?'on':''}" data-ttf="st|">전체</button>${TT_ST.slice(0,4).map(([l,k,col])=>`<button type="button" class="${F.st===k?'on':''}" data-ttf="st|${k}"><i style="background:${col}"></i>${l} ${cntSt(k)}</button>`).join('')}</div>
-    <input class="in sm" id="ttQ" placeholder="과목·강사 찾기" value="${esc(F.q)}">${can&&!RG?`<button type="button" class="btn sm${S.ttTime?' primary':''}" data-tttime="1">${S.ttTime?'시간 다 정했어요':'시간 정하기'}</button>`:''}</div>
+    <input class="in sm" id="ttQ" placeholder="과목·강사 찾기" value="${esc(F.q)}">${gukN?`<button type="button" class="btn sm${S.ttGuk?' primary':''}" data-ttguk="1">국비 ${gukN}반 ${S.ttGuk?'빼기':'함께 보기'}</button>`:''}${can&&!RG?`<button type="button" class="btn sm${S.ttTime?' primary':''}" data-tttime="1">${S.ttTime?'시간 다 정했어요':'시간 정하기'}</button>`:''}</div>
     <div class="tt-sum"><span>반 <b>${inTab.length}</b></span><span>정원 <b>${sum('cap')}</b></span><span>배정 <b>${sum('cnt')}</b></span><span class="red">초과 <b>${cntSt('over')}</b></span><span>폐강 <b>${cntSt('closed')}</b></span><span class="muted">${RG?`${md2(R_.a)} ~ ${md2(R_.b)} 사이에 수업이 있는 반 (개강·종강일 기준, 가장 최근에 불러온 숫자)`:`${esc(lastD.by||'')} · ${esc(String(lastD.at||'').replace('T',' ').slice(5))} 불러옴`}</span></div>`;
   const tm=t=>{const [h,m]=String(t).split(':').map(Number);return h*60+(m||0)};const fm=x=>`${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
   const cardH=(c,rs)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
@@ -3872,6 +3874,7 @@ function ttAct(d){
   if(d.tthid){S.ttHid=!S.ttHid;S.keepScroll=true;render();return true}
   if(d.ttbig!=null){S.ttBig=d.ttbig==='1';S.keepScroll=true;render();return true}
   if(d.ttzoom){S.ttZoom=Math.max(.7,Math.min(1.8,Math.round(((S.ttZoom||1)+(+d.ttzoom)*.15)*100)/100));S.keepScroll=true;render();return true}
+  if(d.ttguk){S.ttGuk=!S.ttGuk;S.keepScroll=true;render();return true}
   if(d.ttmode){S.ttMode=d.ttmode;S.keepScroll=true;render();return true}
   if(d.ttstep){const o=[...document.querySelectorAll('#ttPer option')].map(x=>x.value);const i=o.indexOf(S.ttId)+(+d.ttstep);if(o[i]){S.ttId=o[i];S.keepScroll=true;render()}return true}
   if(d.ttrq!=null){const n=+d.ttrq;S.ttR={a:todayIso(),b:addDays(todayIso(),n?n-1:0)};S.keepScroll=true;render();return true}
