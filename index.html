@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-133605';
+window.OPS_BUILD = '20261023-134524';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1933,6 +1933,7 @@ body.tt-drop #b-ttin{outline:3px dashed var(--ink);outline-offset:4px}
 
 .tt-cy{display:inline-flex;align-items:center;gap:4px}.tt-cy select{min-width:210px;font-weight:700}
 .tt-mode button{white-space:nowrap}
+.tp-tt{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
@@ -3412,7 +3413,7 @@ function act(t){
   if(d.rand){if(!CAN())return true;S.rand=d.rand;S.pop=null;S.keepScroll=true;render();return true}
   if(d.randx){S.rand=null;S.keepScroll=true;render();return true}
   if(d.randgo){const [k,mode]=sp(d.randgo);S.edit=true;S.rand=null;let r;mutate(()=>{r=autoFill(k,{days:[1,2,3,4,5],groups:[...GROUPS],mode,skipHol:true,weekend:k==='duty'})});toast(r.n||r.wk?`${r.n}일 배치 · 조별 ${r.min}~${r.max}회${r.wk?` · 주말 ${r.wk}일 지원`:''} · 저장을 눌러 확정`:'채울 빈 날이 없습니다');return true}
-  if(d.tab){document.body.classList.remove('sb-open');S.pop=null;S.showRevs=false;S.rand=null;S.tab=d.tab;ls.set('tab',S.tab);S.msg=null;S.confirm=null;S.panel=null;render();scrollTo(0,0);return true}
+  if(d.tab){document.body.classList.remove('sb-open');S.pop=null;S.showRevs=false;if(d.tab==='tt'){S.ttId=null;S.ttMode='cyc'}S.rand=null;S.tab=d.tab;ls.set('tab',S.tab);S.msg=null;S.confirm=null;S.panel=null;render();scrollTo(0,0);return true}
   if(d.sub){S.pop=null;const [p,k]=sp(d.sub);S.sub[p]=k;ls.set('subs',JSON.stringify(S.sub));S.confirm=null;S.keepScroll=true;render();return true}
   if(d.goto){const [k,x]=sp(d.goto);S.pop=null;S.cm=x.slice(0,7);S.tab=k;ls.set('tab',k);if(GK[k]){S.rsel[k]=x;S.rv[k]=null;S.sub[k]='cal'}else{S.csel[k]=x;if(k==='ops')S.sub.ops='cal'}render();scrollTo(0,0);return true}
   if(d.date){S.date=d.date;if(S.tab!=='today'){S.tab='today';ls.set('tab','today');scrollTo(0,0)}render();return true}
@@ -3803,7 +3804,6 @@ async function ttImportList(r,src){
   const gone=old.filter(o=>kinds.has(ttWeekend(o))&&!classes.some(c=>c.id===o.id)).length;
   logAdd('tt',[`${per.a} ~ ${per.z||''} 시간표 ${src}: ${classes.length}반${old.length?` · 배정인원 바뀐 반 ${ch} · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:''}`]);
   const mc={};classes.forEach(c=>{const m=String(c.start||'').slice(0,7);if(m)mc[m]=(mc[m]||0)+1});const month=(Object.entries(mc).sort((a,b)=>b[1]-a[1])[0]||[String(per.a).slice(0,7)])[0];
-  {const n={};classes.forEach(c=>{if(c.start)n[c.start]=(n[c.start]||0)+1});S.ttId=(Object.entries(n).sort((a,b)=>b[1]-a[1])[0]||[per.a])[0];S.ttMode='cyc'}
   await callsWrite(id,{period:per,classes,month,at:kstNow(),by:logWho()});
   toast(old.length?`배정인원 ${ch}반 바뀜 · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:`${classes.length}반을 불러왔습니다`);S.keepScroll=true;render()}
 function ttSave(id,fn,msg){const d=clone(S.callsAll[id]);fn(d.classes);if(msg)logAdd('tt',[msg]);callsWrite(id,{classes:d.classes}).then(()=>{S.keepScroll=true;render()})}
@@ -3836,9 +3836,9 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
   const cardH=(c,rs)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
     return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" data-ttpick="${c._d}|${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>
       <div class="tt-l">정원 : ${c.cap}</div><div class="tt-l tt-as">배정 : ${c.cnt}${c.extra?` <em>${esc(c.extra)}</em>`:''}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
-      <div class="tt-l">${esc(c.teacher||'-')}</div><div class="tt-l">${esc(c.days)}</div><div class="tt-l tt-sm">개:${esc(c.start)}</div><div class="tt-l tt-sm">종:${esc(c.end)}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
+      <div class="tt-l">${esc(c.teacher||'-')}</div><div class="tt-l">${esc(c.days)}${c.time?` · <b>${esc(c.time)}~${esc(c.tend||fm(tm(c.time)>=1140?1320:tm(c.time)+120))}</b>`:''}</div><div class="tt-l tt-sm">개:${esc(c.start)}</div><div class="tt-l tt-sm">종:${esc(c.end)}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
   const grid=(L,big)=>{if(!L.length)return '<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>';
-    const T=L.filter(c=>c.time),U=L.filter(c=>!c.time);const span=c=>{const a=tm(c.time);let z=c.tend?tm(c.tend):a+120;if(z<=a)z=a+30;return [a,Math.ceil((z-a)/30)*30+a]};
+    const T=L.filter(c=>c.time),U=L.filter(c=>!c.time);const span=c=>{const a=tm(c.time);let z=c.tend?tm(c.tend):(a>=19*60?22*60:a+120);if(z<=a)z=a+30;return [a,Math.ceil((z-a)/30)*30+a]};
     const rooms=[...new Set(T.map(c=>c.room))].sort((x,y)=>(x.length>2)-(y.length>2)||x.length-y.length||x.localeCompare(y));const lanes={};rooms.forEach(r=>{const Ls=[];T.filter(c=>c.room===r).sort((x,y)=>span(x)[0]-span(y)[0]).forEach(c=>{const [a,z]=span(c);let ln=Ls.find(l=>l.end<=a);if(!ln){ln={end:0,items:[]};Ls.push(ln)}ln.items.push(c);ln.end=z});lanes[r]=Ls});
     const t0=Math.floor(Math.min(...T.map(c=>span(c)[0]))/30)*30,t1=Math.max(...T.map(c=>span(c)[1]));const slots=[];for(let x=t0;x<t1;x+=30)slots.push(x);
     const cols=rooms.flatMap(r=>lanes[r].map((l,i)=>({r,i,l})));
@@ -3855,7 +3855,7 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
     <div class="tp-st"><i></i>${esc(pk.st||'-')}</div><h3>${esc(pk.name)}</h3>
     <div class="tp-big"><b>${pk.cap}</b><span>/</span><b class="c">${pk.cnt}</b><small>정원 / 배정인원</small>${pk.extra?`<em>${esc(pk.extra)}</em>`:''}${dif?`<span class="tt-d ${dif>0?'up':'dn'}">지난번보다 ${dif>0?'+':''}${dif}</span>`:''}</div>
     <div class="tp-g">${row('강의실',esc(pk.room))}${row('강사',esc(pk.teacher||'-'))}${row('시간',pk.time?esc(pk.time)+(pk.tend?' ~ '+esc(pk.tend):''):'미정')}${row('요일',esc(pk.days))}${row('기간',esc(pk.start)+' ~ '+esc(pk.end))}${row('그룹웨어 메모',esc(pk.memo))}${!can?row('메모',esc(pk.note)):''}</div>
-    ${can?`<div class="gate-f tp-ed"><label>시작 시간<input type="text" id="ttPT" value="${esc(pk.time||'')}" placeholder="14:00"></label><label>메모 (이 사이트에만 남음)<input type="text" id="ttPN" value="${esc(pk.note||'')}" placeholder="예: 19:00 반으로 합반 검토"></label><label class="chk"><input type="checkbox" id="ttPH" ${pk.hide?'checked':''}>시간표에서 숨기기</label></div>
+    ${can?`<div class="gate-f tp-ed"><div class="tp-tt"><label>시작 시간<input type="text" id="ttPT" value="${esc(pk.time||'')}" placeholder="14:00"></label><label>끝나는 시간<input type="text" id="ttPE" value="${esc(pk.tend||'')}" placeholder="${pk.time&&tm(pk.time)>=19*60?'22:00':'비우면 2시간'}"></label></div><label>메모 (이 사이트에만 남음)<input type="text" id="ttPN" value="${esc(pk.note||'')}" placeholder="예: 19:00 반으로 합반 검토"></label><label class="chk"><input type="checkbox" id="ttPH" ${pk.hide?'checked':''}>시간표에서 숨기기</label></div>
     <div class="dlg-b"><button type="button" class="btn" data-ttpx="1">닫기</button><button type="button" class="btn primary" data-ttpsave="${pk._d}|${pk.i}">저장</button></div>`:''}</div></div>`})():'';
   const bigOvl=S.ttBig?`<div id="ttBig" style="--z:${S.ttZoom||1}"><div class="tb-bar"><b>${per.a||''} ~ ${per.z||''} · ${F.wk==='we'?'주말':'평일'}</b><div class="seg">${[['wd','평일'],['we','주말']].map(([k,l])=>`<button type="button" class="${F.wk===k?'on':''}" data-ttf="wk|${k}">${l}</button>`).join('')}</div>
     <div class="tt-chips">${TT_ST.slice(0,4).map(([l,k,col])=>`<span class="tb-lg"><i style="background:${col}"></i>${l}</span>`).join('')}</div><span class="sp"></span>
@@ -3876,7 +3876,7 @@ function ttAct(d){
   if(d.ttrq!=null){const n=+d.ttrq;S.ttR={a:todayIso(),b:addDays(todayIso(),n?n-1:0)};S.keepScroll=true;render();return true}
   if(d.ttpick!=null){if(S.ttTime)return true;S.ttPick=d.ttpick;S.keepScroll=true;render();setTimeout(()=>$('#ttPT')?.focus(),30);return true}
   if(d.ttpx){S.ttPick=null;S.keepScroll=true;render();return true}
-  if(d.ttpsave!=null){const [dd,ii]=sp(d.ttpsave);const i=+ii;const t=ttTime($('#ttPT').value),n=$('#ttPN').value.trim(),h=$('#ttPH').checked;const c=S.callsAll[dd].classes[i];S.ttPick=null;ttSave(dd,L=>{L[i].time=t;L[i].note=n;L[i].hide=h},`${c.name}(${c.room}·${c.teacher}) 시간 ${t||'미정'}${n?' · 메모 '+n:''}${h?' · 숨김':''}`);return true}
+  if(d.ttpsave!=null){const [dd,ii]=sp(d.ttpsave);const i=+ii;const t=ttTime($('#ttPT').value),e2=ttTime($('#ttPE')?.value||''),n=$('#ttPN').value.trim(),h=$('#ttPH').checked;const c=S.callsAll[dd].classes[i];S.ttPick=null;ttSave(dd,L=>{L[i].time=t;L[i].tend=e2;L[i].note=n;L[i].hide=h},`${c.name}(${c.room}·${c.teacher}) 시간 ${t||'미정'}${n?' · 메모 '+n:''}${h?' · 숨김':''}`);return true}
   return false}
 document.addEventListener('change',function(e){const t=e.target;
   if(t.id==='ttPer'){S.ttId=t.value;S.keepScroll=true;render();setTimeout(()=>$('#ttPer')?.focus(),0);return}
@@ -3891,7 +3891,8 @@ const ttAdd30=t=>{const [h,m]=t.split(':').map(Number);const x=h*60+m+30;return 
 async function ttFile(f){if(!f)return;if(!ttCan()){toast('편집 권한이 있는 사람만 불러올 수 있습니다');return}
   try{const X=await ttLoadXLSX();const wb=X.read(await f.arrayBuffer(),{type:'array'});const items=[];
     wb.SheetNames.forEach(sn=>{const ws=wb.Sheets[sn];if(!ws['!ref'])return;const R=X.utils.decode_range(ws['!ref']);const mg=ws['!merges']||[];
-      const lab=r=>{const v=ws[X.utils.encode_cell({r,c:0})];const t=v?String(v.w||v.v||'').trim():'';return /^\d{1,2}:\d{2}$/.test(t)?t.padStart(5,'0'):''};
+      const raw=r=>{const v=ws[X.utils.encode_cell({r,c:0})];let t=v?String(v.w||v.v||'').trim():'';if(v&&typeof v.v==='number'&&v.v<1&&v.v>0){const mm=Math.round(v.v*1440);t=`${Math.floor(mm/60)}:${String(mm%60).padStart(2,'0')}`}const m=t.match(/(\d{1,2}):(\d{2})/);return m?`${m[1].padStart(2,'0')}:${m[2]}`:''};
+      const lab=r=>{for(let k=r;k>=R.s.r;k--){const t=raw(k);if(t){const [h,mi]=t.split(':').map(Number);const x=h*60+mi+(r-k)*30;return `${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`}}return ''};
       for(let r=R.s.r;r<=R.e.r;r++)for(let c=1;c<=R.e.c;c++){const cell=ws[X.utils.encode_cell({r,c})];if(!cell||typeof cell.v!=='string'||!cell.v.includes('개강일'))continue;
         const one=ttParse(cell.v).list[0];if(!one)continue;const m=mg.find(x=>x.s.r===r&&x.s.c===c);const er=m?m.e.r:r;
         one.time=lab(r);one.end2=lab(er)?ttAdd30(lab(er)):'';one.xl=1;one._o=[r,c];items.push(one)}});
