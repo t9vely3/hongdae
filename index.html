@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261022-185241';
+window.OPS_BUILD = '20261023-113451';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1835,6 +1835,36 @@ td.cl-cc.ok{background:#dcfce7;color:#15803d}td.cl-cc.bad{background:#fee2e2;col
 .cl-lk-a{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .cl-lk-set{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}.cl-lk-set input{width:110px}
 
+/* --- 시간표 --- */
+.tt-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:0 24px 10px}
+.tt-bar #ttQ{width:170px}.tt-bar .btn{margin-left:auto}
+.tt-chips{display:flex;flex-wrap:wrap;gap:4px}
+.tt-chips button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:3px 10px;font:inherit;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
+.tt-chips button.on{background:var(--ink);border-color:var(--ink);color:var(--surface)}.tt-chips i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.tt-sum{display:flex;flex-wrap:wrap;gap:6px 16px;padding:0 24px 12px;font-size:12.5px;color:var(--ink2)}.tt-sum b{font-variant-numeric:tabular-nums}.tt-sum .red b{color:#dc2626}.tt-sum .muted{margin-left:auto;font-size:11.5px}
+.tt-gw{overflow:auto;max-height:78vh;border-top:1px solid var(--line)}
+.tt-g{border-collapse:separate;border-spacing:0;min-width:100%}
+.tt-g th{position:sticky;top:0;z-index:2;background:var(--sunk);font-size:12.5px;padding:8px 6px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);min-width:150px}
+.tt-g th.tt-tc{position:sticky;left:0;z-index:3;min-width:58px;width:58px;font-size:12px;font-variant-numeric:tabular-nums}
+.tt-g tbody th.tt-tc{background:var(--surface);z-index:1;vertical-align:top;padding-top:10px}
+.tt-g td{vertical-align:top;padding:4px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);min-width:150px}
+.tt-c{border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-left:4px solid var(--c);border-radius:8px;background:color-mix(in srgb,var(--c) 7%,var(--surface));padding:5px 7px;margin-bottom:4px;font-size:11.5px;line-height:1.35;cursor:pointer}
+.tt-c:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}.tt-c.hid{opacity:.45}
+.tt-n{display:flex;align-items:center;gap:5px}.tt-n i{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}.tt-n b{font-size:12.5px;font-weight:800;word-break:keep-all}
+.tt-m,.tt-dt{color:var(--muted)}
+.tt-cnt{display:flex;align-items:center;gap:6px;margin-top:2px}.tt-cnt b{font-size:14px;font-variant-numeric:tabular-nums}.tt-cnt em{font-style:normal;font-weight:800;color:#dc2626}
+.st-full .tt-cnt b{color:#374151}.st-over .tt-cnt b{color:#dc2626}.st-closed{opacity:.75}.st-closed .tt-n b{text-decoration:line-through;color:var(--muted)}
+.tt-d{font-size:11px;font-weight:800;border-radius:5px;padding:0 5px}.tt-d.up{background:#dcfce7;color:#15803d}.tt-d.dn{background:#fee2e2;color:#b91c1c}
+.tt-memo{margin-top:3px;padding-top:3px;border-top:1px dashed var(--line);color:var(--ink2)}
+.tt-tl{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;padding:6px 24px 8px}
+.tt-tr{border:1px solid var(--line);border-radius:10px;padding:10px}.tt-tr>b{display:block;margin-bottom:6px;font-size:14px}
+.tt-ti{display:grid;grid-template-columns:78px 1fr;gap:2px 8px;align-items:center;padding:4px 0;border-top:1px solid var(--line)}
+.tt-ti input{width:78px;height:28px;text-align:center;grid-row:span 2}.tt-ti span{font-size:12.5px;font-weight:700}.tt-ti small{font-size:11px;color:var(--muted)}
+.tt-hint{padding:0 24px 18px;font-size:12px}
+.tt-dlg{max-width:440px}.tt-dlg h3{margin:0 0 6px}.tt-dlg p{font-size:12.5px;color:var(--muted);margin:0 0 14px}
+@media (max-width:759px){.tt-bar,.tt-sum{padding-left:16px;padding-right:16px}.tt-tl{padding:6px 16px}}
+#ttPer{max-width:100%;min-width:0}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -1960,6 +1990,7 @@ const ICON={
   ops:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   calls:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/>',
   log:'<path d="M12 8v4l3 2"/><path d="M3.05 11a9 9 0 1 1 .5 4M3 4v5h5"/>',
+  tt:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M9 4v17M15 4v17"/>',
   judge:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M8.5 11l2 2 3.5-4"/>',
   dbturn:'<path d="M3 6h18M3 12h18M3 18h18"/><path d="M7 4v4M12 10v4M17 16v4"/>',
   sales:'<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
@@ -1994,6 +2025,7 @@ const PAGES={
   dbturn:{label:'디비턴',g:'m',subs:[['turns','디비턴 현황'],['assign','디비 배정표']],desc:'매출표를 붙여넣으면 턴을 나누고, 디비 배정표를 자동으로 만듭니다.'},
   log:{label:'수정 기록',g:'m',desc:'모든 화면에서 누가 언제 무엇을 고쳤는지 모아 봅니다. 편집 권한이 있는 사람만 볼 수 있습니다.'},
   judge:{label:'디비턴 판독',g:'m',desc:'문의과목이나 학과를 적으면 어느 턴으로 배정할지 바로 알려 줍니다.'},
+  tt:{label:'시간표',g:'m',desc:'그룹웨어 강의시간표를 붙여넣으면 강의실·시간대별로 정리하고 배정인원을 최신으로 맞춥니다. 평일·주말을 나눠 봅니다.'},
   calls:{label:'통화량',g:'m',desc:'매일 퇴근 전까지 개인·내선 통화량을 적습니다. 합산 60분에서 상담·등록·하루 매출만큼 기준이 줄어듭니다.'},
   rules:{label:'DB 규정',g:'c',subs:[['turn','디비턴·배정'],['rights','권한 기간·규정'],['visit','방문·더블 처리'],['reassign','재배정'],['penalty','패널티·메모'],['duty','당직·배정조 운영'],['group','계열사 지침']],desc:'주제별로 나눴습니다. 검색하면 모든 주제에서 찾아 줍니다.'},
   tuition:{label:'수강료',g:'c',subs:[['weekday','평일'],['weekend','주말'],['vacation','방학특강']],desc:'청소년가는 총 수업시간(분) × 163원에서 천 원 아래를 버린 금액입니다.'},
@@ -2001,7 +2033,7 @@ const PAGES={
   members:{label:'회원 관리',g:'x',desc:'가입 신청을 승인하고, 사람마다 열람·편집 권한을 정합니다.'},
   lead:{label:'업무분장',g:'c',subs:[['fixed','공통·고정 업무'],['rotate','분기 업무'],['order','순번']],desc:''}
 };
-const NAV=[['m','운영계획',['today','duty','assign','edu','ops','sales','dbturn','judge','calls']],['c','내용',['rules','tuition','org','lead']]];
+const NAV=[['m','운영계획',['today','duty','assign','edu','ops','sales','dbturn','judge','calls','tt']],['c','내용',['rules','tuition','org','lead']]];
 const COMMON_TABS=new Set(['rules','tuition','org','lead']);
 const SEC_DEFAULT={turnBase:'turn',turnWeekday:'turn',turnDuty:'turn',rights:'rights',rulesInter:'rights',rulesInner:'rights',dismissed:'rights',ndb:'rights',ambVisit:'visit',ambStudent:'visit',ambDouble:'visit',reassignRoom:'reassign',reassign:'reassign',penalty:'penalty',memoRule:'penalty',dutyRule:'duty',assignRule:'duty',groupRule:'group',signers:'group',heads:'dept',dept1:'dept',dept2:'dept',dept3:'dept',dept4:'dept',opsStaff:'staff',teachers:'staff',seats:'seat',leadFixed:'fixed',leadRotate:'rotate',leadRotation:'rotate',leadOrder:'order',turns:'turns',acp:'acp',dbAssign:'assign',dbAssignPrev:'assign',dbLog:'log',reLog:'log',assignOrder:'order',opsRoles:'info',opsOrder:'info',tuitionWeekday:'weekday',tuitionWeekend:'weekend',tuitionVacation:'vacation'};
 const TAB_FIX={assignOrder:'assign',opsRoles:'ops',opsOrder:'ops',dutyGroups:'legacy',assignGroups:'legacy'};
@@ -2670,7 +2702,7 @@ const rankList=()=>(A.lists&&A.lists.ranks&&A.lists.ranks.length)?A.lists.ranks:
 const A={fb:null,auth:null,fdb:null,user:null,prof:null,mode:'login',busy:false,err:'',users:{},unsubU:null,unsubMe:null,started:false};
 const isOwnerA=()=>!!A.user&&(A.user.email||'').toLowerCase()===OWNER_MAIL;
 const approved=()=>isOwnerA()||(A.prof&&A.prof.status==='approved');
-const BOARDS=[['duty','당직표'],['assign','배정표'],['edu','교육 일정'],['ops','운영부 근무'],['sales','영업 현황'],['dbturn','디비턴'],['judge','디비턴 판독'],['rules','DB 규정'],['tuition','수강료'],['org','조직도'],['lead','업무분장']];
+const BOARDS=[['duty','당직표'],['assign','배정표'],['edu','교육 일정'],['ops','운영부 근무'],['sales','영업 현황'],['dbturn','디비턴'],['judge','디비턴 판독'],['tt','시간표'],['rules','DB 규정'],['tuition','수강료'],['org','조직도'],['lead','업무분장']];
 const myBoards=()=>(A.prof&&Array.isArray(A.prof.boards))?A.prof.boards:[];
 /* 편집 권한: 관리자·‘편집’은 모든 화면, ‘열람’도 허용된 화면(게시판)만 편집 */
 const CAN=()=>isOwnerA()||(approved()&&(A.prof?.role==='edit'||myBoards().includes(typeof S!=='undefined'?S.tab:'')));
@@ -2989,7 +3021,7 @@ const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${Stri
 const hms=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
 function callRoster(){const t=S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT;return t.split(/\r?\n/).map(l=>l.trim().split(/\s+/)).filter(a=>a.length>=3).map(a=>({team:a[0],rank:a.slice(1,-1).join(' '),name:a[a.length-1]}))}
 function callsSub(){if(S.callsSub||!S.db)return;S.callsSub=true;S.callsAll=S.callsAll||{};
-  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;if(S.tab==='calls'||S.tab==='judge'||S.tab==='log'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
+  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;if(S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
 async function callsWrite(id,patch){
   S.callsAll=S.callsAll||{};const cur=S.callsAll[id]||{};
   const merged={...cur,...patch,rows:{...(cur.rows||{}),...Object.fromEntries(Object.entries(patch.rows||{}).map(([n,v])=>[n,{...(cur.rows?.[n]||{}),...v}]))},updatedAt:new Date().toISOString().slice(0,19)};
@@ -3131,7 +3163,7 @@ function render0(){
   if(S.tab==='members'){page.innerHTML=viewMembers().replace('%%TOP%%',top)+'</main>';return}
   if(!S.db){page.innerHTML=`<main class="wrap">${top}<div class="empty-state" style="margin-top:40px">저장소에 연결하지 못해 운영표를 열 수 없습니다. 로그인한 상태로 이 페이지를 다시 열어 주세요.</div></main>`;return}
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
-  const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),dbturn:()=>secPage('dbturn'),judge:()=>pageHead('judge','디비턴 판독')+judgePage(),log:viewLog,calls:viewCalls,tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
+  const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),dbturn:()=>secPage('dbturn'),judge:()=>pageHead('judge','디비턴 판독')+judgePage(),log:viewLog,tt:viewTT,calls:viewCalls,tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
   const y=scrollY;callsSub();page.innerHTML=v().replace('%%TOP%%',top+noticeBox(S.tab)+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml()+revsPop()+printOvl();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
@@ -3139,7 +3171,7 @@ function render0(){
 }
 function buildToc(){
   if(['today','duty','assign','edu','ops'].includes(S.tab))return;
-  if(S.tab==='dbturn'||S.tab==='calls'||S.tab==='judge'||S.tab==='log')return;
+  if(S.tab==='dbturn'||S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt')return;
   const cards=[...document.querySelectorAll('#page main .card[id^="b-"]')].filter(c=>c.querySelector('h2'));
   if(cards.length<3)return;
   const nav=document.createElement('nav');nav.className='toc';nav.setAttribute('aria-label','이 화면 바로가기');
@@ -3239,6 +3271,7 @@ function act(t){
   if(d.edudel){const [x,i]=sp(d.edudel);mutate(()=>{const it=eduItems(S.doc.cal.edu[x]);it.splice(+i,1);setCal('edu',x,eduText(it))},'교육을 뺐습니다');return true}
   if(jAct(d))return true;
   if(ntAct(d))return true;
+  if(ttAct(d))return true;
   if(d.print){S.printOpen=true;S.keepScroll=true;render();return true}
   if(d.prg){if(d.prg==='all')S.prG=null;else{const L=(S.prG||[]).slice();const i=L.indexOf(d.prg);i>=0?L.splice(i,1):L.push(d.prg);L.sort();S.prG=L.length?L:null}S.keepScroll=true;render();return true}
   if(d.printx){S.printOpen=false;S.keepScroll=true;render();return true}
@@ -3460,6 +3493,7 @@ document.addEventListener('copy',e=>{if(e.target.closest?.('input,textarea')&&e.
 document.addEventListener('cut',e=>{if(e.target.closest?.('input,textarea'))return;if(asgActive()){const t=asgCopy(true);if(t!=null){e.clipboardData.setData('text/plain',t);e.preventDefault()}}
   else if(S.pop&&GK[S.pop.key]&&CAN()){const {key:k,date:x}=S.pop;const v=S.doc.cal[k]?.[x]||'';const m=S.doc.cal[GK[k].mem]?.[x];DCLIP={v,m:Array.isArray(m)?m.slice():null};e.clipboardData.setData('text/plain',v);e.preventDefault();mutate(()=>{setCal(k,x,'');delete S.doc.cal[GK[k].mem][x]},`${md(x)} 잘라냄`)}});
 document.addEventListener('paste',e=>{if(e.target.closest?.('input,textarea'))return;const t=e.clipboardData.getData('text/plain');
+  if(S.tab==='tt'&&ttCan()){e.preventDefault();ttImport(t);return}
   if(S.tab==='calls'&&callCan()&&(!callLocked(S.cdate||todayIso())||(typeof isOwnerA==='function'&&isOwnerA()))){e.preventDefault();clImport(t,true);return}
   if(asgActive()){e.preventDefault();asgPaste(t);return}
   if(S.pop&&GK[S.pop.key]&&CAN()){e.preventDefault();const {key:k,date:x}=S.pop;S.edit=true;
@@ -3666,6 +3700,81 @@ function printSheet(){
 function prFit(){const el=document.getElementById('prSheet');if(!el)return;const w=el.scrollWidth,h=el.scrollHeight;el.style.setProperty('--pz',String(Math.min(1060/w,735/h)))}
 addEventListener('beforeprint',prFit);
 function printOvl(){if(!S.printOpen||!S.doc)return '';return `<div id="prOvl"><div class="pr-bar"><b>출력용 영업활동 일정표</b><span class="pr-gs"><span class="muted">조 골라 보기</span><button type="button" class="${!(S.prG&&S.prG.length&&S.prG.length<5)?'on':''}" data-prg="all">전체</button>${GROUPS.map(g=>`<button type="button" class="g-${g}${S.prG&&S.prG.length<5&&S.prG.includes(g)?' on':''}" data-prg="${g}">${g}조</button>`).join('')}</span><span class="muted">가로 방향으로 인쇄됩니다. PDF로 저장하려면 인쇄 창에서 대상을 'PDF로 저장'으로 고르세요.</span><button type="button" class="btn primary" data-printgo="1">${icx('check')}인쇄 · PDF 저장</button><button type="button" class="btn" data-printx="1">닫기</button></div><div class="pr-wrap">${printSheet()}</div></div>`}
+
+/* ================= 시간표 (그룹웨어 강의시간표 붙여넣기) ================= */
+const TT_ST=[['정원미달','under','#eab308'],['정원마감','full','#4b5563'],['정원초과','over','#ef4444'],['폐강','closed','#cbd5e1'],['재직/계좌마감','jfull','#2563eb'],['재직/계좌초과','jover','#9333ea'],['정원 미입력','none','#94a3b8']];
+const ttSt=st=>TT_ST.find(x=>x[0]===String(st||'').replace(/\s+/g,' ').trim())||TT_ST.find(x=>String(st||'').replace(/\s/g,'').includes(x[0].replace(/\s/g,'')))||['','etc','#94a3b8'];
+function ttParse(text){const L=String(text||'').split(/\r?\n/).map(x=>x.trim());let period=null;
+  for(const l of L){const m=l.match(/(\d{4}-\d{2}-\d{2})\s*~\s*(\d{4}-\d{2}-\d{2})/);if(m&&/단위기간|기간/.test(l)){period={a:m[1],z:m[2]};break}}
+  const RM=/^([A-Z]{1,2}|비대면|온라인)(?:\s*\|\s*(.*))?$/;const out=[];
+  for(let i=0;i<L.length-2;i++){const rm=RM.exec(L[i+1]||'');if(!L[i]||!rm||!/^개강일/.test(L[i+2]||''))continue;
+    const c={name:L[i],room:rm[1],teacher:(rm[2]||'').trim(),start:'',end:'',days:'',cap:0,cnt:0,st:'',extra:'',memo:''};let j=i+2;
+    const val=k=>{let x=L[j].replace(/^[^:]+:\s*/,'');if(!x&&L[j+1]!=null&&!/:$/.test(L[j+1])){j++;x=L[j]}return x.trim()};
+    for(;j<L.length;j++){const l=L[j];if(RM.test(L[j+1]||'')&&/^개강일/.test(L[j+2]||'')&&!/:$/.test(l))break;
+      if(/^개강일/.test(l))c.start=val();else if(/^종강일/.test(l))c.end=val();else if(/^요일/.test(l))c.days=val();
+      else if(/^정원\/배정인원/.test(l)){const v=val();const m=v.match(/(\d+)\s*\/\s*(\d+)\s*(?:\(([^)]*)\))?\s*(.*)$/);if(m){c.cap=+m[1];c.cnt=+m[2];c.st=(m[3]||'').trim();c.extra=(m[4]||'').trim()}}
+      else if(/^메모/.test(l)){c.memo=val()}
+      else if(!l||/^(TMS|📊)/.test(l))break}
+    i=j-1;out.push(c)}
+  const seen={};out.forEach(c=>{const b=[c.name,c.room,c.teacher,c.days].join('|');seen[b]=(seen[b]||0)+1;c.k2=b+'#'+seen[b];c.id=c.k2+'|'+c.start});
+  return {period,list:out}}
+const ttDocs=()=>Object.keys(S.callsAll||{}).filter(k=>k.startsWith('_tt_')).sort();
+const ttWeekend=c=>/[토일]/.test(c.days||'')&&!/[월화수목금]/.test(c.days||'');
+function ttCan(){return CAN()}
+async function ttImport(text){const r=ttParse(text);if(!r.list.length){toast('붙여넣은 내용에서 반을 찾지 못했습니다. 그룹웨어 강의시간표 화면에서 Ctrl+A → Ctrl+C 한 내용인지 확인해 주세요.');return}
+  const per=r.period||{a:r.list.map(c=>c.start).sort()[0],z:''};const id='_tt_'+per.a;const old=S.callsAll?.[id]?.classes||[];
+  const prevAll=ttDocs().filter(k=>k<id).map(k=>S.callsAll[k].classes||[]).flat();
+  const byId=Object.fromEntries(old.map(c=>[c.id,c])),byK2=Object.fromEntries(prevAll.map(c=>[c.k2,c]));
+  let ch=0,nw=0;const classes=r.list.map(c=>{const o=byId[c.id];if(o){if(o.cnt!==c.cnt)ch++;return {...c,time:o.time||'',note:o.note||'',prev:o.cnt!==c.cnt?o.cnt:(o.prev??null),hide:!!o.hide}}nw++;const pv=byK2[c.k2];return {...c,time:pv?.time||'',note:'',prev:null,hide:false}});
+  const kinds=new Set(classes.map(ttWeekend));const keep=old.filter(o=>!kinds.has(ttWeekend(o)));classes.push(...keep);
+  const gone=old.filter(o=>kinds.has(ttWeekend(o))&&!classes.some(c=>c.id===o.id)).length;
+  S.ttId=id;logAdd('tt',[`${per.a} ~ ${per.z||''} 시간표 붙여넣기: ${classes.length}반${old.length?` · 배정인원 바뀐 반 ${ch} · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:''}`]);
+  await callsWrite(id,{period:per,classes,at:kstNow(),by:logWho()});
+  toast(old.length?`배정인원 ${ch}반 바뀜 · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:`${classes.length}반을 불러왔습니다`);S.keepScroll=true;render()}
+function ttSave(id,fn,msg){const d=clone(S.callsAll[id]);fn(d.classes);if(msg)logAdd('tt',[msg]);callsWrite(id,{classes:d.classes}).then(()=>{S.keepScroll=true;render()})}
+function viewTT(){callsSub();const head=pageHead('tt','시간표');const ids=ttDocs();const can=ttCan();
+  if(!S.ttId||!ids.includes(S.ttId))S.ttId=ids.find(k=>{const p=S.callsAll[k].period||{};return p.a<=todayIso()&&(!p.z||todayIso()<=p.z)})||ids[ids.length-1];
+  const pasteCard=can?card('ttin','강의시간표 붙여넣기','그룹웨어 강의시간표 화면에서 Ctrl+A → Ctrl+C, 이 화면 빈 곳에서 Ctrl+V. 같은 반은 배정인원만 새 숫자로 바뀌고, 정해 둔 시간과 메모는 그대로 남습니다.',`<div class="wk"><textarea id="ttText" class="in" rows="3" placeholder="여기에 붙여넣어도 됩니다. 평일·주말 화면을 따로 붙여넣으면 둘 다 합쳐서 보관합니다."></textarea><div class="wk-top"><button type="button" class="btn sm primary" data-ttin="1">불러오기</button></div></div>`):'';
+  if(!S.ttId)return head+(can?pasteCard:'<div class="empty-state">아직 불러온 시간표가 없습니다.</div>');
+  const D=S.callsAll[S.ttId];const per=D.period||{};const F=S.ttF||(S.ttF={wk:'wd',st:'',q:''});
+  const all=(D.classes||[]).map((c,i)=>({...c,i}));const inTab=all.filter(c=>(F.wk==='we')===ttWeekend(c));
+  const q=F.q.trim();const L=inTab.filter(c=>(!F.st||ttSt(c.st)[1]===F.st)&&(!q||[c.name,c.teacher,c.room,c.memo,c.note].join(' ').includes(q))&&(S.ttHid||!c.hide));
+  const sum=k=>inTab.reduce((n,c)=>n+(+c[k]||0),0);const cntSt=k=>inTab.filter(c=>ttSt(c.st)[1]===k).length;
+  const sel=`<select class="in sm" id="ttPer">${ids.map(k=>{const p=S.callsAll[k].period||{};return `<option value="${k}" ${k===S.ttId?'selected':''}>${p.a||''} ~ ${p.z||''}</option>`}).join('')}</select>`;
+  const tools=`<div class="tt-bar">${sel}<div class="seg">${[['wd','평일'],['we','주말']].map(([k,l])=>`<button type="button" class="${F.wk===k?'on':''}" data-ttf="wk|${k}">${l} ${all.filter(c=>(k==='we')===ttWeekend(c)).length}</button>`).join('')}</div>
+    <div class="tt-chips"><button type="button" class="${!F.st?'on':''}" data-ttf="st|">전체</button>${TT_ST.slice(0,4).map(([l,k,col])=>`<button type="button" class="${F.st===k?'on':''}" data-ttf="st|${k}"><i style="background:${col}"></i>${l} ${cntSt(k)}</button>`).join('')}</div>
+    <input class="in sm" id="ttQ" placeholder="과목·강사 찾기" value="${esc(F.q)}">${can?`<button type="button" class="btn sm${S.ttTime?' primary':''}" data-tttime="1">${S.ttTime?'시간 다 정했어요':'시간 정하기'}</button>`:''}</div>
+    <div class="tt-sum"><span>반 <b>${inTab.length}</b></span><span>정원 <b>${sum('cap')}</b></span><span>배정 <b>${sum('cnt')}</b></span><span class="red">초과 <b>${cntSt('over')}</b></span><span>폐강 <b>${cntSt('closed')}</b></span><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 불러옴</span></div>`;
+  const cardH=c=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" ${can?`data-ttpick="${c.i}"`:''}>
+    <div class="tt-n"><i></i><b>${esc(c.name)}</b></div><div class="tt-m">${esc(c.teacher||'-')} · ${esc(c.days)}</div>
+    <div class="tt-cnt"><b>${c.cap}/${c.cnt}</b>${c.extra?`<em>${esc(c.extra)}</em>`:''}${dif?`<span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
+    <div class="tt-dt">${esc(String(c.start).slice(5))} ~ ${esc(String(c.end).slice(5))}</div>${c.memo||c.note?`<div class="tt-memo">${esc([c.note,c.memo].filter(Boolean).join(' / '))}</div>`:''}</div>`};
+  let body;
+  if(S.ttTime&&can){const rooms=[...new Set(L.map(c=>c.room))];body=`<div class="tt-tl">${rooms.map(r=>`<div class="tt-tr"><b>${esc(r)}</b>${L.filter(c=>c.room===r).map(c=>`<label class="tt-ti"><input class="in sm" data-tttm="${c.i}" value="${esc(c.time||'')}" placeholder="--:--" inputmode="numeric"><span>${esc(c.name)}</span><small>${esc(c.teacher)} · ${esc(c.days)}</small></label>`).join('')}</div>`).join('')}</div><p class="muted tt-hint">시작 시간만 적으면 됩니다(예: 1400 → 14:00). 엔터를 누르면 다음 반으로 넘어갑니다. 다음 달에 같은 반(과목·강의실·강사·요일)이 오면 시간이 그대로 따라옵니다.</p>`}
+  else{const rooms=[...new Set(L.map(c=>c.room))];const times=[...new Set(L.map(c=>c.time||''))].sort((a,b)=>!a?-1:!b?1:a.localeCompare(b));
+    body=L.length?`<div class="tt-gw"><table class="tt-g"><thead><tr><th class="tt-tc"></th>${rooms.map(r=>`<th>${esc(r)}</th>`).join('')}</tr></thead><tbody>${times.map(t=>`<tr><th class="tt-tc">${t?esc(t):'시간<br>미정'}</th>${rooms.map(r=>`<td>${L.filter(c=>c.room===r&&(c.time||'')===t).map(cardH).join('')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>'}
+  const pk=S.ttPick!=null?all[S.ttPick]:null;
+  const pop=pk&&can?`<div class="ovl" id="ttOvl"><div class="dlg tt-dlg" role="dialog" aria-modal="true"><h3>${esc(pk.name)}</h3><p>${esc(pk.room)} · ${esc(pk.teacher)} · ${esc(pk.days)} · ${esc(pk.start)} ~ ${esc(pk.end)} · ${pk.cap}/${pk.cnt} ${esc(pk.st)}</p>
+    <div class="gate-f"><label>시작 시간<input type="text" id="ttPT" value="${esc(pk.time||'')}" placeholder="14:00"></label><label>메모 (이 사이트에만 남음)<input type="text" id="ttPN" value="${esc(pk.note||'')}" placeholder="예: 19:00 반으로 합반 검토"></label><label class="chk"><input type="checkbox" id="ttPH" ${pk.hide?'checked':''}>시간표에서 숨기기</label></div>
+    <div class="dlg-b"><button type="button" class="btn" data-ttpx="1">닫기</button><button type="button" class="btn primary" data-ttpsave="${pk.i}">저장</button></div></div></div>`:'';
+  const hidN=inTab.filter(c=>c.hide).length;
+  return head+pasteCard+card('ttv',`${per.a||''} ~ ${per.z||''} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 칸을 누르면 시간·메모를 고칩니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide'})+pop;
+}
+const ttTime=v=>{v=String(v||'').replace(/[^\d:]/g,'');if(!v)return '';if(/^\d{3,4}$/.test(v))v=v.padStart(4,'0').replace(/(\d\d)(\d\d)/,'$1:$2');const m=v.match(/^(\d{1,2}):?(\d{2})?$/);if(!m)return '';return `${m[1].padStart(2,'0')}:${m[2]||'00'}`};
+function ttAct(d){
+  if(d.ttin){const t=$('#ttText')?.value||'';if(!t.trim()){toast('붙여넣을 내용이 없습니다');return true}ttImport(t);return true}
+  if(d.ttf){const [k,v]=sp(d.ttf);S.ttF[k]=v||'';S.keepScroll=true;render();return true}
+  if(d.tttime){S.ttTime=!S.ttTime;S.keepScroll=true;render();return true}
+  if(d.tthid){S.ttHid=!S.ttHid;S.keepScroll=true;render();return true}
+  if(d.ttpick!=null){if(S.ttTime)return true;S.ttPick=+d.ttpick;S.keepScroll=true;render();setTimeout(()=>$('#ttPT')?.focus(),30);return true}
+  if(d.ttpx){S.ttPick=null;S.keepScroll=true;render();return true}
+  if(d.ttpsave!=null){const i=+d.ttpsave;const t=ttTime($('#ttPT').value),n=$('#ttPN').value.trim(),h=$('#ttPH').checked;const c=S.callsAll[S.ttId].classes[i];S.ttPick=null;ttSave(S.ttId,L=>{L[i].time=t;L[i].note=n;L[i].hide=h},`${c.name}(${c.room}·${c.teacher}) 시간 ${t||'미정'}${n?' · 메모 '+n:''}${h?' · 숨김':''}`);return true}
+  return false}
+document.addEventListener('change',function(e){const t=e.target;
+  if(t.id==='ttPer'){S.ttId=t.value;S.keepScroll=true;render();return}
+  if(t.id==='ttQ'){S.ttF.q=t.value;S.keepScroll=true;render();return}
+  if(t.dataset&&t.dataset.tttm!=null){const i=+t.dataset.tttm;const v=ttTime(t.value);t.value=v;const c=S.callsAll[S.ttId].classes[i];if((c.time||'')===v)return;const d=clone(S.callsAll[S.ttId]);d.classes[i].time=v;S.callsAll[S.ttId]=d;logAdd('tt',[`${c.name}(${c.room}·${c.teacher}) 시간 ${v||'미정'}`]);callsWrite(S.ttId,{classes:d.classes})}});
+document.addEventListener('keydown',function(e){const t=e.target;if(e.key==='Enter'&&t.dataset&&t.dataset.tttm!=null){if(e.isComposing||e.keyCode===229)return;e.preventDefault();const L=[...document.querySelectorAll('[data-tttm]')];const n=L[L.indexOf(t)+1];if(n){n.focus();n.select()}else t.blur()}});
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
@@ -3777,6 +3886,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#msw')){$('#mMenu').hidden=true;$('#mBtn').setAttribute('aria-expanded','false')}
   if(e.target.id==='sbScrim'){document.body.classList.remove('sb-open');return}
   if(e.target.id==='ovl'){S.rand=null;S.keepScroll=true;render();return}
+  if(e.target.id==='ttOvl'){S.ttPick=null;S.keepScroll=true;render();return}
   if(e.target.id==='revsOvl'){S.showRevs=false;S.keepScroll=true;render();return}
   const closing=!!S.pop&&!e.target.closest('#pop,[data-pop]');if(closing)S.pop=null;
   const t=e.target.closest('button,[data-date],[data-rsel],[data-csel],[data-pop],[data-acell],a');if(!t){if(closing){S.keepScroll=true;render()}return}
@@ -3806,6 +3916,7 @@ document.addEventListener('keydown',e=>{
   const mod=e.ctrlKey||e.metaKey,inField=e.target.closest?.('input,textarea,[contenteditable]');
   if(e.key==='Escape'&&D){endDrag(false);return}
   if(asgActive()&&!inField&&e.key!=='Escape'&&!(mod&&['c','x','v','z','y','s'].includes(e.key.toLowerCase()))){if(asgKey(e)){e.preventDefault();return}}
+  if(e.key==='Escape'&&S.ttPick!=null){S.ttPick=null;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.printOpen){S.printOpen=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.showRevs){S.showRevs=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.brush){S.brush=null;S.keepScroll=true;render();return}
