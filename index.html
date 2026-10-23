@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-141946';
+window.OPS_BUILD = '20261023-143919';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1934,6 +1934,15 @@ body.tt-drop #b-ttin{outline:3px dashed var(--ink);outline-offset:4px}
 .tt-cy{display:inline-flex;align-items:center;gap:4px}.tt-cy select{min-width:210px;font-weight:700}
 .tt-mode button{white-space:nowrap}
 .tp-tt{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.dlg.tp:has(.stu-t){max-width:min(980px,96vw)}
+.stu{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.stu-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-bottom:8px}.stu-h b{font-size:15px}.stu-h .muted{font-size:11.5px}.stu-h .in{margin-left:auto;width:140px}
+.stu-tw{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.stu-t{border-collapse:collapse;width:100%;font-size:12.5px}
+.stu-t th{position:sticky;top:0;background:var(--sunk);font-weight:700;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.stu-t td{padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.stu-t tr:last-child td{border-bottom:0}
 
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
@@ -3858,6 +3867,7 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
     <div class="tp-st"><i></i>${esc(pk.st||'-')}</div><h3>${esc(pk.name)}</h3>
     <div class="tp-big"><b>${pk.cap}</b><span>/</span><b class="c">${pk.cnt}</b><small>정원 / 배정인원</small>${pk.extra?`<em>${esc(pk.extra)}</em>`:''}${dif?`<span class="tt-d ${dif>0?'up':'dn'}">지난번보다 ${dif>0?'+':''}${dif}</span>`:''}</div>
     <div class="tp-g">${row('강의실',esc(pk.room))}${row('강사',esc(pk.teacher||'-'))}${row('시간',pk.time?esc(pk.time)+(pk.tend?' ~ '+esc(pk.tend):''):'미정')}${row('요일',esc(pk.days))}${row('기간',esc(pk.start)+' ~ '+esc(pk.end))}${row('그룹웨어 메모',esc(pk.memo))}${!can?row('메모',esc(pk.note)):''}</div>
+    ${stuHtml(pk)}
     ${can?`<div class="gate-f tp-ed"><div class="tp-tt"><label>시작 시간<input type="text" id="ttPT" value="${esc(pk.time||'')}" placeholder="14:00"></label><label>끝나는 시간<input type="text" id="ttPE" value="${esc(pk.tend||'')}" placeholder="${pk.time&&tm(pk.time)>=19*60?'22:00':'비우면 2시간'}"></label></div><label>메모 (이 사이트에만 남음)<input type="text" id="ttPN" value="${esc(pk.note||'')}" placeholder="예: 19:00 반으로 합반 검토"></label><label class="chk"><input type="checkbox" id="ttPH" ${pk.hide?'checked':''}>시간표에서 숨기기</label></div>
     <div class="dlg-b"><button type="button" class="btn" data-ttpx="1">닫기</button><button type="button" class="btn primary" data-ttpsave="${pk._d}|${pk.i}">저장</button></div>`:''}</div></div>`})():'';
   const bigOvl=S.ttBig?`<div id="ttBig" style="--z:${S.ttZoom||1}"><div class="tb-bar"><b>${per.a||''} ~ ${per.z||''} · ${F.wk==='we'?'주말':'평일'}</b><div class="seg">${[['wd','평일'],['we','주말']].map(([k,l])=>`<button type="button" class="${F.wk===k?'on':''}" data-ttf="wk|${k}">${l}</button>`).join('')}</div>
@@ -3925,6 +3935,43 @@ function ttTakeIn(){const J=TT_IN;if(!J)return;if(J.busy)return;
   items.sort((a,b)=>a.room.localeCompare(b.room)||a._o[0]-b._o[0]||a._o[1]-b._o[1]);
   const seen={};items.forEach(c=>{delete c._o;const b=[c.name,c.room,c.teacher,c.days].join('|');seen[b]=(seen[b]||0)+1;c.k2=b+'#'+seen[b];c.id=c.k2+'|'+c.start});
   ttImportList({period:d.period||null,list:items},'확장 프로그램').then(()=>{const r={ok:true,msg:`${items.length}반을 운영계획표에 반영했습니다`};TT_DONE[d.id]=r;TT_IN=null;J.reply(r);S.tab='tt';S.ttId=null;S.ttMode='cyc';try{ls.set('tab','tt')}catch(_){}render()}).catch(err=>{const r={ok:false,msg:'저장하지 못했습니다: '+(err?.message||'오류')};TT_DONE[d.id]=r;TT_IN=null;J.reply(r)})}
+
+/* ---------- 수강생 목록 (편집 권한자만 · ops_students 컬렉션) ---------- */
+const stuKey=id=>{let h=5381;for(const ch of String(id))h=((h<<5)+h+ch.charCodeAt(0))>>>0;return 's'+h.toString(36)+'_'+String(id).length};
+const STU={};const stuView=()=>typeof A!=='undefined'&&!!A.fdb&&((typeof isOwnerA==='function'&&isOwnerA())||(typeof approved==='function'&&approved()));
+const maskTel=v=>String(v).replace(/(\d{2,3})[-.\s]?(\d{3,4})[-.\s]?(\d{4})/g,'$1-****-$3');
+function stuLoad(cid,force){if(!stuView())return;const k=stuKey(cid);if(STU[k]&&!force&&STU[k]!=='loading')return;STU[k]='loading';
+  A.fdb.collection('ops_students').doc(k).get().then(d=>{STU[k]=d.exists?d.data():null;S.keepScroll=true;render()}).catch(e=>{STU[k]={err:e?.code||'오류'};S.keepScroll=true;render()})}
+function stuFind(it){const docs=ttDocs();const L=[];docs.forEach(k=>(S.callsAll[k].classes||[]).forEach(c=>L.push(c)));
+  const nm=String(it.head?.name||'').replace(/\(\d+\)\s*$/,'').trim();let card=null;if(it.card){card=ttParse(it.card.text).list[0]}
+  let cand=card?L.filter(c=>c.name===card.name&&c.room===card.room&&c.teacher===card.teacher&&c.start===card.start&&c.days===card.days):L.filter(c=>c.name===(nm||'')&&(!it.head?.start||c.start===it.head.start));
+  if(cand.length>1){const t=it.card?.time||it.head?.time||'';const byT=cand.filter(c=>c.time===t);if(byT.length)cand=byT}
+  return cand[0]||null}
+async function stuSave(items){const out={ok:0,miss:[]};for(const it of items){const c=stuFind(it);if(!c){out.miss.push(it.head?.name||(it.card?.text||'').split('\n')[0]);continue}
+    const rows=(it.rows||[]).map(r=>({c:r.map(x=>String(x??''))}));
+    await A.fdb.collection('ops_students').doc(stuKey(c.id)).set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols:(it.cols||[]).map(String),rows,at:kstNow(),by:logWho()});
+    delete STU[stuKey(c.id)];out.ok++}
+  logAdd('tt',[`수강생 목록 최신화: ${out.ok}반${out.miss.length?` · 못 찾은 반 ${out.miss.length}`:''}`]);return out}
+function stuHtml(pk){if(!stuView())return '';const full=ttCan();const k=stuKey(pk.id);stuLoad(pk.id);const D=STU[k];
+  if(D==='loading'||D===undefined)return '<div class="stu"><b>수강생</b><p class="muted">불러오는 중…</p></div>';
+  if(D&&D.err)return `<div class="stu"><b>수강생</b><p class="muted">불러오지 못했습니다 (${esc(D.err)}). Firebase 규칙에 ops_students 부분이 들어갔는지 확인해 주세요.</p></div>`;
+  if(D&&!(D.rows||[]).length&&!(D.cols||[]).length)return `<div class="stu"><b>수강생 0명</b><p class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화 · 배정된 수강생이 없습니다.</p></div>`;
+  if(!D)return `<div class="stu"><b>수강생</b><p class="muted">아직 넘어온 목록이 없습니다.${full?" 그룹웨어에서 '학생 최신화하기'를 눌러 주세요.":''}</p></div>`;
+  const want=[/수강생|이름|성명/,/멘토/,/연락처|휴대|전화|핸드폰/,/상태|일지/];const cols=D.cols||[];const order=[];want.forEach(r=>cols.forEach((h,i)=>{if(r.test(h)&&!order.includes(i))order.push(i)}));
+  const skip=/^(No\.?|선택|)$/i;cols.forEach((h,i)=>{if(!order.includes(i)&&!skip.test(String(h).trim()))order.push(i)});
+  const q=(S.stuQ||'').trim();const rows=(D.rows||[]).map(r=>r.c||[]).filter(r=>!q||r.join(' ').includes(q));
+  return `<div class="stu"><div class="stu-h"><b>수강생 ${(D.rows||[]).length}명</b><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화</span><input class="in sm" id="stuQ" placeholder="이름 찾기" value="${esc(q)}"></div>
+    <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map((r,n)=>`<tr><td>${n+1}</td>${order.map(i=>`<td>${esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel(r[i]||''):(r[i]||''))}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${order.length+1}" class="muted">배정된 수강생이 없습니다.</td></tr>`}</tbody></table></div></div>`}
+document.addEventListener('change',function(e){if(e.target.id==='stuQ'){S.stuQ=e.target.value;S.keepScroll=true;render()}});
+let STU_IN=null;const STU_DONE={};
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-stu-push')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
+  if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-tt-ack',id:d.id,...m},e.origin)}catch(_){}};
+  if(STU_DONE[d.id])return reply(STU_DONE[d.id]);if(STU_IN&&STU_IN.d.id===d.id){STU_IN.reply=reply;return}STU_IN={d,reply};stuTakeIn()});
+function stuTakeIn(){const J=STU_IN;if(!J||J.busy)return;
+  if(!S.db||typeof A==='undefined'||!A.prof){J.reply({ok:false,wait:true,msg:'운영계획표 로그인을 기다리는 중입니다'});return setTimeout(stuTakeIn,1000)}
+  callsSub();if(!S.callsLoaded)return setTimeout(stuTakeIn,500);
+  if(!ttCan()){const r={ok:false,msg:'이 계정은 수강생 목록을 저장할 권한이 없습니다'};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r);return}
+  J.busy=true;stuSave(J.d.items||[]).then(o=>{const r={ok:o.ok>0,msg:`수강생 목록 ${o.ok}반을 넘겼습니다${o.miss.length?` · 시간표에서 못 찾은 반 ${o.miss.length}개(먼저 '운영계획표로 보내기'를 해 주세요)`:''}`};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r);S.tab='tt';try{ls.set('tab','tt')}catch(_){}S.keepScroll=true;render()}).catch(err=>{const r={ok:false,msg:'저장하지 못했습니다 ('+(err?.code||err?.message||'오류')+'). Firebase 규칙에 ops_students 부분을 넣었는지 확인해 주세요.'};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r)})}
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
