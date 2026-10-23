@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-143919';
+window.OPS_BUILD = '20261023-151651';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3963,6 +3963,25 @@ function stuHtml(pk){if(!stuView())return '';const full=ttCan();const k=stuKey(p
   return `<div class="stu"><div class="stu-h"><b>수강생 ${(D.rows||[]).length}명</b><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화</span><input class="in sm" id="stuQ" placeholder="이름 찾기" value="${esc(q)}"></div>
     <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map((r,n)=>`<tr><td>${n+1}</td>${order.map(i=>`<td>${esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel(r[i]||''):(r[i]||''))}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${order.length+1}" class="muted">배정된 수강생이 없습니다.</td></tr>`}</tbody></table></div></div>`}
 document.addEventListener('change',function(e){if(e.target.id==='stuQ'){S.stuQ=e.target.value;S.keepScroll=true;render()}});
+/* 확장 프로그램 연결 확인 */
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-ping')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
+  if(!/(^|\.)koreagroupware\.com$/.test(h))return;const login=!!(S.db&&typeof A!=='undefined'&&A.prof&&A.fdb);if(login)callsSub();
+  try{e.source&&e.source.postMessage({type:'ops-pong',id:d.id,ver:2,login,loaded:!!S.callsLoaded,can:login&&ttCan()},e.origin)}catch(_){}});
+/* 저장된 반별 수강생 수 알려 주기 (한 번에 모아 읽음) */
+const STU_CNT={};
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-stu-counts')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
+  if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-stu-counts-reply',id:d.id,...m},e.origin)}catch(_){}};
+  const cur=STU_CNT[d.id];if(cur&&cur.busy){if(Date.now()-cur.t<25000)return reply({wait:true,msg:'운영계획표에서 인원을 세는 중입니다…'});delete STU_CNT[d.id]}else if(cur)return reply(cur);
+  if(!S.db||typeof A==='undefined'||!A.prof||!A.fdb)return reply({wait:true,msg:'운영계획표 로그인을 기다리는 중입니다'});
+  callsSub();if(!S.callsLoaded)return reply({wait:true,msg:'운영계획표를 불러오는 중입니다'});
+  STU_CNT[d.id]={busy:true,t:Date.now()};
+  const fin=r=>{STU_CNT[d.id]=r;reply(r)};
+  const to=new Promise((_,rej)=>setTimeout(()=>rej(new Error('시간 초과')),20000));
+  let q;try{q=A.fdb.collection('ops_students').get()}catch(err){q=Promise.reject(err)}
+  Promise.race([q,to]).then(qs=>{const have={};qs.forEach(x=>{have[x.id]=((x.data()||{}).rows||[]).length});
+      const counts=(d.cards||[]).map(card=>{try{const c=stuFind({card});if(!c)return -1;const k=stuKey(c.id);return k in have?have[k]:-1}catch(_){return -1}});
+      fin({ok:true,counts})})
+    .catch(err=>fin({ok:false,msg:'저장된 인원을 읽지 못했습니다 ('+(err?.code||err?.message||'오류')+')'}))});
 let STU_IN=null;const STU_DONE={};
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-stu-push')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
   if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-tt-ack',id:d.id,...m},e.origin)}catch(_){}};
