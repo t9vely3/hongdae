@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-153630';
+window.OPS_BUILD = '20261023-155110';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3823,13 +3823,18 @@ function ttStCalc(c){if(c.st)return;if(!c.cap){c.st='정원 미입력';return}if
 async function ttImportList(r,src){
   const per=r.period||{a:r.list.map(c=>c.start).sort()[0],z:''};const id='_tt_'+per.a;const old=S.callsAll?.[id]?.classes||[];
   const prevAll=ttDocs().filter(k=>k<id).map(k=>S.callsAll[k].classes||[]).flat();
-  const byId=Object.fromEntries(old.map(c=>[c.id,c])),byK2=Object.fromEntries(prevAll.map(c=>[c.k2,c]));
+  const others=ttDocs().filter(k=>k!==id);const otherAll=others.flatMap(k=>S.callsAll[k].classes||[]);
+  const byId=Object.fromEntries([...otherAll,...old].map(c=>[c.id,c])),byK2=Object.fromEntries(prevAll.map(c=>[c.k2,c]));
   let ch=0,nw=0;const classes=r.list.map(c=>{const o=byId[c.id];if(c.xl&&o&&o.cnt===c.cnt&&o.st){c.st=o.st;c.extra=o.extra||''}ttStCalc(c);delete c.xl;if(o){if(o.cnt!==c.cnt)ch++;return {...c,time:c.time||o.time||'',tend:c.end2||o.tend||'',note:o.note||'',prev:o.cnt!==c.cnt?o.cnt:(o.prev??null),hide:!!o.hide}}nw++;const pv=byK2[c.k2];return {...c,time:c.time||pv?.time||'',tend:c.end2||pv?.tend||'',note:'',prev:null,hide:false}});classes.forEach(c=>delete c.end2);
-  const kinds=new Set(classes.map(ttWeekend));const keep=old.filter(o=>!kinds.has(ttWeekend(o)));classes.push(...keep);
-  const gone=old.filter(o=>kinds.has(ttWeekend(o))&&!classes.some(c=>c.id===o.id)).length;
+  /* 이번에 보낸 화면의 개강일 범위 안에서만 '없어진 반'을 지움. 범위 밖(기간을 바꿔서 안 보인 반)은 그대로 둠 */
+  const kinds=new Set(classes.map(ttWeekend));const ss=classes.map(c=>c.start).filter(Boolean).sort();const lo=ss[0]||'',hi=ss[ss.length-1]||'';
+  const newIds=new Set(classes.map(c=>c.id));const inRange=o=>kinds.has(ttWeekend(o))&&o.start&&o.start>=lo&&o.start<=hi;
+  let gone=0;const keep=old.filter(o=>{if(newIds.has(o.id))return false;if(inRange(o)){gone++;return false}return true});classes.push(...keep);
+  const fix=[];others.forEach(k=>{const L=S.callsAll[k].classes||[];const L2=L.filter(o=>{if(newIds.has(o.id))return false;if(inRange(o)){gone++;return false}return true});if(L2.length!==L.length)fix.push([k,L2])});
   logAdd('tt',[`${per.a} ~ ${per.z||''} 시간표 ${src}: ${classes.length}반${old.length?` · 배정인원 바뀐 반 ${ch} · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:''}`]);
   const mc={};classes.forEach(c=>{const m=String(c.start||'').slice(0,7);if(m)mc[m]=(mc[m]||0)+1});const month=(Object.entries(mc).sort((a,b)=>b[1]-a[1])[0]||[String(per.a).slice(0,7)])[0];
   await callsWrite(id,{period:per,classes,month,at:kstNow(),by:logWho()});
+  for(const [k,L2] of fix)await callsWrite(k,{classes:L2});
   toast(old.length?`배정인원 ${ch}반 바뀜 · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:`${classes.length}반을 불러왔습니다`);S.keepScroll=true;render()}
 function ttSave(id,fn,msg){const d=clone(S.callsAll[id]);fn(d.classes);if(msg)logAdd('tt',[msg]);callsWrite(id,{classes:d.classes}).then(()=>{S.keepScroll=true;render()})}
 function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';const ids=ttDocs();const can=ttCan();
