@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-152640';
+window.OPS_BUILD = '20261023-153630';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1944,6 +1944,18 @@ body.tt-drop #b-ttin{outline:3px dashed var(--ink);outline-offset:4px}
 .stu-t td{padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 .stu-t tr:last-child td{border-bottom:0}
 
+/* 시간표 스크롤 · 팝업 스크롤 · 초과 학생 */
+.tt-gw:not(.big){overscroll-behavior:contain}
+.tt-gw{scrollbar-width:auto;scrollbar-color:#94a3b8 #e9edf2}
+.tt-gw::-webkit-scrollbar{width:16px;height:16px}.tt-gw::-webkit-scrollbar-track{background:#e9edf2}
+.tt-gw::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:8px;border:3px solid #e9edf2}.tt-gw::-webkit-scrollbar-thumb:hover{background:#64748b}
+#ttOvl{overflow-y:auto;overscroll-behavior:contain;align-items:start;padding:24px 16px}
+#ttOvl .dlg.tp{max-height:calc(100vh - 48px);overflow-y:auto;overscroll-behavior:contain;margin:auto}
+body:has(#ttOvl),body:has(#ttBig){overflow:hidden}
+.stu-tw{overscroll-behavior:contain}
+.stu-ov{display:inline-block;margin-left:6px;padding:0 6px;border-radius:999px;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:800;line-height:18px;vertical-align:middle}
+.stu-t tr.ov td{background:#fff5f5;color:#991b1b}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3226,9 +3238,12 @@ function panelHtml(){
 /* ================= render ================= */
 function render(){
   const fe=document.activeElement,fk=fe?.dataset?.cl;let fv,fs;if(fk){fv=fe.value;try{fs=[fe.selectionStart,fe.selectionEnd]}catch(_){}}
-  render0();
+  render0();ttFit();
   if(fk){const q=document.querySelector(`.cl-in[data-cl="${fk}"]`);if(q){if(q.value!==fv)q.value=fv;q.focus();try{if(fs)q.setSelectionRange(fs[0],fs[1])}catch(_){}}}
 }
+/* 시간표: 화면 높이에 맞춰 가로 스크롤바가 늘 보이게 */
+function ttFit(){const g=document.querySelector('#page .tt-gw:not(.big)');if(!g)return;const top=g.getBoundingClientRect().top+scrollY;g.style.maxHeight=Math.max(300,innerHeight-top-14)+'px';g.style.height=g.style.maxHeight}
+addEventListener('resize',()=>ttFit());
 function render0(){
   S._tm=null;
   if(S.tab==='today'&&S.doc&&S.date&&!S.dirtyM){const c=monthCover(S.date);if(c&&c!==S.id)pickDoc(c)}
@@ -3958,9 +3973,9 @@ function stuHtml(pk){if(!stuView())return '';const full=ttCan();const k=stuKey(p
   if(!D)return `<div class="stu"><b>수강생</b><p class="muted">아직 넘어온 목록이 없습니다.${full?" 그룹웨어에서 '학생 최신화하기'를 눌러 주세요.":''}</p></div>`;
   const want=[/수강생|이름|성명/,/멘토/,/연락처|휴대|전화|핸드폰/,/상태|일지/];const cols=D.cols||[];const order=[];want.forEach(r=>cols.forEach((h,i)=>{if(r.test(h)&&!order.includes(i))order.push(i)}));
   const skip=/^(No\.?|선택|)$/i;cols.forEach((h,i)=>{if(!order.includes(i)&&!skip.test(String(h).trim()))order.push(i)});
-  const q=(S.stuQ||'').trim();const rows=(D.rows||[]).map(r=>r.c||[]).filter(r=>!q||r.join(' ').includes(q));
-  return `<div class="stu"><div class="stu-h"><b>수강생 ${(D.rows||[]).length}명</b><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화</span><input class="in sm" id="stuQ" placeholder="이름 찾기" value="${esc(q)}"></div>
-    <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map((r,n)=>`<tr><td>${n+1}</td>${order.map(i=>`<td>${esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel(r[i]||''):(r[i]||''))}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${order.length+1}" class="muted">배정된 수강생이 없습니다.</td></tr>`}</tbody></table></div></div>`}
+  const q=(S.stuQ||'').trim();const cap=+pk.cap||0;const all=(D.rows||[]).map((r,n)=>({c:r.c||[],n}));const ovN=cap?Math.max(0,all.length-cap):0;const rows=all.filter(r=>!q||r.c.join(' ').includes(q));
+  return `<div class="stu"><div class="stu-h"><b>수강생 ${(D.rows||[]).length}명${cap?` <small class="muted">정원 ${cap}</small>`:''}${ovN?` <span class="stu-ov">초과 ${ovN}명</span>`:''}</b><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화</span><input class="in sm" id="stuQ" placeholder="이름 찾기" value="${esc(q)}"></div>
+    <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map(R=>{const r=R.c,ov=cap&&R.n>=cap;return `<tr${ov?' class="ov"':''}><td>${R.n+1}${ov?'<span class="stu-ov">초과</span>':''}</td>${order.map(i=>`<td>${esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel(r[i]||''):(r[i]||''))}</td>`).join('')}</tr>`}).join('')||`<tr><td colspan="${order.length+1}" class="muted">배정된 수강생이 없습니다.</td></tr>`}</tbody></table></div></div>`}
 document.addEventListener('change',function(e){if(e.target.id==='stuQ'){S.stuQ=e.target.value;S.keepScroll=true;render()}});
 /* 확장 프로그램 연결 확인 */
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-ping')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
