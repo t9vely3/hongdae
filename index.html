@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-120343';
+window.OPS_BUILD = '20261023-131304';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1900,6 +1900,33 @@ body.tt-drop #b-ttin{outline:3px dashed var(--ink);outline-offset:4px}
 .tp-ed{margin-top:14px}
 .tp-ed label.chk{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;font-size:13px}.tp-ed label.chk input{width:16px!important;height:16px!important;margin:0;padding:0}
 
+/* 시간표: 30분 칸 · 강의실별 줄(A-1, A-2) · 정보 길게 */
+#b-ttv{width:calc(100vw - 32px);max-width:none;margin-left:calc(50% - 50vw + 16px)!important}
+@media (max-width:759px){#b-ttv{width:auto;margin-left:0!important}}
+.tt-gw{max-height:82vh;overflow:auto}
+.tt-g2{border-collapse:separate;border-spacing:0;table-layout:fixed}
+.tt-g2 th,.tt-g2 td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:0;white-space:normal!important}
+.tt-g2 thead th{position:sticky;background:#eef4fb;font-size:13px;font-weight:700;text-align:center;z-index:3}
+.tt-g2 thead tr:first-child th{top:0;height:34px}.tt-g2 thead tr:nth-child(2) th{top:34px;height:30px;font-size:12px;font-weight:600;color:var(--ink2)}
+.tt-g2 th.tt-tc{position:sticky;left:0;z-index:4;width:64px;min-width:64px;background:#eef4fb;font-size:12.5px;font-weight:700;text-align:center;vertical-align:top;padding-top:4px}
+.tt-g2 tbody th.tt-tc{z-index:2}.tt-g2 tbody tr.h th.tt-tc{color:transparent}
+.tt-g2 th.tt-ln,.tt-g2 td{width:170px;min-width:170px}
+.tt-g2 tbody tr{height:34px}
+.tt-g2 td.tt-has{padding:3px;vertical-align:top;background:var(--surface)}
+.tt-g2 .tt-c{height:100%;width:auto;margin:0;border-radius:6px;border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 9%,#fff);padding:8px 6px;text-align:center;display:flex;flex-direction:column;gap:0;overflow:hidden}
+.tt-nm{display:block;font-size:13.5px;font-weight:800;padding:2px 0 6px;border-bottom:1px dashed color-mix(in srgb,var(--c) 40%,var(--line));word-break:keep-all;line-height:1.3}
+.tt-l{font-size:12px;line-height:1.3;padding:4px 0;border-bottom:1px dashed var(--line);color:var(--ink2);word-break:keep-all}
+.tt-l:last-child{border-bottom:0}
+.tt-as{font-weight:800;font-size:13px;color:#b45309}.st-over .tt-as{color:#dc2626}.st-full .tt-as{color:#374151}.st-closed .tt-as{color:var(--muted)}
+.tt-as em{font-style:normal;color:#dc2626}
+.tt-sm{font-size:11px;color:var(--muted)}.tt-mm{font-size:11px;color:var(--ink);text-align:left}
+.st-closed .tt-nm{text-decoration:line-through;color:var(--muted)}
+.tt-un{padding:8px 24px 12px}.tt-un>b{font-size:13px}.tt-unl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.tt-unl .tt-c{width:170px}
+.tt-gw.big .tt-g2 th.tt-ln,.tt-gw.big .tt-g2 td{width:calc(190px*var(--z,1));min-width:calc(190px*var(--z,1))}
+.tt-gw.big .tt-g2 tbody tr{height:calc(38px*var(--z,1))}
+.tt-gw.big .tt-nm{font-size:calc(15px*var(--z,1))}.tt-gw.big .tt-l{font-size:calc(13px*var(--z,1))}.tt-gw.big .tt-as{font-size:calc(14.5px*var(--z,1))}
+.tt-gw{--cw:170px}.tt-gw.big{--cw:calc(190px*var(--z,1))}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3783,9 +3810,20 @@ function viewTT(){callsSub();const head=pageHead('tt','시간표');const ids=ttD
     <div class="tt-chips"><button type="button" class="${!F.st?'on':''}" data-ttf="st|">전체</button>${TT_ST.slice(0,4).map(([l,k,col])=>`<button type="button" class="${F.st===k?'on':''}" data-ttf="st|${k}"><i style="background:${col}"></i>${l} ${cntSt(k)}</button>`).join('')}</div>
     <input class="in sm" id="ttQ" placeholder="과목·강사 찾기" value="${esc(F.q)}">${can?`<button type="button" class="btn sm${S.ttTime?' primary':''}" data-tttime="1">${S.ttTime?'시간 다 정했어요':'시간 정하기'}</button>`:''}</div>
     <div class="tt-sum"><span>반 <b>${inTab.length}</b></span><span>정원 <b>${sum('cap')}</b></span><span>배정 <b>${sum('cnt')}</b></span><span class="red">초과 <b>${cntSt('over')}</b></span><span>폐강 <b>${cntSt('closed')}</b></span><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 불러옴</span></div>`;
-  const cardH=c=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" data-ttpick="${c.i}" title="${esc(c.name+' · '+(c.teacher||'')+(mm?' · '+mm:''))}"><div class="tt-n"><i></i><b>${esc(c.name)}</b></div><div class="tt-m">${esc(c.teacher||'-')} · ${esc(c.days)}</div><div class="tt-cnt"><b>${c.cap}/${c.cnt}</b>${c.extra?`<em>${esc(c.extra)}</em>`:''}${dif?`<span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}${mm?'<span class="tt-mk">메모</span>':''}</div></div>`};
-  const grid=(L,big)=>{const rooms=[...new Set(L.map(c=>c.room))];const times=[...new Set(L.map(c=>c.time||''))].sort((a,b)=>!a?-1:!b?1:a.localeCompare(b));
-    return L.length?`<div class="tt-gw${big?' big':''}"><table class="tt-g"><thead><tr><th class="tt-tc"></th>${rooms.map(r=>`<th>${esc(r)}</th>`).join('')}</tr></thead><tbody>${times.map(t=>`<tr><th class="tt-tc">${t?esc(t):'시간<br>미정'}</th>${rooms.map(r=>`<td><div class="tt-cell">${L.filter(c=>c.room===r&&(c.time||'')===t).map(cardH).join('')}</div></td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>'};
+  const tm=t=>{const [h,m]=String(t).split(':').map(Number);return h*60+(m||0)};const fm=x=>`${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
+  const cardH=(c,rs)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
+    return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" data-ttpick="${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>
+      <div class="tt-l">정원 : ${c.cap}</div><div class="tt-l tt-as">배정 : ${c.cnt}${c.extra?` <em>${esc(c.extra)}</em>`:''}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
+      <div class="tt-l">${esc(c.teacher||'-')}</div><div class="tt-l">${esc(c.days)}</div><div class="tt-l tt-sm">개:${esc(c.start)}</div><div class="tt-l tt-sm">종:${esc(c.end)}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
+  const grid=(L,big)=>{if(!L.length)return '<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>';
+    const T=L.filter(c=>c.time),U=L.filter(c=>!c.time);const span=c=>{const a=tm(c.time);let z=c.tend?tm(c.tend):a+120;if(z<=a)z=a+30;return [a,Math.ceil((z-a)/30)*30+a]};
+    const rooms=[...new Set(T.map(c=>c.room))];const lanes={};rooms.forEach(r=>{const Ls=[];T.filter(c=>c.room===r).sort((x,y)=>span(x)[0]-span(y)[0]).forEach(c=>{const [a,z]=span(c);let ln=Ls.find(l=>l.end<=a);if(!ln){ln={end:0,items:[]};Ls.push(ln)}ln.items.push(c);ln.end=z});lanes[r]=Ls});
+    const t0=Math.floor(Math.min(...T.map(c=>span(c)[0]))/30)*30,t1=Math.max(...T.map(c=>span(c)[1]));const slots=[];for(let x=t0;x<t1;x+=30)slots.push(x);
+    const cols=rooms.flatMap(r=>lanes[r].map((l,i)=>({r,i,l})));
+    const head=`<tr><th class="tt-tc" rowspan="2">강의실</th>${rooms.map(r=>`<th colspan="${lanes[r].length}" class="tt-rm">${esc(r)}</th>`).join('')}</tr><tr>${cols.map(c=>`<th class="tt-ln">${esc(c.r)}-${c.i+1}</th>`).join('')}</tr>`;
+    const cover={};const body=slots.map(x=>`<tr class="${x%60?'h':''}"><th class="tt-tc">${fm(x)}</th>${cols.map((col,ci)=>{if(cover[ci]>x)return '';const c=col.l.items.find(k=>span(k)[0]===x);if(c){const [a,z]=span(c);cover[ci]=z;return `<td rowspan="${(z-a)/30}" class="tt-has">${cardH(c)}</td>`}return '<td></td>'}).join('')}</tr>`).join('');
+    const un=U.length?`<div class="tt-un"><b>시간 미정 ${U.length}반</b><div class="tt-unl">${U.map(c=>cardH(c)).join('')}</div></div>`:'';
+    return `${un}<div class="tt-gw${big?' big':''}"><table class="tt-g2" style="width:calc(64px + ${cols.length} * var(--cw))"><colgroup><col style="width:64px">${cols.map(()=>'<col style="width:var(--cw)">').join('')}</colgroup><thead>${head}</thead><tbody>${body}</tbody></table></div>`};
   let body;
   if(S.ttTime&&can){const rooms=[...new Set(L.map(c=>c.room))];body=`<div class="tt-tl">${rooms.map(r=>`<div class="tt-tr"><b>${esc(r)}</b>${L.filter(c=>c.room===r).map(c=>`<label class="tt-ti"><input class="in sm" data-tttm="${c.i}" value="${esc(c.time||'')}" placeholder="--:--" inputmode="numeric"><span>${esc(c.name)}</span><small>${esc(c.teacher)} · ${esc(c.days)}</small></label>`).join('')}</div>`).join('')}</div><p class="muted tt-hint">시작 시간만 적으면 됩니다(예: 1400 → 14:00). 엔터를 누르면 다음 반으로 넘어갑니다. 다음 달에 같은 반(과목·강의실·강사·요일)이 오면 시간이 그대로 따라옵니다.</p>`}
   else body=grid(L,false);
