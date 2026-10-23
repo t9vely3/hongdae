@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-151651';
+window.OPS_BUILD = '20261023-152640';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3947,10 +3947,9 @@ function stuFind(it){const docs=ttDocs();const L=[];docs.forEach(k=>(S.callsAll[
   let cand=card?L.filter(c=>c.name===card.name&&c.room===card.room&&c.teacher===card.teacher&&c.start===card.start&&c.days===card.days):L.filter(c=>c.name===(nm||'')&&(!it.head?.start||c.start===it.head.start));
   if(cand.length>1){const t=it.card?.time||it.head?.time||'';const byT=cand.filter(c=>c.time===t);if(byT.length)cand=byT}
   return cand[0]||null}
-async function stuSave(items){const out={ok:0,miss:[]};for(const it of items){const c=stuFind(it);if(!c){out.miss.push(it.head?.name||(it.card?.text||'').split('\n')[0]);continue}
-    const rows=(it.rows||[]).map(r=>({c:r.map(x=>String(x??''))}));
-    await A.fdb.collection('ops_students').doc(stuKey(c.id)).set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols:(it.cols||[]).map(String),rows,at:kstNow(),by:logWho()});
-    delete STU[stuKey(c.id)];out.ok++}
+async function stuSave(items){const out={ok:0,miss:[]};const W=[];for(const it of items){const c=stuFind(it);if(!c){out.miss.push(it.head?.name||(it.card?.text||'').split('\n')[0]);continue}
+    const rows=(it.rows||[]).map(r=>({c:r.map(x=>String(x??''))}));W.push({c,rows,cols:(it.cols||[]).map(String)})}
+  for(let i=0;i<W.length;i+=10){await Promise.all(W.slice(i,i+10).map(({c,rows,cols})=>A.fdb.collection('ops_students').doc(stuKey(c.id)).set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols,rows,at:kstNow(),by:logWho()}).then(()=>{delete STU[stuKey(c.id)];out.ok++})))}
   logAdd('tt',[`수강생 목록 최신화: ${out.ok}반${out.miss.length?` · 못 찾은 반 ${out.miss.length}`:''}`]);return out}
 function stuHtml(pk){if(!stuView())return '';const full=ttCan();const k=stuKey(pk.id);stuLoad(pk.id);const D=STU[k];
   if(D==='loading'||D===undefined)return '<div class="stu"><b>수강생</b><p class="muted">불러오는 중…</p></div>';
