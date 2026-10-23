@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-134524';
+window.OPS_BUILD = '20261023-134934';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2937,6 +2937,7 @@ function startData(){
   db.collection('months').onSnapshot(snap=>{
     const next={};snap.docs.forEach(d=>{if(d.exists)next[d.id]=d.data()});
     const prevDoc=S.id?S.months[S.id]:null;S.months=next;gotM=true;
+    {const sp9=next['2026-09'];if(sp9&&sp9.period&&sp9.period.end==='2026-10-19'){sp9.period={...sp9.period,end:'2026-10-18'};if(!S.fix918&&canAny()){S.fix918=true;try{db.doc('months/2026-09').set({period:sp9.period},{merge:true})}catch(_){}}}}
     if(!booted)return boot();
     if(!S.id||!next[S.id]){const ids=Object.keys(next).sort();pickDoc(ids[ids.length-1]||null);render()}
     else if(JSON.stringify(next[S.id])!==JSON.stringify(prevDoc)){if(S.dirtyM){if(next[S.id].updatedAt!==S.doc.updatedAt){S.remoteNewer=true;render()}}else{pickDoc(S.id);S.keepScroll=true;render()}}
