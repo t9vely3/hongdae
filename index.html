@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-141428';
+window.OPS_BUILD = '20261023-141946';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3092,7 +3092,7 @@ const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${Stri
 const hms=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
 function callRoster(){const t=S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT;return t.split(/\r?\n/).map(l=>l.trim().split(/\s+/)).filter(a=>a.length>=3).map(a=>({team:a[0],rank:a.slice(1,-1).join(' '),name:a[a.length-1]}))}
 function callsSub(){if(S.callsSub||!S.db)return;S.callsSub=true;S.callsAll=S.callsAll||{};
-  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;if(S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
+  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;S.callsLoaded=true;if(S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
 async function callsWrite(id,patch){
   S.callsAll=S.callsAll||{};const cur=S.callsAll[id]||{};
   const merged={...cur,...patch,rows:{...(cur.rows||{}),...Object.fromEntries(Object.entries(patch.rows||{}).map(([n,v])=>[n,{...(cur.rows?.[n]||{}),...v}]))},updatedAt:new Date().toISOString().slice(0,19)};
@@ -3909,6 +3909,22 @@ document.addEventListener('dragover',e=>{if(S.tab==='tt'&&e.dataTransfer?.types?
 document.addEventListener('dragleave',e=>{if(!e.relatedTarget)document.body.classList.remove('tt-drop')});
 document.addEventListener('drop',e=>{if(S.tab!=='tt')return;const f=e.dataTransfer?.files?.[0];document.body.classList.remove('tt-drop');if(!f)return;e.preventDefault();ttFile(f)});
 document.addEventListener('change',function(e){if(e.target.id==='ttFileIn'){ttFile(e.target.files[0]);e.target.value=''}});
+
+/* 그룹웨어 확장 프로그램(유저스크립트)에서 보낸 시간표 받기 */
+let TT_IN=null;const TT_DONE={};
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-tt-push')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
+  if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-tt-ack',id:d.id,...m},e.origin)}catch(_){}};
+  if(TT_DONE[d.id])return reply(TT_DONE[d.id]);if(TT_IN&&TT_IN.d.id===d.id){TT_IN.reply=reply;return}TT_IN={d,reply};ttTakeIn()});
+function ttTakeIn(){const J=TT_IN;if(!J)return;if(J.busy)return;
+  if(!S.db||typeof A==='undefined'||!A.prof){J.reply({ok:false,wait:true,msg:'운영계획표 로그인을 기다리는 중입니다'});return setTimeout(ttTakeIn,1000)}
+  callsSub();if(!S.callsLoaded)return setTimeout(ttTakeIn,500);
+  if(!ttCan()){const r={ok:false,msg:'이 계정은 시간표를 고칠 권한이 없습니다'};TT_DONE[J.d.id]=r;TT_IN=null;J.reply(r);toast(r.msg);return}
+  J.busy=true;const d=J.d;const items=[];
+  (d.cards||[]).forEach(x=>{const one=ttParse(x.text).list[0];if(!one)return;one.time=x.time||'';one.end2=x.end||'';one.xl=1;one._o=[x.top||0,x.left||0];items.push(one)});
+  if(!items.length){const r={ok:false,msg:'보낸 내용에서 반을 찾지 못했습니다'};TT_DONE[d.id]=r;TT_IN=null;J.reply(r);return}
+  items.sort((a,b)=>a.room.localeCompare(b.room)||a._o[0]-b._o[0]||a._o[1]-b._o[1]);
+  const seen={};items.forEach(c=>{delete c._o;const b=[c.name,c.room,c.teacher,c.days].join('|');seen[b]=(seen[b]||0)+1;c.k2=b+'#'+seen[b];c.id=c.k2+'|'+c.start});
+  ttImportList({period:d.period||null,list:items},'확장 프로그램').then(()=>{const r={ok:true,msg:`${items.length}반을 운영계획표에 반영했습니다`};TT_DONE[d.id]=r;TT_IN=null;J.reply(r);S.tab='tt';S.ttId=null;S.ttMode='cyc';try{ls.set('tab','tt')}catch(_){}render()}).catch(err=>{const r={ok:false,msg:'저장하지 못했습니다: '+(err?.message||'오류')};TT_DONE[d.id]=r;TT_IN=null;J.reply(r)})}
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
