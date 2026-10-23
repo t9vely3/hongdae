@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="light" style="color-scheme:light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-132920';
+window.OPS_BUILD = '20261023-133605';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -25,6 +25,8 @@ window.OPS_FIREBASE = {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<meta name="color-scheme" content="light only">
+<script>document.documentElement.setAttribute('data-theme','light');document.documentElement.style.colorScheme='light'</script>
 <style>
 
 /* Layout: 홈페이지형. 흰 상단 헤더(로고·가로 메뉴·월 선택) → 페이지마다 연한 색 띠의 머리(큰 제목+하위 탭) → 1160px 본문.
@@ -1927,6 +1929,10 @@ body.tt-drop #b-ttin{outline:3px dashed var(--ink);outline-offset:4px}
 .tt-gw.big .tt-nm{font-size:calc(15px*var(--z,1))}.tt-gw.big .tt-l{font-size:calc(13px*var(--z,1))}.tt-gw.big .tt-as{font-size:calc(14.5px*var(--z,1))}
 .tt-gw{--cw:170px}.tt-gw.big{--cw:calc(190px*var(--z,1))}
 .tt-rg{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px}.tt-rg input{width:140px}
+:root,html{color-scheme:light only!important}
+
+.tt-cy{display:inline-flex;align-items:center;gap:4px}.tt-cy select{min-width:210px;font-weight:700}
+.tt-mode button{white-space:nowrap}
 
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
@@ -3797,25 +3803,31 @@ async function ttImportList(r,src){
   const gone=old.filter(o=>kinds.has(ttWeekend(o))&&!classes.some(c=>c.id===o.id)).length;
   logAdd('tt',[`${per.a} ~ ${per.z||''} 시간표 ${src}: ${classes.length}반${old.length?` · 배정인원 바뀐 반 ${ch} · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:''}`]);
   const mc={};classes.forEach(c=>{const m=String(c.start||'').slice(0,7);if(m)mc[m]=(mc[m]||0)+1});const month=(Object.entries(mc).sort((a,b)=>b[1]-a[1])[0]||[String(per.a).slice(0,7)])[0];
-  S.ttId=month;
+  {const n={};classes.forEach(c=>{if(c.start)n[c.start]=(n[c.start]||0)+1});S.ttId=(Object.entries(n).sort((a,b)=>b[1]-a[1])[0]||[per.a])[0];S.ttMode='cyc'}
   await callsWrite(id,{period:per,classes,month,at:kstNow(),by:logWho()});
   toast(old.length?`배정인원 ${ch}반 바뀜 · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:`${classes.length}반을 불러왔습니다`);S.keepScroll=true;render()}
 function ttSave(id,fn,msg){const d=clone(S.callsAll[id]);fn(d.classes);if(msg)logAdd('tt',[msg]);callsWrite(id,{classes:d.classes}).then(()=>{S.keepScroll=true;render()})}
 function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';const ids=ttDocs();const can=ttCan();
   const ALL={};ids.forEach(k=>(S.callsAll[k].classes||[]).forEach((c,i)=>{ALL[c.id]={...c,i,_d:k}}));const AL=Object.values(ALL);
-  const months=[...new Set(AL.map(c=>String(c.start||'').slice(0,7)).filter(Boolean))].sort();
-  if(S.ttId!=='range'&&!months.includes(S.ttId))S.ttId=months.includes(todayIso().slice(0,7))?todayIso().slice(0,7):months[months.length-1];
+  const mode=arr=>{const n={};arr.forEach(x=>{if(x)n[x]=(n[x]||0)+1});return (Object.entries(n).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))[0]||[''])[0]};
+  const byM={};AL.forEach(c=>{const m=String(c.start||'').slice(0,7);if(m)(byM[m]=byM[m]||[]).push(c)});
+  const anchors=[...new Set(Object.keys(byM).map(m=>mode(byM[m].map(c=>c.start))))].sort();
+  const cycOf=c=>{let a=anchors[0];anchors.forEach(x=>{if(x<=c.start)a=x});return a};
+  const cycles=anchors.map(a=>{const items=AL.filter(c=>cycOf(c)===a);return {a,z:mode(items.map(c=>c.end)),n:items.length}});
+  const yy=d=>d?String(d).slice(2).replace(/-/g,'.'):'';const clab=c=>`${yy(c.a)} ~ ${yy(c.z)}`;
+  if(!anchors.includes(S.ttId)){const t=S.ttId&&/^\d{4}-\d{2}-\d{2}$/.test(S.ttId)?S.ttId:todayIso();S.ttId=(cycles.find(c=>c.a<=t&&t<=c.z)||[...cycles].reverse().find(c=>c.a<=t)||cycles[cycles.length-1]||{}).a}
   const pasteCard=can?card('ttin','강의시간표 불러오기 (편집 권한자만 보임)','가장 쉬운 방법: 그룹웨어 강의시간표에서 엑셀로 내려받은 파일을 이 화면에 끌어다 놓으세요. 시간까지 자동으로 들어갑니다. 같은 반은 배정인원만 새 숫자로 바뀌고 메모는 그대로 남습니다.',`<div class="tt-file"><label class="btn primary">${icx('plus')}엑셀 파일 고르기<input type="file" id="ttFileIn" accept=".xlsx,.xls" hidden></label><span class="muted">또는 파일을 화면 아무 곳에 끌어다 놓기 · 화면을 복사(Ctrl+A → Ctrl+C)해 붙여넣어도 됩니다(이때는 시간 없이 배정인원만)</span></div>`):'';
   if(!S.ttId)return head+'<div class="empty-state" style="margin-top:24px">아직 불러온 시간표가 없습니다.</div>'+pasteCard;
-  const RG=S.ttId==='range';if(RG)S.ttTime=false;const R_=S.ttR||(S.ttR={a:todayIso(),b:addDays(todayIso(),6)});
+  const RG=S.ttMode==='range';if(RG)S.ttTime=false;const cyc=cycles.find(c=>c.a===S.ttId)||{};const R_=S.ttR||(S.ttR={a:todayIso(),b:addDays(todayIso(),6)});
   const per=RG?{a:R_.a,z:R_.b}:{};const F=S.ttF||(S.ttF={wk:'wd',st:'',q:''});
-  const all=RG?AL.filter(c=>c.start&&c.end&&c.start<=R_.b&&c.end>=R_.a):AL.filter(c=>String(c.start).slice(0,7)===S.ttId);
+  const all=RG?AL.filter(c=>c.start&&c.end&&c.start<=R_.b&&c.end>=R_.a):AL.filter(c=>cycOf(c)===S.ttId);
   const lastD=S.callsAll[[...new Set(all.map(c=>c._d))].sort().pop()]||{};const inTab=all.filter(c=>(F.wk==='we')===ttWeekend(c));
   const q=F.q.trim();const L=inTab.filter(c=>(!F.st||ttSt(c.st)[1]===F.st)&&(!q||[c.name,c.teacher,c.room,c.memo,c.note].join(' ').includes(q))&&(S.ttHid||!c.hide));
   const sum=k=>inTab.reduce((n,c)=>n+(+c[k]||0),0);const cntSt=k=>inTab.filter(c=>ttSt(c.st)[1]===k).length;
   const md2=x=>x?String(x).slice(5).replace('-','/'):'';
-  const mlab=m=>`${m.slice(0,4)}년 ${+m.slice(5)}월 개강`;
-  const sel=`<select class="in sm" id="ttPer">${months.map(m=>`<option value="${m}" ${m===S.ttId?'selected':''}>${mlab(m)} · ${AL.filter(c=>String(c.start).slice(0,7)===m).length}반</option>`).join('')}<option value="range" ${RG?'selected':''}>기간으로 보기 (모든 달에서 찾기)</option></select>${RG?`<span class="tt-rg"><input type="date" class="in sm" id="ttRa" value="${R_.a}"><span>~</span><input type="date" class="in sm" id="ttRb" value="${R_.b}"><button type="button" class="btn xs" data-ttrq="0">오늘</button><button type="button" class="btn xs" data-ttrq="7">이번 주</button><button type="button" class="btn xs" data-ttrq="30">한 달</button></span>`:''}`;
+  const ci=cycles.findIndex(c=>c.a===S.ttId);
+  const sel=`<div class="seg tt-mode"><button type="button" class="${!RG?'on':''}" data-ttmode="cyc">개강 기간별</button><button type="button" class="${RG?'on':''}" data-ttmode="range">기간으로 찾기</button></div>`+(RG?`<span class="tt-rg"><input type="date" class="in sm" id="ttRa" value="${R_.a}"><span>~</span><input type="date" class="in sm" id="ttRb" value="${R_.b}"><button type="button" class="btn xs" data-ttrq="0">오늘</button><button type="button" class="btn xs" data-ttrq="7">이번 주</button><button type="button" class="btn xs" data-ttrq="30">한 달</button></span>`
+    :`<span class="tt-cy"><button type="button" class="ib" data-ttstep="-1" ${ci<=0?'disabled':''} aria-label="이전 기간">${icx('left')}</button><select class="in sm" id="ttPer" title="↑↓ 키로 바로 바꿀 수 있습니다">${cycles.map(c=>`<option value="${c.a}" ${c.a===S.ttId?'selected':''}>${clab(c)} · ${c.n}반</option>`).join('')}</select><button type="button" class="ib" data-ttstep="1" ${ci>=cycles.length-1?'disabled':''} aria-label="다음 기간">${icx('right')}</button></span>`);
   const tools=`<div class="tt-bar">${sel}<div class="seg">${[['wd','평일'],['we','주말']].map(([k,l])=>`<button type="button" class="${F.wk===k?'on':''}" data-ttf="wk|${k}">${l} ${all.filter(c=>(k==='we')===ttWeekend(c)).length}</button>`).join('')}</div>
     <div class="tt-chips"><button type="button" class="${!F.st?'on':''}" data-ttf="st|">전체</button>${TT_ST.slice(0,4).map(([l,k,col])=>`<button type="button" class="${F.st===k?'on':''}" data-ttf="st|${k}"><i style="background:${col}"></i>${l} ${cntSt(k)}</button>`).join('')}</div>
     <input class="in sm" id="ttQ" placeholder="과목·강사 찾기" value="${esc(F.q)}">${can&&!RG?`<button type="button" class="btn sm${S.ttTime?' primary':''}" data-tttime="1">${S.ttTime?'시간 다 정했어요':'시간 정하기'}</button>`:''}</div>
@@ -3849,7 +3861,7 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
     <div class="tt-chips">${TT_ST.slice(0,4).map(([l,k,col])=>`<span class="tb-lg"><i style="background:${col}"></i>${l}</span>`).join('')}</div><span class="sp"></span>
     <button type="button" class="btn sm" data-ttzoom="-1">작게</button><button type="button" class="btn sm" data-ttzoom="1">크게</button><button type="button" class="btn sm primary" data-ttbig="0">닫기 (Esc)</button></div>${grid(L,true)}</div>`:'';
   const hidN=inTab.filter(c=>c.hide).length;
-  return head+card('ttv',RG?`${md2(R_.a)} ~ ${md2(R_.b)} 강의시간표`:`${mlab(S.ttId)} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 반을 누르면 크게 자세히 봅니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide',right:`<button type="button" class="btn sm primary" data-ttbig="1">${icx('arrow')}크게 보기</button>`})+pasteCard+bigOvl+pop;
+  return head+card('ttv',RG?`${md2(R_.a)} ~ ${md2(R_.b)} 수업 중인 반`:`${clab(cyc)} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 반을 누르면 크게 자세히 봅니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide',right:`<button type="button" class="btn sm primary" data-ttbig="1">${icx('arrow')}크게 보기</button>`})+pasteCard+bigOvl+pop;
 }
 const ttTime=v=>{v=String(v||'').replace(/[^\d:]/g,'');if(!v)return '';if(/^\d{3,4}$/.test(v))v=v.padStart(4,'0').replace(/(\d\d)(\d\d)/,'$1:$2');const m=v.match(/^(\d{1,2}):?(\d{2})?$/);if(!m)return '';return `${m[1].padStart(2,'0')}:${m[2]||'00'}`};
 function ttAct(d){
@@ -3859,13 +3871,15 @@ function ttAct(d){
   if(d.tthid){S.ttHid=!S.ttHid;S.keepScroll=true;render();return true}
   if(d.ttbig!=null){S.ttBig=d.ttbig==='1';S.keepScroll=true;render();return true}
   if(d.ttzoom){S.ttZoom=Math.max(.7,Math.min(1.8,Math.round(((S.ttZoom||1)+(+d.ttzoom)*.15)*100)/100));S.keepScroll=true;render();return true}
+  if(d.ttmode){S.ttMode=d.ttmode;S.keepScroll=true;render();return true}
+  if(d.ttstep){const o=[...document.querySelectorAll('#ttPer option')].map(x=>x.value);const i=o.indexOf(S.ttId)+(+d.ttstep);if(o[i]){S.ttId=o[i];S.keepScroll=true;render()}return true}
   if(d.ttrq!=null){const n=+d.ttrq;S.ttR={a:todayIso(),b:addDays(todayIso(),n?n-1:0)};S.keepScroll=true;render();return true}
   if(d.ttpick!=null){if(S.ttTime)return true;S.ttPick=d.ttpick;S.keepScroll=true;render();setTimeout(()=>$('#ttPT')?.focus(),30);return true}
   if(d.ttpx){S.ttPick=null;S.keepScroll=true;render();return true}
   if(d.ttpsave!=null){const [dd,ii]=sp(d.ttpsave);const i=+ii;const t=ttTime($('#ttPT').value),n=$('#ttPN').value.trim(),h=$('#ttPH').checked;const c=S.callsAll[dd].classes[i];S.ttPick=null;ttSave(dd,L=>{L[i].time=t;L[i].note=n;L[i].hide=h},`${c.name}(${c.room}·${c.teacher}) 시간 ${t||'미정'}${n?' · 메모 '+n:''}${h?' · 숨김':''}`);return true}
   return false}
 document.addEventListener('change',function(e){const t=e.target;
-  if(t.id==='ttPer'){S.ttId=t.value;S.keepScroll=true;render();return}
+  if(t.id==='ttPer'){S.ttId=t.value;S.keepScroll=true;render();setTimeout(()=>$('#ttPer')?.focus(),0);return}
   if(t.id==='ttQ'){S.ttF.q=t.value;S.keepScroll=true;render();return}
   if((t.id==='ttRa'||t.id==='ttRb')&&t.value){const k_=t.id==='ttRa'?'a':'b';S.ttR[k_]=t.value;if(S.ttR.a>S.ttR.b){if(k_==='a')S.ttR.b=S.ttR.a;else S.ttR.a=S.ttR.b}S.keepScroll=true;render();return}
   if(t.dataset&&t.dataset.tttm!=null){const [dd,ii]=sp(t.dataset.tttm);const i=+ii;const v=ttTime(t.value);t.value=v;const c=S.callsAll[dd].classes[i];if((c.time||'')===v)return;const d=clone(S.callsAll[dd]);d.classes[i].time=v;S.callsAll[dd]=d;logAdd('tt',[`${c.name}(${c.room}·${c.teacher}) 시간 ${v||'미정'}`]);callsWrite(dd,{classes:d.classes})}});
