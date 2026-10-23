@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-155110';
+window.OPS_BUILD = '20261023-172411';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1956,6 +1956,10 @@ body:has(#ttOvl),body:has(#ttBig){overflow:hidden}
 .stu-ov{display:inline-block;margin-left:6px;padding:0 6px;border-radius:999px;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:800;line-height:18px;vertical-align:middle}
 .stu-t tr.ov td{background:#fff5f5;color:#991b1b}
 
+/* 모집저조 */
+.tt-lowt{display:inline-block;margin:2px auto 0;padding:0 6px;border-radius:999px;background:#ffedd5;color:#c2410c;font-size:10.5px;font-weight:800;line-height:17px}
+.tt-sum .tt-lows{color:#c2410c}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3816,6 +3820,8 @@ function ttParse(text){const L=String(text||'').split(/\r?\n/).map(x=>x.trim());
   return {period,list:out}}
 function ttMonth(id){const D=S.callsAll?.[id];if(!D)return '';if(D.month)return D.month;const cnt={};(D.classes||[]).forEach(c=>{const m=String(c.start||'').slice(0,7);if(m)cnt[m]=(cnt[m]||0)+1});const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];return top?top[0]:String(D.period?.a||'').slice(0,7)}
 const ttDocs=()=>Object.keys(S.callsAll||{}).filter(k=>k.startsWith('_tt_')).sort();
+/* 모집저조: 정원 대비 배정 30% 미만 (폐강 제외) */
+const ttLow=c=>(+c.cap||0)>0&&(+c.cnt||0)<(+c.cap)*0.3&&ttSt(c.st)[1]!=='closed';
 const ttWeekend=c=>/[토일]/.test(c.days||'')&&!/[월화수목금]/.test(c.days||'');
 function ttCan(){return CAN()}
 async function ttImport(text){const r=ttParse(text);if(!r.list.length){toast('붙여넣은 내용에서 반을 찾지 못했습니다. 그룹웨어 강의시간표 화면에서 Ctrl+A → Ctrl+C 한 내용인지 확인해 주세요.');return}return ttImportList(r,'붙여넣기')}
@@ -3854,19 +3860,19 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
   const per=RG?{a:R_.a,z:R_.b}:{};const F=S.ttF||(S.ttF={wk:'wd',st:'',q:''});
   const all=RG?AL.filter(c=>c.start&&c.end&&c.start<=R_.b&&c.end>=R_.a):AL.filter(c=>cycOf(c)===S.ttId);
   const lastD=S.callsAll[[...new Set(all.map(c=>c._d))].sort().pop()]||{};const inTab=all.filter(c=>(F.wk==='we')===ttWeekend(c));
-  const q=F.q.trim();const L=inTab.filter(c=>(!F.st||ttSt(c.st)[1]===F.st)&&(!q||[c.name,c.teacher,c.room,c.memo,c.note].join(' ').includes(q))&&(S.ttHid||!c.hide));
+  const q=F.q.trim();const L=inTab.filter(c=>(!F.st||(F.st==='low'?ttLow(c):ttSt(c.st)[1]===F.st))&&(!q||[c.name,c.teacher,c.room,c.memo,c.note].join(' ').includes(q))&&(S.ttHid||!c.hide));
   const sum=k=>inTab.reduce((n,c)=>n+(+c[k]||0),0);const cntSt=k=>inTab.filter(c=>ttSt(c.st)[1]===k).length;
   const md2=x=>x?String(x).slice(5).replace('-','/'):'';
   const ci=cycles.findIndex(c=>c.a===S.ttId);
   const sel=`<div class="seg tt-mode"><button type="button" class="${!RG?'on':''}" data-ttmode="cyc">개강 기간별</button><button type="button" class="${RG?'on':''}" data-ttmode="range">기간으로 찾기</button></div>`+(RG?`<span class="tt-rg"><input type="date" class="in sm" id="ttRa" value="${R_.a}"><span>~</span><input type="date" class="in sm" id="ttRb" value="${R_.b}"><button type="button" class="btn xs" data-ttrq="0">오늘</button><button type="button" class="btn xs" data-ttrq="7">이번 주</button><button type="button" class="btn xs" data-ttrq="30">한 달</button></span>`
     :`<span class="tt-cy"><button type="button" class="ib" data-ttstep="-1" ${ci<=0?'disabled':''} aria-label="이전 기간">${icx('left')}</button><select class="in sm" id="ttPer" title="↑↓ 키로 바로 바꿀 수 있습니다">${cycles.map(c=>`<option value="${c.a}" ${c.a===S.ttId?'selected':''}>${clab(c)} · ${c.n}반</option>`).join('')}</select><button type="button" class="ib" data-ttstep="1" ${ci>=cycles.length-1?'disabled':''} aria-label="다음 기간">${icx('right')}</button></span>`);
   const tools=`<div class="tt-bar">${sel}<div class="seg">${[['wd','평일'],['we','주말']].map(([k,l])=>`<button type="button" class="${F.wk===k?'on':''}" data-ttf="wk|${k}">${l} ${all.filter(c=>(k==='we')===ttWeekend(c)).length}</button>`).join('')}</div>
-    <div class="tt-chips"><button type="button" class="${!F.st?'on':''}" data-ttf="st|">전체</button>${TT_ST.slice(0,4).map(([l,k,col])=>`<button type="button" class="${F.st===k?'on':''}" data-ttf="st|${k}"><i style="background:${col}"></i>${l} ${cntSt(k)}</button>`).join('')}</div>
+    <div class="tt-chips"><button type="button" class="${!F.st?'on':''}" data-ttf="st|">전체</button>${TT_ST.slice(0,4).map(([l,k,col])=>`<button type="button" class="${F.st===k?'on':''}" data-ttf="st|${k}"><i style="background:${col}"></i>${l} ${cntSt(k)}</button>`).join('')}<button type="button" class="tt-lowb${F.st==='low'?' on':''}" data-ttf="st|${F.st==='low'?'':'low'}" title="정원 대비 배정인원이 30% 미만인 반 (폐강 제외)"><i style="background:#ea580c"></i>모집저조 ${inTab.filter(ttLow).length}</button></div>
     <input class="in sm" id="ttQ" placeholder="과목·강사 찾기" value="${esc(F.q)}">${gukN?`<button type="button" class="btn sm${S.ttGuk?' primary':''}" data-ttguk="1">국비 ${gukN}반 ${S.ttGuk?'빼기':'함께 보기'}</button>`:''}${can&&!RG?`<button type="button" class="btn sm${S.ttTime?' primary':''}" data-tttime="1">${S.ttTime?'시간 다 정했어요':'시간 정하기'}</button>`:''}</div>
-    <div class="tt-sum"><span>반 <b>${inTab.length}</b></span><span>정원 <b>${sum('cap')}</b></span><span>배정 <b>${sum('cnt')}</b></span><span class="red">초과 <b>${cntSt('over')}</b></span><span>폐강 <b>${cntSt('closed')}</b></span><span class="muted">${RG?`${md2(R_.a)} ~ ${md2(R_.b)} 사이에 수업이 있는 반 (개강·종강일 기준, 가장 최근에 불러온 숫자)`:`${esc(lastD.by||'')} · ${esc(String(lastD.at||'').replace('T',' ').slice(5))} 불러옴`}</span></div>`;
+    <div class="tt-sum"><span>반 <b>${inTab.length}</b></span><span>정원 <b>${sum('cap')}</b></span><span>배정 <b>${sum('cnt')}</b></span><span class="red">초과 <b>${cntSt('over')}</b></span><span>폐강 <b>${cntSt('closed')}</b></span><span class="tt-lows">모집저조 <b>${inTab.filter(ttLow).length}</b></span><span class="muted">${RG?`${md2(R_.a)} ~ ${md2(R_.b)} 사이에 수업이 있는 반 (개강·종강일 기준, 가장 최근에 불러온 숫자)`:`${esc(lastD.by||'')} · ${esc(String(lastD.at||'').replace('T',' ').slice(5))} 불러옴`}</span></div>`;
   const tm=t=>{const [h,m]=String(t).split(':').map(Number);return h*60+(m||0)};const fm=x=>`${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
   const cardH=(c,rs)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
-    return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" data-ttpick="${c._d}|${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>
+    return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" data-ttpick="${c._d}|${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>${ttLow(c)?`<span class="tt-lowt">모집저조 ${Math.round((+c.cnt||0)/(+c.cap)*100)}%</span>`:''}
       <div class="tt-l">정원 : ${c.cap}</div><div class="tt-l tt-as">배정 : ${c.cnt}${c.extra?` <em>${esc(c.extra)}</em>`:''}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
       <div class="tt-l">${esc(c.teacher||'-')}</div><div class="tt-l">${esc(c.days)}${c.time?` · <b>${esc(c.time)}~${esc(c.tend||fm(tm(c.time)>=1140?1320:tm(c.time)+120))}</b>`:''}</div><div class="tt-l tt-sm">개:${esc(c.start)}</div><div class="tt-l tt-sm">종:${esc(c.end)}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
   const grid=(L,big)=>{if(!L.length)return '<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>';
