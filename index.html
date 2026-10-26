@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261023-172411';
+window.OPS_BUILD = '20261026-095003';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1960,6 +1960,18 @@ body:has(#ttOvl),body:has(#ttBig){overflow:hidden}
 .tt-lowt{display:inline-block;margin:2px auto 0;padding:0 6px;border-radius:999px;background:#ffedd5;color:#c2410c;font-size:10.5px;font-weight:800;line-height:17px}
 .tt-sum .tt-lows{color:#c2410c}
 
+/* 메뉴: 전체 · 사업부 */
+.nl.nl-b{margin-left:14px;color:#b45309!important;background:#fef3c7!important;border-radius:6px;padding:2px 8px!important}
+.na-btn{font-weight:800!important}.na-btn.on{background:var(--ink)!important;color:#fff!important}
+.nav-all{position:fixed;inset:0;z-index:400;background:rgba(10,16,30,.35);display:flex;justify-content:center;align-items:flex-start;padding:90px 16px 16px}
+.na-in{background:var(--surface,#fff);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.25);padding:20px;display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:18px;max-width:760px;width:100%}
+.na-g{display:flex;flex-direction:column;gap:4px}
+.na-g>b{font-size:12px;color:var(--muted);letter-spacing:.04em;padding:0 8px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.na-g button{display:flex;align-items:center;gap:8px;height:38px!important;padding:0 10px!important;border-radius:10px;border:0;background:none;font-size:14px!important;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;width:100%}
+.na-g button:hover{background:var(--soft,#f1f3f6)}.na-g button[aria-current="true"]{background:var(--ink);color:#fff}
+.na-g button svg{width:16px;height:16px;flex:none}
+@media (max-width:640px){.na-in{grid-template-columns:1fr}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2263,7 +2275,10 @@ function renderChrome(){
 const NAVL={today:'홈',edu:'교육',ops:'운영부',sales:'영업',rules:'규정'};
 function renderNav(){
   const [m,c]=NAV;const it=(k,cls)=>`<button type="button" data-tab="${k}" class="${cls}" aria-current="${S.tab===k}">${I(ICON[k])}<span>${PAGES[k].label}</span></button>`;
-  $('#nav').innerHTML=`<div class="ng"><span class="nl">운영계획</span>${m[2].map(k=>it(k,'m')).join('')}</div><div class="ng c"><span class="nl">내용</span>${c[2].map(k=>it(k,'c')).join('')}${logCan()?it('log','c lg'):''}</div>`;
+  const BIZ=['calls','tt'];const mm=m[2].filter(k=>!BIZ.includes(k)),cc=[...c[2],...(logCan()?['log']:[])];
+  const grp=[['운영계획',mm],['내용',cc],['사업부',BIZ]];
+  const all=S.navAll?`<div class="nav-all" role="dialog" aria-label="전체 메뉴"><div class="na-in">${grp.map(([l,ks])=>`<div class="na-g"><b>${l}</b>${ks.map(k=>`<button type="button" data-tab="${k}" aria-current="${S.tab===k}">${I(ICON[k])}<span>${PAGES[k].label}</span></button>`).join('')}</div>`).join('')}</div></div>`:'';
+  $('#nav').innerHTML=`<div class="ng"><button type="button" class="m na-btn${S.navAll?' on':''}" data-navall="1" aria-expanded="${!!S.navAll}">${icx('list')}<span>전체</span></button><span class="nl">운영계획</span>${mm.map(k=>it(k,'m')).join('')}</div><div class="ng c"><span class="nl">내용</span>${c[2].map(k=>it(k,'c')).join('')}${logCan()?it('log','c lg'):''}<span class="nl nl-b">사업부</span>${BIZ.map(k=>it(k,'c b')).join('')}</div>${all}`;
 }
 function subTabs(tab,counts={}){
   const p=PAGES[tab];if(!p.subs)return '';const cur=curSub(tab);
@@ -3442,7 +3457,8 @@ function act(t){
   if(d.rand){if(!CAN())return true;S.rand=d.rand;S.pop=null;S.keepScroll=true;render();return true}
   if(d.randx){S.rand=null;S.keepScroll=true;render();return true}
   if(d.randgo){const [k,mode]=sp(d.randgo);S.edit=true;S.rand=null;let r;mutate(()=>{r=autoFill(k,{days:[1,2,3,4,5],groups:[...GROUPS],mode,skipHol:true,weekend:k==='duty'})});toast(r.n||r.wk?`${r.n}일 배치 · 조별 ${r.min}~${r.max}회${r.wk?` · 주말 ${r.wk}일 지원`:''} · 저장을 눌러 확정`:'채울 빈 날이 없습니다');return true}
-  if(d.tab){document.body.classList.remove('sb-open');S.pop=null;S.showRevs=false;if(d.tab==='tt'){S.ttId=null;S.ttMode='cyc'}S.rand=null;S.tab=d.tab;ls.set('tab',S.tab);S.msg=null;S.confirm=null;S.panel=null;render();scrollTo(0,0);return true}
+  if(d.navall){S.navAll=!S.navAll;renderNav();return true}
+  if(d.tab){S.navAll=false;document.body.classList.remove('sb-open');S.pop=null;S.showRevs=false;if(d.tab==='tt'){S.ttId=null;S.ttMode='cyc'}S.rand=null;S.tab=d.tab;ls.set('tab',S.tab);S.msg=null;S.confirm=null;S.panel=null;render();scrollTo(0,0);return true}
   if(d.sub){S.pop=null;const [p,k]=sp(d.sub);S.sub[p]=k;ls.set('subs',JSON.stringify(S.sub));S.confirm=null;S.keepScroll=true;render();return true}
   if(d.goto){const [k,x]=sp(d.goto);S.pop=null;S.cm=x.slice(0,7);S.tab=k;ls.set('tab',k);if(GK[k]){S.rsel[k]=x;S.rv[k]=null;S.sub[k]='cal'}else{S.csel[k]=x;if(k==='ops')S.sub.ops='cal'}render();scrollTo(0,0);return true}
   if(d.date){S.date=d.date;if(S.tab!=='today'){S.tab='today';ls.set('tab','today');scrollTo(0,0)}render();return true}
@@ -4127,6 +4143,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#msw')){$('#mMenu').hidden=true;$('#mBtn').setAttribute('aria-expanded','false')}
   if(e.target.id==='sbScrim'){document.body.classList.remove('sb-open');return}
   if(e.target.id==='ovl'){S.rand=null;S.keepScroll=true;render();return}
+  if(e.target.classList&&e.target.classList.contains('nav-all')){S.navAll=false;renderNav();return}
   if(e.target.id==='ttOvl'){S.ttPick=null;S.keepScroll=true;render();return}
   if(e.target.id==='revsOvl'){S.showRevs=false;S.keepScroll=true;render();return}
   const closing=!!S.pop&&!e.target.closest('#pop,[data-pop]');if(closing)S.pop=null;
@@ -4157,6 +4174,7 @@ document.addEventListener('keydown',e=>{
   const mod=e.ctrlKey||e.metaKey,inField=e.target.closest?.('input,textarea,[contenteditable]');
   if(e.key==='Escape'&&D){endDrag(false);return}
   if(asgActive()&&!inField&&e.key!=='Escape'&&!(mod&&['c','x','v','z','y','s'].includes(e.key.toLowerCase()))){if(asgKey(e)){e.preventDefault();return}}
+  if(e.key==='Escape'&&S.navAll){S.navAll=false;renderNav();return}
   if(e.key==='Escape'&&S.ttPick!=null){S.ttPick=null;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.ttBig){S.ttBig=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.printOpen){S.printOpen=false;S.keepScroll=true;render();return}
