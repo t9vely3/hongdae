@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261026-104540';
+window.OPS_BUILD = '20261026-155112';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3216,9 +3216,9 @@ const CMODES=[['or','통화량이나 콜수 중 하나만 채우면 통과'],['a
 function callSet(){const c0=S.callsAll?.['_settings']||{};const c=c0.v2?c0:{};const o={};Object.keys(CALL_DEF).forEach(k=>{const v=c[k];o[k]=v===''||v==null||isNaN(+v)?CALL_DEF[k]:+v});o.mode=CMODES.some(x=>x[0]===c.mode)?c.mode:'or';return o}
 function salesDedC(r,c){const a=+r.amt||0;if(c.m2&&a>=c.m2)return c.cd2;if(c.m1&&a>=c.m1)return c.cd1;return 0}
 function callNeedC(r){const c=callSet();return c.cbase||0}
-function callBonusC(r){const c=callSet();return ((+r.s1||0)+(+r.s2||0))*c.csc+(+r.rg||0)*c.crg+(+r.bl||0)*c.cbl+salesDedC(r,c)}
+function callBonusC(r){const c=callSet();return ((+r.s1||0)+(+r.s2||0))*c.csc+(+r.rg||0)*c.crg+Math.min(1,+r.bl||0)*c.cbl+salesDedC(r,c)}
 function salesDed(r,c){const a=+r.amt||0;if(c.m2&&a>=c.m2)return c.d2;if(c.m1&&a>=c.m1)return c.d1;return 0}
-function callNeed(r){const c=callSet();return Math.max(c.min*60,(c.base-((+r.s1||0)+(+r.s2||0))*c.sc-(+r.rg||0)*c.rg-(+r.bl||0)*c.bl-salesDed(r,c))*60)}
+function callNeed(r){const c=callSet();return Math.max(c.min*60,(c.base-((+r.s1||0)+(+r.s2||0))*c.sc-(+r.rg||0)*c.rg-Math.min(1,+r.bl||0)*c.bl-salesDed(r,c))*60)}
 const manOf=v=>{const n=+String(v||'').replace(/[^\d.]/g,'');if(!n)return '';return String(n>=10000?Math.round(n/10000):Math.round(n))};
 const secOf=v=>{v=String(v??'').trim();if(!v)return 0;if(/^\d+$/.test(v))return +v*60;const m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);if(m)return m[3]!=null?(+m[1])*3600+(+m[2])*60+(+m[3]):(+m[1])*60+(+m[2]);const k=v.match(/(?:(\d+)\s*시간)?\s*(?:(\d+)\s*분)?\s*(?:(\d+)\s*초)?/);return k?(+(k[1]||0))*3600+(+(k[2]||0))*60+(+(k[3]||0)):0};
 const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`};
@@ -3252,14 +3252,14 @@ function viewCalls(){
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
     <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can&&CAN()?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
-  const C=callSet();const _ded=[C.sc?`상담(본인·대리) 1건 ${C.sc}분`:'',C.rg?`등록(COD·추등 포함) 1건 ${C.rg}분`:'',C.bl?`블로그 기입 1건 ${C.bl}분`:'',C.m1&&C.d1?`하루 매출 ${C.m1}만원 이상 ${C.d1}분`:'',C.m2&&C.d2?`${C.m2}만원 이상 ${C.d2}분`:''].filter(Boolean).join(' · ');
+  const C=callSet();const _ded=[C.sc?`상담(본인·대리) 1건 ${C.sc}분`:'',C.rg?`등록(COD·추등 포함) 1건 ${C.rg}분`:'',C.bl?`블로그 기입 ${C.bl}분(하루 1회까지)`:'',C.m1&&C.d1?`하루 매출 ${C.m1}만원 이상 ${C.d1}분`:'',C.m2&&C.d2?`${C.m2}만원 이상 ${C.d2}분`:''].filter(Boolean).join(' · ');
   const ed=CAN()&&S.clRuleEd;
   const tile=(lab,body,keys)=>`<div class="cr-t"><span class="cr-l">${lab}</span>${ed?`<div class="cr-in">${keys.map(([k,u,pre])=>`${pre?`<em>${pre}</em>`:''}<input type="number" min="0" step="1" class="in sm" data-cset="${k}" value="${C[k]}"><em>${u}</em>`).join('')}</div>`:`<b>${body}</b>`}</div>`;
   const rule=card('clrule','통화량 기준',ed?'숫자를 고치고 칸을 벗어나면 모든 날짜에 바로 적용됩니다. 0으로 두면 빼지 않습니다.':'하루 합산 통화량(개인 + 내선)이 아래 기준을 넘으면 통과입니다.',
     `<div class="cr">${tile('기본 기준',`${C.base}:00`,[['base','분']])}<span class="cr-op">에서 빼기</span>
       ${tile('상담 1건 (본인·대리)',C.sc?`−${C.sc}분`:'빼지 않음',[['sc','분']])}
       ${tile('등록 1건 (COD·추등 포함)',C.rg?`−${C.rg}분`:'빼지 않음',[['rg','분']])}
-      ${tile('블로그 기입 1건',C.bl?`−${C.bl}분`:'빼지 않음',[['bl','분']])}
+      ${tile('블로그 기입 (하루 1회까지)',C.bl?`−${C.bl}분`:'빼지 않음',[['bl','분']])}
       ${tile(`하루 매출 ${ed?'1단계':C.m1+'만원 이상'}`,C.m1&&C.d1?`−${C.d1}분`:'빼지 않음',[['m1','만원 이상'],['d1','분','−']])}
       ${tile(`하루 매출 ${ed?'2단계':C.m2+'만원 이상'}`,C.m2&&C.d2?`−${C.d2}분`:'빼지 않음',[['m2','만원 이상'],['d2','분','−']])}
       ${tile('최소 기준',C.min?`${C.min}:00`:'없음',[['min','분']])}</div>
@@ -3267,7 +3267,7 @@ function viewCalls(){
     <div class="cr">${tile('기준 콜수',C.cbase?`${C.cbase}콜`:'쓰지 않음',[['cbase','콜']])}<span class="cr-op">달성에 더하기</span>
       ${tile('상담 1건 (본인·대리)',C.csc?`+${C.csc}콜`:'더하지 않음',[['csc','콜','+']])}
       ${tile('등록 1건 (COD·추등 포함)',C.crg?`+${C.crg}콜`:'더하지 않음',[['crg','콜','+']])}
-      ${tile('블로그 기입 1건',C.cbl?`+${C.cbl}콜`:'더하지 않음',[['cbl','콜','+']])}
+      ${tile('블로그 기입 (하루 1회까지)',C.cbl?`+${C.cbl}콜`:'더하지 않음',[['cbl','콜','+']])}
       ${tile(`하루 매출 ${C.m1}만원 이상`,C.cd1?`+${C.cd1}콜`:'더하지 않음',[['cd1','콜','+']])}
       ${tile(`하루 매출 ${C.m2}만원 이상`,C.cd2?`+${C.cd2}콜`:'더하지 않음',[['cd2','콜','+']])}</div>
     <div class="cr-sub"><b>통과 기준</b>${ed?`<span class="cr-modes">${CMODES.map(([k,l])=>`<button type="button" class="${C.mode===k?'on':''}" data-cmode="${k}">${l}</button>`).join('')}</span>`:`<span>${C.cbase?CMODES.find(x=>x[0]===C.mode)[1]:'통화량만 봄 (연결콜수 기준을 정하면 고를 수 있습니다)'}</span>`}</div>
