@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261026-103955';
+window.OPS_BUILD = '20261026-104336';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2028,6 +2028,10 @@ body{padding-left:78px}
   .rl-g button{width:58px;min-height:52px}
 }
 @media print{.rail{display:none!important}body{padding-left:0!important}}
+
+/* 왼쪽 메뉴만큼 시간표 넓이 맞춤 */
+#b-ttv{width:calc(100vw - 78px - 32px)!important;margin-left:calc(50% - 50vw + 55px)!important}
+@media (max-width:760px){#b-ttv{width:calc(100vw - 32px)!important;margin-left:calc(50% - 50vw + 16px)!important}}
 
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
