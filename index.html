@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261026-104336';
+window.OPS_BUILD = '20261026-104540';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2033,6 +2033,38 @@ body{padding-left:78px}
 #b-ttv{width:calc(100vw - 78px - 32px)!important;margin-left:calc(50% - 50vw + 55px)!important}
 @media (max-width:760px){#b-ttv{width:calc(100vw - 32px)!important;margin-left:calc(50% - 50vw + 16px)!important}}
 
+/* ===== 왼쪽 메뉴 다듬기 ===== */
+body{padding-left:84px}
+.rail{width:84px;background:#0f1115;padding:10px 0 14px;box-shadow:1px 0 0 rgba(255,255,255,.04)}
+.rl-logo{width:40px;height:40px;border-radius:11px;border:0;background:#fff;color:#0f1115;font:900 11px/1 inherit;letter-spacing:.04em;cursor:pointer;margin:2px 0 8px}
+.rl-g{border-top:0;padding:6px 0 8px;gap:1px}
+.rl-l{font-size:10px;font-weight:800;letter-spacing:.06em;padding:2px 8px;border-radius:999px;margin:4px 0 6px}
+.rl-g.g0 .rl-l{color:#93c5fd;background:rgba(147,197,253,.12)}
+.rl-g.g1 .rl-l{color:#fcd34d;background:rgba(252,211,77,.13)}
+.rl-g.g2 .rl-l{color:#5eead4;background:rgba(94,234,212,.12)}
+.rl-g+.rl-g{margin-top:4px;border-top:1px solid rgba(255,255,255,.07);padding-top:10px}
+.rl-g button{position:relative;width:72px;min-height:48px;border-radius:12px;color:#d1d5db;font-size:11.5px;font-weight:600;gap:4px;padding:6px 2px;transition:background .12s,color .12s}
+.rl-g button svg.i{width:20px;height:20px;opacity:.9}
+.rl-g button:hover{background:rgba(255,255,255,.08);color:#fff}
+.rl-g button[aria-current="true"]{background:rgba(255,255,255,.14);color:#fff;font-weight:800}
+.rl-g button[aria-current="true"]::before{content:"";position:absolute;left:-6px;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:var(--gc,#fff)}
+.rl-g.g0{--gc:#93c5fd}.rl-g.g1{--gc:#fcd34d}.rl-g.g2{--gc:#5eead4}
+.rl-g button[aria-current="true"] svg.i{color:var(--gc);opacity:1}
+#b-ttv{width:calc(100vw - 84px - 32px)!important;margin-left:calc(50% - 50vw + 58px)!important}
+@media (max-height:980px){.rl-g button{min-height:42px;padding:4px 2px;gap:2px}.rl-g button svg.i{width:18px;height:18px}.rl-l{margin:2px 0 4px}}
+@media (max-width:760px){
+  body{padding-left:0}
+  .rail{width:auto;padding:0 6px}
+  .rl-logo{display:none}
+  .rl-g+.rl-g{margin-top:0;border-top:0;padding-top:0}
+  .rl-g button{width:60px}
+  .rl-g button[aria-current="true"]::before{left:12px;right:12px;top:auto;bottom:-2px;width:auto;height:3px;border-radius:3px 3px 0 0}
+  #b-ttv{width:calc(100vw - 32px)!important;margin-left:calc(50% - 50vw + 16px)!important}
+}
+
+.top .logo .mk{display:none}
+@media (max-width:760px){.top .logo .mk{display:flex}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2339,7 +2371,7 @@ function renderNav(){
   const BIZ=['calls','tt'];const mm=m[2].filter(k=>!BIZ.includes(k)),cc=[...c[2],...(logCan()?['log']:[])];
   const SL={today:'오늘',duty:'당직표',assign:'배정표',edu:'교육',ops:'운영부',sales:'영업',dbturn:'디비턴',judge:'판독',calls:'통화량',tt:'시간표',rules:'DB 규정',tuition:'수강료',org:'조직도',lead:'업무분장',log:'수정기록'};
   const grp=[['운영계획',mm],['사업부',BIZ],['내용',cc]];
-  $('#nav').innerHTML=grp.map(([l,ks],gi)=>`<div class="rl-g${gi===1?' b':''}"><span class="rl-l">${l}</span>${ks.map(k=>`<button type="button" data-tab="${k}" aria-current="${S.tab===k}" title="${esc(PAGES[k].label)}">${I(ICON[k])}<span>${SL[k]||PAGES[k].label}</span></button>`).join('')}</div>`).join('');
+  $('#nav').innerHTML=`<button type="button" class="rl-logo" data-tab="today" title="오늘 현황">AIX</button>`+grp.map(([l,ks],gi)=>`<div class="rl-g g${gi}"><span class="rl-l">${l}</span>${ks.map(k=>`<button type="button" data-tab="${k}" aria-current="${S.tab===k}" title="${esc(PAGES[k].label)}">${I(ICON[k])}<span>${SL[k]||PAGES[k].label}</span></button>`).join('')}</div>`).join('');
 }
 function subTabs(tab,counts={}){
   const p=PAGES[tab];if(!p.subs)return '';const cur=curSub(tab);
