@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261026-100400';
+window.OPS_BUILD = '20261026-103955';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1990,6 +1990,45 @@ body:has(#ttOvl),body:has(#ttBig){overflow:hidden}
 .tt-main #b-ttv .card-hd{padding-top:14px;padding-bottom:8px}
 .tt-bar{padding-bottom:6px}.tt-sum{padding-bottom:8px}
 
+/* 반 카드가 수업 시간 칸을 꽉 채우게 */
+.tt-g2 td.tt-has{height:1px;padding:2px 3px!important}
+.tt-g2 td.tt-has>.tt-c,.tt-g2 td.tt-has>.tt-mul{height:100%!important;box-sizing:border-box;margin:0}
+.tt-g2 td.tt-has>.tt-c,.tt-stg .tt-c{justify-content:center}
+.tt-g2 tbody tr{height:28px}
+.tt-gw.big .tt-g2 tbody tr{height:calc(32px*var(--z,1))}
+
+/* 공지 접기 */
+.nt-tg{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:0;cursor:pointer;font:inherit;color:inherit;min-width:0}
+.nt-tg svg{width:15px;height:15px;flex:none}
+.nt-pv{font-size:13px;color:var(--ink2);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(60vw,640px)}
+.nt.fold{padding-top:10px;padding-bottom:10px}
+
+/* ===== B안: 왼쪽 아이콘 메뉴 ===== */
+body{padding-left:78px}
+.rail{position:fixed;left:0;top:0;bottom:0;width:78px;background:#111318;z-index:70;overflow-y:auto;scrollbar-width:none;padding:8px 0 16px;box-sizing:border-box}
+.rail::-webkit-scrollbar{display:none}
+.rl{display:flex;flex-direction:column;align-items:center}
+.rl-g{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:8px 0;border-top:1px solid #262a32}
+.rl-g:first-child{border-top:0}
+.rl-l{font-size:10px;color:#8a919d;font-weight:700;margin:0 0 4px;letter-spacing:.02em}
+.rl-g.b .rl-l{color:#fbbf24}
+.rl-g button{width:66px;min-height:50px;border:0;border-radius:11px;background:none;color:#c9ced6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:inherit;font-size:11px;font-weight:600;line-height:1.15;cursor:pointer;padding:6px 2px;text-align:center;word-break:keep-all}
+.rl-g button svg.i{width:19px;height:19px;color:inherit}
+.rl-g button:hover{background:#23262d;color:#fff}
+.rl-g button[aria-current="true"]{background:#ffffff;color:#111318;font-weight:800}
+.top .t1{height:52px!important}
+#menuBtn{display:none!important}
+@media (max-width:760px){
+  body{padding-left:0;padding-bottom:64px}
+  .rail{top:auto;right:0;height:64px;width:auto;padding:0 6px;overflow-x:auto;overflow-y:hidden}
+  .rl{flex-direction:row;align-items:stretch;height:100%}
+  .rl-g{flex-direction:row;width:auto;border-top:0;border-left:1px solid #262a32;padding:0 4px;align-items:center}
+  .rl-g:first-child{border-left:0}
+  .rl-l{display:none}
+  .rl-g button{width:58px;min-height:52px}
+}
+@media print{.rail{display:none!important}body{padding-left:0!important}}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -2094,8 +2133,8 @@ tr.mgrp b{font-size:13px;margin-right:8px}tr.mgrp small{font-size:11.5px;color:v
     <div class="mechip" id="meChip" hidden><span class="nm"></span><button type="button" class="lo" data-logout="1" title="로그아웃"><svg class="i" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg><span>로그아웃</span></button></div>
   </div>
  </div></div>
- <div class="top2"><div class="wrap t2"><nav class="gnav" id="nav" aria-label="메뉴"></nav></div></div>
 </header>
+<aside class="rail" id="rail"><nav class="rl" id="nav" aria-label="메뉴"></nav></aside>
 <div class="shell">
 <div id="page"><main class="wrap"><div class="empty-state" style="margin-top:40px">운영표를 불러오는 중입니다.</div></main></div>
 </div>
@@ -2294,9 +2333,9 @@ const NAVL={today:'홈',edu:'교육',ops:'운영부',sales:'영업',rules:'규�
 function renderNav(){
   const [m,c]=NAV;const it=(k,cls)=>`<button type="button" data-tab="${k}" class="${cls}" aria-current="${S.tab===k}">${I(ICON[k])}<span>${PAGES[k].label}</span></button>`;
   const BIZ=['calls','tt'];const mm=m[2].filter(k=>!BIZ.includes(k)),cc=[...c[2],...(logCan()?['log']:[])];
-  const grp=[['운영계획',mm],['내용',cc],['사업부',BIZ]];
-  const all=S.navAll?`<div class="nav-all" role="dialog" aria-label="전체 메뉴"><div class="na-in">${grp.map(([l,ks])=>`<div class="na-g"><b>${l}</b>${ks.map(k=>`<button type="button" data-tab="${k}" aria-current="${S.tab===k}">${I(ICON[k])}<span>${PAGES[k].label}</span></button>`).join('')}</div>`).join('')}</div></div>`:'';
-  $('#nav').innerHTML=`<div class="ng"><button type="button" class="m na-btn${S.navAll?' on':''}" data-navall="1" aria-expanded="${!!S.navAll}">${icx('list')}<span>전체</span></button><span class="nl">운영계획</span>${mm.map(k=>it(k,'m')).join('')}</div><div class="ng c"><span class="nl">내용</span>${c[2].map(k=>it(k,'c')).join('')}${logCan()?it('log','c lg'):''}<span class="nl nl-b">사업부</span>${BIZ.map(k=>it(k,'c b')).join('')}</div>${all}`;
+  const SL={today:'오늘',duty:'당직표',assign:'배정표',edu:'교육',ops:'운영부',sales:'영업',dbturn:'디비턴',judge:'판독',calls:'통화량',tt:'시간표',rules:'DB 규정',tuition:'수강료',org:'조직도',lead:'업무분장',log:'수정기록'};
+  const grp=[['운영계획',mm],['사업부',BIZ],['내용',cc]];
+  $('#nav').innerHTML=grp.map(([l,ks],gi)=>`<div class="rl-g${gi===1?' b':''}"><span class="rl-l">${l}</span>${ks.map(k=>`<button type="button" data-tab="${k}" aria-current="${S.tab===k}" title="${esc(PAGES[k].label)}">${I(ICON[k])}<span>${SL[k]||PAGES[k].label}</span></button>`).join('')}</div>`).join('');
 }
 function subTabs(tab,counts={}){
   const p=PAGES[tab];if(!p.subs)return '';const cur=curSub(tab);
@@ -3136,14 +3175,14 @@ const CALL_ROSTER_DEFAULT=`1-1팀 부장 김태원
 4-1팀 경력 전교준
 4-1팀 경력 양민우
 4-2팀 팀장 박승수`;
-const CALL_DEF={base:60,sc:10,rg:10,m1:100,d1:20,m2:250,d2:40,min:0,cbase:0,csc:0,crg:0,cd1:0,cd2:0,cmin:0};
+const CALL_DEF={base:60,sc:10,rg:10,bl:10,cbl:0,m1:100,d1:20,m2:250,d2:40,min:0,cbase:0,csc:0,crg:0,cd1:0,cd2:0,cmin:0};
 const CMODES=[['or','통화량이나 콜수 중 하나만 채우면 통과'],['and','통화량과 콜수 둘 다 채워야 통과'],['time','통화량만 봄'],['call','콜수만 봄']];
 function callSet(){const c0=S.callsAll?.['_settings']||{};const c=c0.v2?c0:{};const o={};Object.keys(CALL_DEF).forEach(k=>{const v=c[k];o[k]=v===''||v==null||isNaN(+v)?CALL_DEF[k]:+v});o.mode=CMODES.some(x=>x[0]===c.mode)?c.mode:'or';return o}
 function salesDedC(r,c){const a=+r.amt||0;if(c.m2&&a>=c.m2)return c.cd2;if(c.m1&&a>=c.m1)return c.cd1;return 0}
 function callNeedC(r){const c=callSet();return c.cbase||0}
-function callBonusC(r){const c=callSet();return ((+r.s1||0)+(+r.s2||0))*c.csc+(+r.rg||0)*c.crg+salesDedC(r,c)}
+function callBonusC(r){const c=callSet();return ((+r.s1||0)+(+r.s2||0))*c.csc+(+r.rg||0)*c.crg+(+r.bl||0)*c.cbl+salesDedC(r,c)}
 function salesDed(r,c){const a=+r.amt||0;if(c.m2&&a>=c.m2)return c.d2;if(c.m1&&a>=c.m1)return c.d1;return 0}
-function callNeed(r){const c=callSet();return Math.max(c.min*60,(c.base-((+r.s1||0)+(+r.s2||0))*c.sc-(+r.rg||0)*c.rg-salesDed(r,c))*60)}
+function callNeed(r){const c=callSet();return Math.max(c.min*60,(c.base-((+r.s1||0)+(+r.s2||0))*c.sc-(+r.rg||0)*c.rg-(+r.bl||0)*c.bl-salesDed(r,c))*60)}
 const manOf=v=>{const n=+String(v||'').replace(/[^\d.]/g,'');if(!n)return '';return String(n>=10000?Math.round(n/10000):Math.round(n))};
 const secOf=v=>{v=String(v??'').trim();if(!v)return 0;if(/^\d+$/.test(v))return +v*60;const m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);if(m)return m[3]!=null?(+m[1])*3600+(+m[2])*60+(+m[3]):(+m[1])*60+(+m[2]);const k=v.match(/(?:(\d+)\s*시간)?\s*(?:(\d+)\s*분)?\s*(?:(\d+)\s*초)?/);return k?(+(k[1]||0))*3600+(+(k[2]||0))*60+(+(k[3]||0)):0};
 const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`};
@@ -3166,24 +3205,25 @@ function viewCalls(){
   callsSub();const d=S.cdate||(S.cdate=todayIso());const day=S.callsAll?.[d]||{};const rows=day.rows||{};const R=callRoster();const locked=callLocked(d);const own=typeof isOwnerA==='function'&&isOwnerA();const can=callCan()&&(!locked||own);const paint=CAN()&&(!locked||own);const ex=!!day.exempt;
   let fail=0,done=0;
   const body=R.map((p,i)=>{const r=rows[p.name]||{};const pt=+r.pt||0,et=+r.et||0,pc=+r.pc||0,ec=+r.ec||0,s1=+r.s1||0,s2=+r.s2||0;
-    const CS=callSet();const tot=pt+et,cnt=pc+ec,need=callNeed(r);const filled=['pt','et','pc','ec','s1','s2','rg','amt'].some(k=>r[k]!=null&&r[k]!=='');if(filled)done++;
+    const CS=callSet();const tot=pt+et,cnt=pc+ec,need=callNeed(r);const filled=['pt','et','pc','ec','s1','s2','rg','bl','amt'].some(k=>r[k]!=null&&r[k]!=='');if(filled)done++;
     const vip=/^(부장|선임\s*팀장)$/.test(String(p.rank||'').trim());const pc_=r.c||'';const needC=callNeedC(r);const bonC=callBonusC(r);const gotC=cnt+bonC;const tBad=tot<need,cBad=CS.cbase>0&&gotC<needC;const judge=CS.mode==='time'?tBad:CS.mode==='call'?(CS.cbase>0?cBad:tBad):CS.mode==='and'?(tBad||cBad):(CS.cbase>0?(tBad&&cBad):tBad);const bad=!ex&&!vip&&pc_!=='g'&&judge;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
     const inp=(k,v,cls='',ph='')=>can?`<input class="cl-in ${cls}" data-cl="${esc(p.name)}|${k}" value="${esc(v??'')}" placeholder="${ph}" inputmode="${k==='pt'||k==='et'?'text':'numeric'}">`:esc(v??'');
     return `<tr class="${first?'cl-first':''}${filled?'':' cl-empty'}${pc_?' clc-'+pc_:''}">${first?`<td class="cl-team" rowspan="${span}">${esc(p.team)}</td>`:''}<td class="ctr cl-rank">${esc(p.rank)}</td><td class="nw cl-nm">${paint?`<button type="button" class="cl-pn${S.clBrush!=null?' on':''}" data-clpaint="${esc(p.name)}" title="${S.clBrush!=null?'눌러서 칠하기':'위에서 색을 고른 뒤 누르세요'}"><b>${esc(p.name)}</b></button>`:`<b>${esc(p.name)}</b>`}</td>
-      <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('rg',r.rg,'n')}</td><td class="ctr cl-amt">${inp('amt',r.amt?(+r.amt).toLocaleString():'','m','')}${r.amt&&salesDed(r,CS)?`<small>-${salesDed(r,CS)}분</small>`:''}</td>
+      <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('rg',r.rg,'n')}</td><td class="ctr">${inp('bl',r.bl,'n')}</td><td class="ctr cl-amt">${inp('amt',r.amt?(+r.amt).toLocaleString():'','m','')}${r.amt&&salesDed(r,CS)?`<small>-${salesDed(r,CS)}분</small>`:''}</td>
       <td class="ctr cl-p">${inp('pt',r.pt?hms(pt):'','t','0:00:00')}</td><td class="ctr cl-p">${inp('pc',r.pc,'n')}</td>
       <td class="ctr cl-e">${inp('et',r.et?hms(et):'','t','0:00:00')}</td><td class="ctr cl-e">${inp('ec',r.ec,'n')}</td>
       <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}</tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
     <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can&&CAN()?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
-  const C=callSet();const _ded=[C.sc?`상담(본인·대리) 1건 ${C.sc}분`:'',C.rg?`등록(COD·추등 포함) 1건 ${C.rg}분`:'',C.m1&&C.d1?`하루 매출 ${C.m1}만원 이상 ${C.d1}분`:'',C.m2&&C.d2?`${C.m2}만원 이상 ${C.d2}분`:''].filter(Boolean).join(' · ');
+  const C=callSet();const _ded=[C.sc?`상담(본인·대리) 1건 ${C.sc}분`:'',C.rg?`등록(COD·추등 포함) 1건 ${C.rg}분`:'',C.bl?`블로그 기입 1건 ${C.bl}분`:'',C.m1&&C.d1?`하루 매출 ${C.m1}만원 이상 ${C.d1}분`:'',C.m2&&C.d2?`${C.m2}만원 이상 ${C.d2}분`:''].filter(Boolean).join(' · ');
   const ed=CAN()&&S.clRuleEd;
   const tile=(lab,body,keys)=>`<div class="cr-t"><span class="cr-l">${lab}</span>${ed?`<div class="cr-in">${keys.map(([k,u,pre])=>`${pre?`<em>${pre}</em>`:''}<input type="number" min="0" step="1" class="in sm" data-cset="${k}" value="${C[k]}"><em>${u}</em>`).join('')}</div>`:`<b>${body}</b>`}</div>`;
   const rule=card('clrule','통화량 기준',ed?'숫자를 고치고 칸을 벗어나면 모든 날짜에 바로 적용됩니다. 0으로 두면 빼지 않습니다.':'하루 합산 통화량(개인 + 내선)이 아래 기준을 넘으면 통과입니다.',
     `<div class="cr">${tile('기본 기준',`${C.base}:00`,[['base','분']])}<span class="cr-op">에서 빼기</span>
       ${tile('상담 1건 (본인·대리)',C.sc?`−${C.sc}분`:'빼지 않음',[['sc','분']])}
       ${tile('등록 1건 (COD·추등 포함)',C.rg?`−${C.rg}분`:'빼지 않음',[['rg','분']])}
+      ${tile('블로그 기입 1건',C.bl?`−${C.bl}분`:'빼지 않음',[['bl','분']])}
       ${tile(`하루 매출 ${ed?'1단계':C.m1+'만원 이상'}`,C.m1&&C.d1?`−${C.d1}분`:'빼지 않음',[['m1','만원 이상'],['d1','분','−']])}
       ${tile(`하루 매출 ${ed?'2단계':C.m2+'만원 이상'}`,C.m2&&C.d2?`−${C.d2}분`:'빼지 않음',[['m2','만원 이상'],['d2','분','−']])}
       ${tile('최소 기준',C.min?`${C.min}:00`:'없음',[['min','분']])}</div>
@@ -3191,13 +3231,14 @@ function viewCalls(){
     <div class="cr">${tile('기준 콜수',C.cbase?`${C.cbase}콜`:'쓰지 않음',[['cbase','콜']])}<span class="cr-op">달성에 더하기</span>
       ${tile('상담 1건 (본인·대리)',C.csc?`+${C.csc}콜`:'더하지 않음',[['csc','콜','+']])}
       ${tile('등록 1건 (COD·추등 포함)',C.crg?`+${C.crg}콜`:'더하지 않음',[['crg','콜','+']])}
+      ${tile('블로그 기입 1건',C.cbl?`+${C.cbl}콜`:'더하지 않음',[['cbl','콜','+']])}
       ${tile(`하루 매출 ${C.m1}만원 이상`,C.cd1?`+${C.cd1}콜`:'더하지 않음',[['cd1','콜','+']])}
       ${tile(`하루 매출 ${C.m2}만원 이상`,C.cd2?`+${C.cd2}콜`:'더하지 않음',[['cd2','콜','+']])}</div>
     <div class="cr-sub"><b>통과 기준</b>${ed?`<span class="cr-modes">${CMODES.map(([k,l])=>`<button type="button" class="${C.mode===k?'on':''}" data-cmode="${k}">${l}</button>`).join('')}</span>`:`<span>${C.cbase?CMODES.find(x=>x[0]===C.mode)[1]:'통화량만 봄 (연결콜수 기준을 정하면 고를 수 있습니다)'}</span>`}</div>
     <div class="cr-help"><span><b>입력</b>통화량은 0:15:12 또는 15:12처럼 적습니다</span><span><b>이동</b>엔터·방향키로 옆 칸으로 넘어가면 바로 저장됩니다</span><span><b>제외</b>지점매출 달성에 체크하면 그날은 전원 통과입니다</span>${ed?`<button type="button" class="btn sm ghost" data-csreset="1">처음 값으로</button>`:''}</div>`,
     {right:CAN()?`<button type="button" class="btn sm${ed?' primary':''}" data-clruled="1">${ed?'다 고쳤어요':'기준 고치기'}</button>`:''})
     +(S.callsDenied?`<div class="banner">통화량이 저장되지 않고 있습니다. Firebase 콘솔 → Firestore Database → <b>규칙</b> 탭에 새 규칙 파일 내용을 붙여넣고 <b>게시</b>를 눌러 주세요. 게시할 때 빨간 오류가 뜨면 그 화면을 보내 주세요.</div>`:'');
-  const table=`<div class="tw"><table class="stk cl-tab"><thead><tr><th rowspan="2">팀</th><th rowspan="2" class="ctr">직급</th><th rowspan="2">이름</th><th colspan="2" class="ctr">상담</th><th rowspan="2" class="ctr">등록<br><small>COD·추등</small></th><th rowspan="2" class="ctr">하루 매출<br><small>만원</small></th><th class="ctr cl-p" rowspan="2">개인<br>통화량</th><th class="ctr cl-p" rowspan="2">개인<br>건수</th><th class="ctr cl-e" rowspan="2">내선<br>통화량</th><th class="ctr cl-e" rowspan="2">내선<br>건수</th><th class="ctr cl-need" rowspan="2">기준<br><small>${callSet().base}:00에서 차감</small></th><th class="ctr" rowspan="2">합산<br>통화량</th><th class="ctr" rowspan="2">합산<br>건수</th>${callSet().cbase?`<th class="ctr cl-cc" rowspan="2">연결콜수<br><small>달성 / 기준</small></th>`:''}</tr><tr><th class="ctr">본인</th><th class="ctr">대리</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  const table=`<div class="tw"><table class="stk cl-tab"><thead><tr><th rowspan="2">팀</th><th rowspan="2" class="ctr">직급</th><th rowspan="2">이름</th><th colspan="2" class="ctr">상담</th><th rowspan="2" class="ctr">등록<br><small>COD·추등</small></th><th rowspan="2" class="ctr">블로그<br><small>기입</small></th><th rowspan="2" class="ctr">하루 매출<br><small>만원</small></th><th class="ctr cl-p" rowspan="2">개인<br>통화량</th><th class="ctr cl-p" rowspan="2">개인<br>건수</th><th class="ctr cl-e" rowspan="2">내선<br>통화량</th><th class="ctr cl-e" rowspan="2">내선<br>건수</th><th class="ctr cl-need" rowspan="2">기준<br><small>${callSet().base}:00에서 차감</small></th><th class="ctr" rowspan="2">합산<br>통화량</th><th class="ctr" rowspan="2">합산<br>건수</th>${callSet().cbase?`<th class="ctr cl-cc" rowspan="2">연결콜수<br><small>달성 / 기준</small></th>`:''}</tr><tr><th class="ctr">본인</th><th class="ctr">대리</th></tr></thead><tbody>${body}</tbody></table></div>`;
   const imp=can?card('clext','내선 통화내역 붙여넣기','가장 쉬운 방법: 통화량 사이트에서 Ctrl+A → Ctrl+C, 이 화면 아무 곳(빈 곳)에서 Ctrl+V. 상담원별 시간과 건수를 더해 지금 보고 있는 날짜의 내선 칸에 넣습니다.',
     `<div class="wk"><textarea id="clExt" class="in" rows="4" placeholder="내선 통화내역을 붙여넣으세요">${esc(S.clExt||'')}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clext="1">합산해서 내선 칸에 넣기</button>${S.clExtRes?`<span class="muted">${esc(S.clExtRes)}</span>`:''}</div></div>`):'';
   const ros=can&&isOwnerOrEditor()?card('clros','통화량 명단','한 줄에 ‘팀 직급 이름’ 순서로 적습니다. 예) 1-1팀 부장 김태원',`<div class="wk"><textarea id="clRos" class="in" rows="${S.clRosOpen?14:3}">${esc(S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT)}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clros="1">명단 저장</button></div></div>`):'';
@@ -3207,7 +3248,7 @@ function viewCalls(){
   const LT=callLockTime();const lockAt=`${md(addDays(d,1))} ${LT}`;
   const lockBar=`<div class="cl-lock${locked?' on':''}"><span class="cl-lk-i">${icx(locked?'alert':'clock')}</span><div class="cl-lk-t">${locked?`<b>잠김</b> · ${own?'다른 사람은 고칠 수 없습니다. 관리자만 고칠 수 있습니다.':'이 날 통화량은 마감되어 고칠 수 없습니다. 고칠 내용이 있으면 관리자에게 말해 주세요.'}`:day.unlocked?`<b>잠금 풀림</b> · 관리자가 이 날 잠금을 풀었습니다. 다시 잠글 때까지 고칠 수 있습니다.`:`<b>${lockAt}</b>에 자동으로 잠깁니다. 그 전까지 적어 주세요.`}</div>
     ${own?`<div class="cl-lk-a">${locked?`<button type="button" class="btn sm primary" data-clunlock="1">이 날 잠금 풀기</button>`:day.unlocked?`<button type="button" class="btn sm" data-cllock="1">다시 잠그기</button>`:''}<label class="cl-lk-set">잠그는 시간 · 다음날<input type="time" id="clLockT" class="in sm" value="${LT}"></label></div>`:''}</div>`;
-  return head+bar+lockBar+rule+card('cltab','일별 통화량','',ptool+table,{cls:'wide'})+(locked&&!own?'':imp)+ros;
+  return head+bar+lockBar+card('cltab','일별 통화량','',ptool+table,{cls:'wide'})+(locked&&!own?'':imp)+rule+ros;
 }
 function isOwnerOrEditor(){return CAN()}
 function clImport(t,quick){const day=S.cdate||todayIso();S.clExt=quick?'':t;const r=parseExt(t,day);const ns=Object.keys(r.sum);
@@ -3475,6 +3516,7 @@ function act(t){
   if(d.rand){if(!CAN())return true;S.rand=d.rand;S.pop=null;S.keepScroll=true;render();return true}
   if(d.randx){S.rand=null;S.keepScroll=true;render();return true}
   if(d.randgo){const [k,mode]=sp(d.randgo);S.edit=true;S.rand=null;let r;mutate(()=>{r=autoFill(k,{days:[1,2,3,4,5],groups:[...GROUPS],mode,skipHol:true,weekend:k==='duty'})});toast(r.n||r.wk?`${r.n}일 배치 · 조별 ${r.min}~${r.max}회${r.wk?` · 주말 ${r.wk}일 지원`:''} · 저장을 눌러 확정`:'채울 빈 날이 없습니다');return true}
+  if(d.ntfold){const t=d.ntfold,n=noticeOf(t),k='ntFold:'+t,at=String(n?.at||'1');S.ntF=S.ntF||{};const cur=S.ntF[t]??ls.get(k);const v=cur===at?'':at;S.ntF[t]=v;ls.set(k,v);S.keepScroll=true;render();return true}
   if(d.navall){S.navAll=!S.navAll;renderNav();return true}
   if(d.tab){S.navAll=false;document.body.classList.remove('sb-open');S.pop=null;S.showRevs=false;if(d.tab==='tt'){S.ttId=null;S.ttMode='cyc'}S.rand=null;S.tab=d.tab;ls.set('tab',S.tab);S.msg=null;S.confirm=null;S.panel=null;render();scrollTo(0,0);return true}
   if(d.sub){S.pop=null;const [p,k]=sp(d.sub);S.sub[p]=k;ls.set('subs',JSON.stringify(S.sub));S.confirm=null;S.keepScroll=true;render();return true}
@@ -3735,7 +3777,8 @@ function noticeOf(tab){return S.callsAll?.['_notice']?.tabs?.[tab]||null}
 function noticeBox(tab){if(tab==='log'||tab==='tt')return '';const n=noticeOf(tab);const can=CAN();const ed=S.ntEdit===tab;
   if(ed)return `<div class="nt ed"><div class="nt-h"><b>공지</b><span class="muted">이 화면 맨 위에 모두에게 보입니다</span></div><textarea id="ntText" class="in" rows="4" placeholder="공지 내용을 적어 주세요">${esc(n?.text||'')}</textarea><div class="nt-f"><button type="button" class="btn sm primary" data-ntsave="${tab}">올리기</button><button type="button" class="btn sm" data-ntx="1">취소</button>${n?.text?`<button type="button" class="btn sm ghost" data-ntdel="${tab}">공지 내리기</button>`:''}</div></div>`;
   if(!n||!n.text)return can?`<div class="nt-add"><button type="button" class="lnk" data-ntedit="${tab}">${icx('plus')}이 화면에 공지 쓰기</button></div>`:'';
-  return `<div class="nt"><div class="nt-h"><b>공지</b><span class="muted">${esc([n.by,String(n.at||'').replace('T',' ').slice(5,16).replace('-','/')].filter(Boolean).join(' · '))}</span>${can?`<button type="button" class="btn xs" data-ntedit="${tab}">고치기</button>`:''}</div><div class="nt-b">${esc(n.text).replace(/\n/g,'<br>')}</div></div>`}
+  const nk='ntFold:'+tab,fold=((S.ntF||{})[tab]??ls.get(nk))===String(n.at||'1');const first=String(n.text).split('\n')[0];
+  return `<div class="nt${fold?' fold':''}"><div class="nt-h"><button type="button" class="nt-tg" data-ntfold="${tab}" aria-expanded="${!fold}">${icx(fold?'down':'up')}<b>공지</b>${fold?`<span class="nt-pv">${esc(first.slice(0,60))}${first.length>60||String(n.text).includes('\n')?'…':''}</span>`:''}</button><span class="muted">${esc([n.by,String(n.at||'').replace('T',' ').slice(5,16).replace('-','/')].filter(Boolean).join(' · '))}</span>${can&&!fold?`<button type="button" class="btn xs" data-ntedit="${tab}">고치기</button>`:''}</div>${fold?'':`<div class="nt-b">${esc(n.text).replace(/\n/g,'<br>')}</div>`}</div>`}
 function ntWrite(tab,val){logAdd(tab,[val.text?`공지 올림: ${val.text.slice(0,60)}${val.text.length>60?'…':''}`:'공지 내림']);const tabs={...(S.callsAll?.['_notice']?.tabs||{})};tabs[tab]=val;return callsWrite('_notice',{tabs})}
 function ntAct(d){
   if(d.ntedit){S.ntEdit=d.ntedit;S.keepScroll=true;render();setTimeout(()=>$('#ntText')?.focus(),30);return true}
@@ -3746,7 +3789,7 @@ function ntAct(d){
 
 /* ================= 수정 기록 (모든 화면) ================= */
 const LOG_CUT='2026-10-21T03:00';
-const CL_F={cbase:'기준 콜수',csc:'상담 1건(콜)',crg:'등록 1건(콜)',cd1:'매출 1단계(콜)',cd2:'매출 2단계(콜)',cmin:'최소 콜수',s1:'상담(본인)',s2:'상담(대리)',rg:'등록',amt:'하루 매출',pt:'개인 통화량',pc:'개인 건수',et:'내선 통화량',ec:'내선 건수',base:'기본 기준',sc:'상담 1건',m1:'매출 1단계',d1:'1단계 차감',m2:'매출 2단계',d2:'2단계 차감',min:'최소 기준'};
+const CL_F={cbase:'기준 콜수',csc:'상담 1건(콜)',crg:'등록 1건(콜)',cd1:'매출 1단계(콜)',cd2:'매출 2단계(콜)',cmin:'최소 콜수',s1:'상담(본인)',s2:'상담(대리)',rg:'등록',bl:'블로그 기입',cbl:'블로그 1건(콜)',amt:'하루 매출',pt:'개인 통화량',pc:'개인 건수',et:'내선 통화량',ec:'내선 건수',base:'기본 기준',sc:'상담 1건',m1:'매출 1단계',d1:'1단계 차감',m2:'매출 2단계',d2:'2단계 차감',min:'최소 기준'};
 const CL_C={g:'초록',y:'노랑',b:'파랑',r:'빨강'};
 const kstNow=()=>new Date(Date.now()+9*36e5).toISOString().slice(0,16);
 const logWho=()=>((typeof A!=='undefined'&&A.prof?.name)||S.myName||'').trim();
