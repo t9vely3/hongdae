@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261026-095003';
+window.OPS_BUILD = '20261026-095730';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1972,6 +1972,13 @@ body:has(#ttOvl),body:has(#ttBig){overflow:hidden}
 .na-g button svg{width:16px;height:16px;flex:none}
 @media (max-width:640px){.na-in{grid-template-columns:1fr}}
 
+/* 1단계·2단계 한 칸에 */
+.tt-mul{display:flex;flex-direction:column;gap:3px;height:100%}
+.tt-stg{flex:1;min-height:0;display:flex;flex-direction:column}
+.tt-stgl{font-size:10.5px;font-weight:800;color:var(--ink2,#334);background:#eef2f7;border-radius:4px 4px 0 0;padding:1px 6px;text-align:center}
+.tt-stg .tt-c{flex:1;border-top-left-radius:0;border-top-right-radius:0;padding:4px 6px!important}
+.tt-c.mini .tt-x{display:none}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3863,10 +3870,13 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
   const ALL={};ids.forEach(k=>(S.callsAll[k].classes||[]).forEach((c,i)=>{ALL[c.id]={...c,i,_d:k}}));const isGuk=c=>/\(국\)|국비/.test(c.name||'');const AL0=Object.values(ALL);const gukN=AL0.filter(isGuk).length;const AL=S.ttGuk?AL0:AL0.filter(c=>!isGuk(c));
   const mode=arr=>{const n={};arr.forEach(x=>{if(x)n[x]=(n[x]||0)+1});return (Object.entries(n).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))[0]||[''])[0]};
   const NG=AL0.filter(c=>!isGuk(c)&&c.start);const cyc0=[];let rest=NG.slice();
-  while(rest.length){const a=mode(rest.map(c=>c.start));let z=mode(rest.filter(c=>c.start===a).map(c=>c.end))||a;if(z<a)z=a;const lo=addDays(a,-14);
+  while(rest.length){const a=mode(rest.map(c=>c.start));const zn={};rest.filter(c=>c.start===a).forEach(c=>{if(c.end)zn[c.end]=(zn[c.end]||0)+1});let z=(Object.entries(zn).sort((p,q)=>q[1]-p[1]||q[0].localeCompare(p[0]))[0]||[a])[0];if(z<a)z=a;const lo=addDays(a,-14);
     const inC=rest.filter(c=>c.start===a||(c.start>=lo&&c.start<=z));cyc0.push({a,z});rest=rest.filter(c=>!inC.includes(c))}
-  cyc0.sort((x,y)=>x.a.localeCompare(y.a));const anchors=cyc0.map(c=>c.a);
-  const cycOf=c=>{const st=c.start||'';const hit=cyc0.find(x=>st>=addDays(x.a,-14)&&st<=x.z);if(hit)return hit.a;let a=anchors[0];anchors.forEach(x=>{if(x<=st)a=x});return a};
+  cyc0.sort((x,y)=>x.a.localeCompare(y.a));
+  /* 앞 기간 안에서 시작하는 짧은 기간(2단계 등)은 앞 기간에 합침 */
+  for(let i=1;i<cyc0.length;i++){const x=cyc0.slice(0,i).find(x=>cyc0[i].a>x.a&&cyc0[i].a<=x.z);if(x){x.z=x.z>cyc0[i].z?x.z:cyc0[i].z;cyc0.splice(i,1);i--}}
+  const anchors=cyc0.map(c=>c.a);
+  const cycOf=c=>{const st=c.start||'';const hit=cyc0.find(x=>st>=x.a&&st<=x.z)||cyc0.find(x=>st>=addDays(x.a,-14)&&st<=x.z);if(hit)return hit.a;let a=anchors[0];anchors.forEach(x=>{if(x<=st)a=x});return a};
   const cycles=cyc0.map(x=>({a:x.a,z:x.z,n:AL.filter(c=>cycOf(c)===x.a).length}));
   const yy=d=>d?String(d).slice(2).replace(/-/g,'.'):'';const clab=c=>`${yy(c.a)} ~ ${yy(c.z)}`;
   if(!anchors.includes(S.ttId)){const t=S.ttId&&/^\d{4}-\d{2}-\d{2}$/.test(S.ttId)?S.ttId:todayIso();S.ttId=(cycles.find(c=>c.a<=t&&t<=c.z)||[...cycles].reverse().find(c=>c.a<=t)||cycles[cycles.length-1]||{}).a}
@@ -3887,17 +3897,21 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
     <input class="in sm" id="ttQ" placeholder="과목·강사 찾기" value="${esc(F.q)}">${gukN?`<button type="button" class="btn sm${S.ttGuk?' primary':''}" data-ttguk="1">국비 ${gukN}반 ${S.ttGuk?'빼기':'함께 보기'}</button>`:''}${can&&!RG?`<button type="button" class="btn sm${S.ttTime?' primary':''}" data-tttime="1">${S.ttTime?'시간 다 정했어요':'시간 정하기'}</button>`:''}</div>
     <div class="tt-sum"><span>반 <b>${inTab.length}</b></span><span>정원 <b>${sum('cap')}</b></span><span>배정 <b>${sum('cnt')}</b></span><span class="red">초과 <b>${cntSt('over')}</b></span><span>폐강 <b>${cntSt('closed')}</b></span><span class="tt-lows">모집저조 <b>${inTab.filter(ttLow).length}</b></span><span class="muted">${RG?`${md2(R_.a)} ~ ${md2(R_.b)} 사이에 수업이 있는 반 (개강·종강일 기준, 가장 최근에 불러온 숫자)`:`${esc(lastD.by||'')} · ${esc(String(lastD.at||'').replace('T',' ').slice(5))} 불러옴`}</span></div>`;
   const tm=t=>{const [h,m]=String(t).split(':').map(Number);return h*60+(m||0)};const fm=x=>`${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
-  const cardH=(c,rs)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
-    return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}" style="--c:${S_[2]}" data-ttpick="${c._d}|${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>${ttLow(c)?`<span class="tt-lowt">모집저조 ${Math.round((+c.cnt||0)/(+c.cap)*100)}%</span>`:''}
+  const cardH=(c,mini)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
+    return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}${mini?' mini':''}" style="--c:${S_[2]}" data-ttpick="${c._d}|${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>${ttLow(c)?`<span class="tt-lowt">모집저조 ${Math.round((+c.cnt||0)/(+c.cap)*100)}%</span>`:''}
       <div class="tt-l">정원 : ${c.cap}</div><div class="tt-l tt-as">배정 : ${c.cnt}${c.extra?` <em>${esc(c.extra)}</em>`:''}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
-      <div class="tt-l">${esc(c.teacher||'-')}</div><div class="tt-l">${esc(c.days)}${c.time?` · <b>${esc(c.time)}~${esc(c.tend||fm(tm(c.time)>=1140?1320:tm(c.time)+120))}</b>`:''}</div><div class="tt-l tt-sm">개:${esc(c.start)}</div><div class="tt-l tt-sm">종:${esc(c.end)}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
+      <div class="tt-l tt-x">${esc(c.teacher||'-')}</div><div class="tt-l tt-x">${esc(c.days)}${c.time?` · <b>${esc(c.time)}~${esc(c.tend||fm(tm(c.time)>=1140?1320:tm(c.time)+120))}</b>`:''}</div><div class="tt-l tt-sm tt-x">개:${esc(c.start)}</div><div class="tt-l tt-sm tt-x">종:${esc(c.end)}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
   const grid=(L,big)=>{if(!L.length)return '<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>';
-    const T=L.filter(c=>c.time),U=L.filter(c=>!c.time);const span=c=>{const a=tm(c.time);let z=c.tend?tm(c.tend):(a>=19*60?22*60:a+120);if(z<=a)z=a+30;return [a,Math.ceil((z-a)/30)*30+a]};
+    const T0=L.filter(c=>c.time),U=L.filter(c=>!c.time);
+    /* 같은 강의실·같은 시간에 날짜가 겹치지 않게 이어지는 반(1단계·2단계)은 한 칸에 함께 */
+    const T=[];{const by={};T0.slice().sort((a,b)=>String(a.start||'').localeCompare(String(b.start||''))).forEach(c=>{if(ttSt(c.st)[1]==='closed'||!c.start||!c.end){T.push(c);return}const k=c.room+'|'+c.time+'|'+(c.tend||'');const G=by[k]||(by[k]=[]);const g=G.find(g=>g.every(x=>x.end<c.start||c.end<x.start));if(g)g.push(c);else{const n=[c];G.push(n);T.push(n)}});}
+    for(let i=0;i<T.length;i++)if(Array.isArray(T[i]))T[i]=T[i].length>1?{...T[i][0],_multi:T[i]}:T[i][0];
+    const mulH=c=>`<div class="tt-mul">${c._multi.map((x,n)=>`<div class="tt-stg"><span class="tt-stgl">${n+1}단계 · ${String(x.start).slice(5).replace('-','.')}~${String(x.end).slice(5).replace('-','.')}</span>${cardH(x,1)}</div>`).join('')}</div>`;const span=c=>{const a=tm(c.time);let z=c.tend?tm(c.tend):(a>=19*60?22*60:a+120);if(z<=a)z=a+30;return [a,Math.ceil((z-a)/30)*30+a]};
     const rooms=[...new Set(T.map(c=>c.room))].sort((x,y)=>(x.length>2)-(y.length>2)||x.length-y.length||x.localeCompare(y));const lanes={};rooms.forEach(r=>{const Ls=[];T.filter(c=>c.room===r).sort((x,y)=>span(x)[0]-span(y)[0]).forEach(c=>{const [a,z]=span(c);let ln=Ls.find(l=>l.end<=a);if(!ln){ln={end:0,items:[]};Ls.push(ln)}ln.items.push(c);ln.end=z});lanes[r]=Ls});
     const t0=Math.floor(Math.min(...T.map(c=>span(c)[0]))/30)*30,t1=Math.max(...T.map(c=>span(c)[1]));const slots=[];for(let x=t0;x<t1;x+=30)slots.push(x);
     const cols=rooms.flatMap(r=>lanes[r].map((l,i)=>({r,i,l})));
     const head=`<tr><th class="tt-tc" rowspan="2">강의실</th>${rooms.map(r=>`<th colspan="${lanes[r].length}" class="tt-rm">${esc(r)}</th>`).join('')}</tr><tr>${cols.map(c=>`<th class="tt-ln">${esc(c.r)}-${c.i+1}</th>`).join('')}</tr>`;
-    const cover={};const body=slots.map(x=>`<tr class="${x%60?'h':''}"><th class="tt-tc">${fm(x)}</th>${cols.map((col,ci)=>{if(cover[ci]>x)return '';const c=col.l.items.find(k=>span(k)[0]===x);if(c){const [a,z]=span(c);cover[ci]=z;return `<td rowspan="${(z-a)/30}" class="tt-has">${cardH(c)}</td>`}return '<td></td>'}).join('')}</tr>`).join('');
+    const cover={};const body=slots.map(x=>`<tr class="${x%60?'h':''}"><th class="tt-tc">${fm(x)}</th>${cols.map((col,ci)=>{if(cover[ci]>x)return '';const c=col.l.items.find(k=>span(k)[0]===x);if(c){const [a,z]=span(c);cover[ci]=z;return `<td rowspan="${(z-a)/30}" class="tt-has">${c._multi?mulH(c):cardH(c)}</td>`}return '<td></td>'}).join('')}</tr>`).join('');
     const un=U.length?`<div class="tt-un"><b>시간 미정 ${U.length}반</b><div class="tt-unl">${U.map(c=>cardH(c)).join('')}</div></div>`:'';
     return `${un}<div class="tt-gw${big?' big':''}"><table class="tt-g2" style="width:calc(64px + ${cols.length} * var(--cw))"><colgroup><col style="width:64px">${cols.map(()=>'<col style="width:var(--cw)">').join('')}</colgroup><thead>${head}</thead><tbody>${body}</tbody></table></div>`};
   let body;
