@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261026-095730';
+window.OPS_BUILD = '20261026-100400';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -1979,6 +1979,17 @@ body:has(#ttOvl),body:has(#ttBig){overflow:hidden}
 .tt-stg .tt-c{flex:1;border-top-left-radius:0;border-top-right-radius:0;padding:4px 6px!important}
 .tt-c.mini .tt-x{display:none}
 
+/* 시간표 카드 촘촘하게 (한 화면에 더 많이) */
+.tt-g2 .tt-c{padding:5px 6px!important}
+.tt-g2 .tt-nm{padding:1px 0 3px;font-size:13px}
+.tt-g2 .tt-l{padding:2px 0;line-height:1.25}
+.tt-as .tt-cap{font-weight:600;color:var(--ink2)}
+.tt-g2 tbody tr{height:26px}
+.tt-gw.big .tt-g2 tbody tr{height:calc(30px*var(--z,1))}
+.tt-main{padding-top:6px!important}
+.tt-main #b-ttv .card-hd{padding-top:14px;padding-bottom:8px}
+.tt-bar{padding-bottom:6px}.tt-sum{padding-bottom:8px}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3899,8 +3910,8 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
   const tm=t=>{const [h,m]=String(t).split(':').map(Number);return h*60+(m||0)};const fm=x=>`${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
   const cardH=(c,mini)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
     return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}${mini?' mini':''}" style="--c:${S_[2]}" data-ttpick="${c._d}|${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>${ttLow(c)?`<span class="tt-lowt">모집저조 ${Math.round((+c.cnt||0)/(+c.cap)*100)}%</span>`:''}
-      <div class="tt-l">정원 : ${c.cap}</div><div class="tt-l tt-as">배정 : ${c.cnt}${c.extra?` <em>${esc(c.extra)}</em>`:''}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
-      <div class="tt-l tt-x">${esc(c.teacher||'-')}</div><div class="tt-l tt-x">${esc(c.days)}${c.time?` · <b>${esc(c.time)}~${esc(c.tend||fm(tm(c.time)>=1140?1320:tm(c.time)+120))}</b>`:''}</div><div class="tt-l tt-sm tt-x">개:${esc(c.start)}</div><div class="tt-l tt-sm tt-x">종:${esc(c.end)}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
+      <div class="tt-l tt-as"><span class="tt-cap">정원 ${c.cap} /</span> 배정 ${c.cnt}${c.extra?` <em>${esc(c.extra)}</em>`:''}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
+      <div class="tt-l tt-x">${esc(c.teacher||'-')} · ${esc(c.days)}</div>${c.time?`<div class="tt-l tt-x"><b>${esc(c.time)}~${esc(c.tend||fm(tm(c.time)>=1140?1320:tm(c.time)+120))}</b></div>`:''}<div class="tt-l tt-sm tt-x">${esc(String(c.start||'').slice(2).replace(/-/g,'.'))} ~ ${esc(String(c.end||'').slice(2).replace(/-/g,'.'))}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
   const grid=(L,big)=>{if(!L.length)return '<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>';
     const T0=L.filter(c=>c.time),U=L.filter(c=>!c.time);
     /* 같은 강의실·같은 시간에 날짜가 겹치지 않게 이어지는 반(1단계·2단계)은 한 칸에 함께 */
