@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261027-100539';
+window.OPS_BUILD = '20261027-101112';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2079,6 +2079,27 @@ body{padding-left:84px}
 .yx-i.on{background:#fef3c7;border-color:#fcd34d}
 .yx-i span{color:var(--muted)}
 
+.cl-tab td.cl-need,.cl-tab th.cl-need,.cl-tab td.cl-sum,.cl-tab td.cl-cc{white-space:nowrap}
+.cl-tab td.cl-need,.cl-tab th.cl-need{min-width:66px}
+
+/* 통과/미달 줄 전체 색 · 고정 비고 */
+.cl-tab tr.cl-rok>td{background:#ecfdf3!important}
+.cl-tab tr.cl-rbad>td{background:#fef2f2!important}
+.cl-tab tr.cl-rx>td{background:#fffbeb!important}
+.cl-tab tr.cl-rok>td.cl-team,.cl-tab tr.cl-rbad>td.cl-team,.cl-tab tr.cl-rx>td.cl-team{background:var(--surface)!important}
+.cl-tab tr.cl-rok>td.cl-sum,.cl-tab tr.cl-rok>td.cl-cc{background:#d1fae5!important}
+.cl-tab tr.cl-rbad>td.cl-sum,.cl-tab tr.cl-rbad>td.cl-cc.bad{background:#fee2e2!important}
+.cl-tab tr.clc-g td.cl-nm,.cl-tab tr.clc-g td.cl-rank{background:#bbf7d0!important}
+.cl-tab tr.clc-y td.cl-nm,.cl-tab tr.clc-y td.cl-rank{background:#fde68a!important}
+.cl-tab tr.clc-b td.cl-nm,.cl-tab tr.clc-b td.cl-rank{background:#bfdbfe!important}
+.cl-tab tr.clc-r td.cl-nm,.cl-tab tr.clc-r td.cl-rank{background:#fecaca!important}
+.cl-tab .cl-in{background:transparent}
+.cl-ntw{display:flex;align-items:center;gap:4px;justify-content:center}
+.cl-fxb{flex:none;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:11px;font-weight:700;padding:2px 6px;cursor:pointer;color:var(--ink2)}
+.cl-fxb:hover{border-color:#94a3b8;color:var(--ink)}
+.cl-fx{display:inline-flex;align-items:center;gap:4px;margin:2px 0 4px;padding:2px 4px 2px 8px;border-radius:999px;background:#e0e7ff;color:#3730a3;font-size:12px;font-weight:700}
+.cl-fxx{border:0;background:none;color:#6366f1;cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3251,6 +3272,7 @@ function callLockTime(){const t=S.callsAll?.['_settings']?.lockAt;return /^\d{2}
 function callLocked(d){const day=S.callsAll?.[d]||{};if(day.unlocked)return false;return `${addDays(d,1)}T${callLockTime()}`<=kstNow()}
 setInterval(()=>{if(S.tab!=='calls'||!S.doc)return;const v=callLocked(S.cdate||todayIso());if(S.clLk!==undefined&&S.clLk!==v){S.keepScroll=true;render()}S.clLk=v},30000);
 function callYx(name,d){const L=S.callsAll?.['_exempt']?.list||[];return L.some(x=>x.name===name&&x.from&&x.to&&x.from<=d&&d<=x.to)}
+document.addEventListener('mousedown',function(e){if(e.target.closest&&e.target.closest('.cl-fxb'))e.preventDefault()},true);
 function callCan(){return typeof approved==='function'?approved():CAN()}
 function viewCalls(){
   callsSub();const d=S.cdate||(S.cdate=todayIso());const day=S.callsAll?.[d]||{};const rows=day.rows||{};const R=callRoster();const locked=callLocked(d);const own=typeof isOwnerA==='function'&&isOwnerA();const can=callCan()&&(!locked||own);const paint=CAN()&&(!locked||own);const ex=!!day.exempt;
@@ -3259,11 +3281,12 @@ function viewCalls(){
     const CS=callSet();const tot=pt+et,cnt=pc+ec,need=callNeed(r);const filled=['pt','et','pc','ec','s1','s2','rg','bl','amt'].some(k=>r[k]!=null&&r[k]!=='');if(filled)done++;
     const vip=/^(부장|선임\s*팀장)$/.test(String(p.rank||'').trim());const yx=callYx(p.name,d);const pc_=r.c||(yx?'y':'');const needC=callNeedC(r);const bonC=callBonusC(r);const gotC=cnt+bonC;const tBad=tot<need,cBad=CS.cbase>0&&gotC<needC;const judge=CS.mode==='time'?tBad:CS.mode==='call'?(CS.cbase>0?cBad:tBad):CS.mode==='and'?(tBad||cBad):(CS.cbase>0?(tBad&&cBad):tBad);const bad=!ex&&!vip&&!yx&&pc_!=='g'&&judge;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
     const inp=(k,v,cls='',ph='')=>can?`<input class="cl-in ${cls}" data-cl="${esc(p.name)}|${k}" value="${esc(v??'')}" placeholder="${ph}" inputmode="${k==='pt'||k==='et'?'text':'numeric'}">`:esc(v??'');
-    return `<tr class="${first?'cl-first':''}${filled?'':' cl-empty'}${pc_?' clc-'+pc_:''}">${first?`<td class="cl-team" rowspan="${span}">${esc(p.team)}</td>`:''}<td class="ctr cl-rank">${esc(p.rank)}</td><td class="nw cl-nm">${paint?`<button type="button" class="cl-pn${S.clBrush!=null?' on':''}" data-clpaint="${esc(p.name)}" title="${S.clBrush!=null?'눌러서 칠하기':'위에서 색을 고른 뒤 누르세요'}"><b>${esc(p.name)}</b></button>`:`<b>${esc(p.name)}</b>`}</td>
+    const rowSt=yx?' cl-rx':bad?' cl-rbad':(filled||vip||ex||pc_==='g')?' cl-rok':'';const fx=S.callsAll?.['_memo']?.notes?.[p.name]||'';
+    return `<tr class="${first?'cl-first':''}${filled?'':' cl-empty'}${pc_?' clc-'+pc_:''}${rowSt}">${first?`<td class="cl-team" rowspan="${span}">${esc(p.team)}</td>`:''}<td class="ctr cl-rank">${esc(p.rank)}</td><td class="nw cl-nm">${paint?`<button type="button" class="cl-pn${S.clBrush!=null?' on':''}" data-clpaint="${esc(p.name)}" title="${S.clBrush!=null?'눌러서 칠하기':'위에서 색을 고른 뒤 누르세요'}"><b>${esc(p.name)}</b></button>`:`<b>${esc(p.name)}</b>`}</td>
       <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('rg',r.rg,'n')}</td><td class="ctr">${inp('bl',r.bl,'n')}</td><td class="ctr cl-amt">${inp('amt',r.amt?(+r.amt).toLocaleString():'','m','')}${r.amt&&salesDed(r,CS)?`<small>-${salesDed(r,CS)}분</small>`:''}</td>
       <td class="ctr cl-p">${inp('pt',r.pt?hms(pt):'','t','0:00:00')}</td><td class="ctr cl-p">${inp('pc',r.pc,'n')}</td>
       <td class="ctr cl-e">${inp('et',r.et?hms(et):'','t','0:00:00')}</td><td class="ctr cl-e">${inp('ec',r.ec,'n')}</td>
-      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||yx||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&!yx&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}<td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td><td class="cl-memo">${can?`<input class="cl-in cl-nt" data-cl="${esc(p.name)}|nt" value="${esc(r.nt??'')}" aria-label="비고">`:esc(r.nt??'')}</td></tr>`}).join('');
+      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||yx||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&!yx&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}<td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td><td class="cl-memo">${fx?`<span class="cl-fx" title="날짜가 바뀌어도 남는 고정 비고">${esc(fx)}${can?`<button type="button" class="cl-fxx" data-clfxdel="${esc(p.name)}" aria-label="고정 비고 지우기">×</button>`:''}</span>`:''}${can?`<span class="cl-ntw"><input class="cl-in cl-nt" data-cl="${esc(p.name)}|nt" value="${esc(r.nt??'')}" aria-label="비고"><button type="button" class="cl-fxb" data-clfx="${esc(p.name)}" title="적은 비고를 고정합니다. 다음 날에도 계속 보입니다.">고정</button></span>`:esc(r.nt??'')}</td></tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
     <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can&&CAN()?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
@@ -3487,6 +3510,8 @@ function act(t){
   if(d.cmode){const cur=S.callsAll?.['_settings']||{};logAdd('calls',[`통과 기준: ${CMODES.find(x=>x[0]===d.cmode)[1]}`]);callsWrite('_settings',{...(cur.v2?{}:CALL_DEF),mode:d.cmode,v2:true}).then(()=>{toast('통과 기준을 바꿨습니다');S.keepScroll=true;render()});return true}
   if(d.clunlock){const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} 통화량 잠금 풀기`]);callsWrite(dd,{unlocked:true}).then(()=>{toast(`${md(dd)} 잠금을 풀었습니다`);S.keepScroll=true;render()});return true}
   if(d.cllock){const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} 통화량 다시 잠금`]);callsWrite(dd,{unlocked:false}).then(()=>{toast(`${md(dd)} 다시 잠갔습니다`);S.keepScroll=true;render()});return true}
+  if(d.clfx){const n=d.clfx;const inp=[...document.querySelectorAll('.cl-nt')].find(x=>x.dataset.cl===n+'|nt');const v=(inp?.value||'').trim();if(!v){toast('비고 칸에 먼저 적어 주세요');return true}if(inp){inp.value='';inp.blur()}const notes={...(S.callsAll?.['_memo']?.notes||{}),[n]:v.slice(0,200)};const dd=S.cdate||todayIso();logAdd('calls',[`고정 비고: ${n} · ${v.slice(0,40)}`]);callsWrite('_memo',{notes}).then(()=>callsWrite(dd,{rows:{[n]:{nt:''}}})).then(()=>{toast('고정했습니다. 다음 날에도 보입니다');S.keepScroll=true;render()});return true}
+  if(d.clfxdel){const n=d.clfxdel;const notes={...(S.callsAll?.['_memo']?.notes||{})};delete notes[n];logAdd('calls',[`고정 비고 지움: ${n}`]);callsWrite('_memo',{notes}).then(()=>{S.keepScroll=true;render()});return true}
   if(d.yxadd){const n=$('#yxN').value,a=$('#yxA').value,b=$('#yxB').value;if(!n||!a||!b){toast('이름과 기간을 골라 주세요');return true}if(a>b){toast('끝나는 날이 시작일보다 앞설 수 없습니다');return true}const L=[...(S.callsAll?.['_exempt']?.list||[]),{name:n,from:a,to:b}];logAdd('calls',[`노란색 기간 추가: ${n} ${a} ~ ${b}`]);callsWrite('_exempt',{list:L}).then(()=>{toast(`${n} 노란색 기간을 넣었습니다`);S.keepScroll=true;render()});return true}
   if(d.yxdel!=null){const L=[...(S.callsAll?.['_exempt']?.list||[])];const x=L.splice(+d.yxdel,1)[0];logAdd('calls',[`노란색 기간 뺌: ${x?.name||''}`]);callsWrite('_exempt',{list:L}).then(()=>{S.keepScroll=true;render()});return true}
   if(d.clruled){S.clRuleEd=!S.clRuleEd;S.keepScroll=true;render();return true}
