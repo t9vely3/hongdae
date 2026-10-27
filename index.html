@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261026-155112';
+window.OPS_BUILD = '20261027-100539';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2065,6 +2065,20 @@ body{padding-left:84px}
 .top .logo .mk{display:none}
 @media (max-width:760px){.top .logo .mk{display:flex}}
 
+/* 통화량 비고 */
+.cl-tab td.cl-memo,.cl-tab th.cl-memo{min-width:160px;text-align:left}
+.cl-tab .cl-in.cl-nt{width:100%;min-width:150px;text-align:left}
+
+/* 비고 가운데 · 노란색 기간 */
+.cl-tab td.cl-memo,.cl-tab th.cl-memo{text-align:center}
+.cl-tab .cl-in.cl-nt{text-align:center}
+.yx-f{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:4px 0}
+.yx-f select{min-width:140px}
+.yx-l{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.yx-i{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px}
+.yx-i.on{background:#fef3c7;border-color:#fcd34d}
+.yx-i span{color:var(--muted)}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3236,19 +3250,20 @@ async function callsWrite(id,patch){
 function callLockTime(){const t=S.callsAll?.['_settings']?.lockAt;return /^\d{2}:\d{2}$/.test(t||'')?t:'09:30'}
 function callLocked(d){const day=S.callsAll?.[d]||{};if(day.unlocked)return false;return `${addDays(d,1)}T${callLockTime()}`<=kstNow()}
 setInterval(()=>{if(S.tab!=='calls'||!S.doc)return;const v=callLocked(S.cdate||todayIso());if(S.clLk!==undefined&&S.clLk!==v){S.keepScroll=true;render()}S.clLk=v},30000);
+function callYx(name,d){const L=S.callsAll?.['_exempt']?.list||[];return L.some(x=>x.name===name&&x.from&&x.to&&x.from<=d&&d<=x.to)}
 function callCan(){return typeof approved==='function'?approved():CAN()}
 function viewCalls(){
   callsSub();const d=S.cdate||(S.cdate=todayIso());const day=S.callsAll?.[d]||{};const rows=day.rows||{};const R=callRoster();const locked=callLocked(d);const own=typeof isOwnerA==='function'&&isOwnerA();const can=callCan()&&(!locked||own);const paint=CAN()&&(!locked||own);const ex=!!day.exempt;
   let fail=0,done=0;
   const body=R.map((p,i)=>{const r=rows[p.name]||{};const pt=+r.pt||0,et=+r.et||0,pc=+r.pc||0,ec=+r.ec||0,s1=+r.s1||0,s2=+r.s2||0;
     const CS=callSet();const tot=pt+et,cnt=pc+ec,need=callNeed(r);const filled=['pt','et','pc','ec','s1','s2','rg','bl','amt'].some(k=>r[k]!=null&&r[k]!=='');if(filled)done++;
-    const vip=/^(부장|선임\s*팀장)$/.test(String(p.rank||'').trim());const pc_=r.c||'';const needC=callNeedC(r);const bonC=callBonusC(r);const gotC=cnt+bonC;const tBad=tot<need,cBad=CS.cbase>0&&gotC<needC;const judge=CS.mode==='time'?tBad:CS.mode==='call'?(CS.cbase>0?cBad:tBad):CS.mode==='and'?(tBad||cBad):(CS.cbase>0?(tBad&&cBad):tBad);const bad=!ex&&!vip&&pc_!=='g'&&judge;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
+    const vip=/^(부장|선임\s*팀장)$/.test(String(p.rank||'').trim());const yx=callYx(p.name,d);const pc_=r.c||(yx?'y':'');const needC=callNeedC(r);const bonC=callBonusC(r);const gotC=cnt+bonC;const tBad=tot<need,cBad=CS.cbase>0&&gotC<needC;const judge=CS.mode==='time'?tBad:CS.mode==='call'?(CS.cbase>0?cBad:tBad):CS.mode==='and'?(tBad||cBad):(CS.cbase>0?(tBad&&cBad):tBad);const bad=!ex&&!vip&&!yx&&pc_!=='g'&&judge;if(bad)fail++;const first=i===0||R[i-1].team!==p.team;const span=R.filter(x=>x.team===p.team).length;
     const inp=(k,v,cls='',ph='')=>can?`<input class="cl-in ${cls}" data-cl="${esc(p.name)}|${k}" value="${esc(v??'')}" placeholder="${ph}" inputmode="${k==='pt'||k==='et'?'text':'numeric'}">`:esc(v??'');
     return `<tr class="${first?'cl-first':''}${filled?'':' cl-empty'}${pc_?' clc-'+pc_:''}">${first?`<td class="cl-team" rowspan="${span}">${esc(p.team)}</td>`:''}<td class="ctr cl-rank">${esc(p.rank)}</td><td class="nw cl-nm">${paint?`<button type="button" class="cl-pn${S.clBrush!=null?' on':''}" data-clpaint="${esc(p.name)}" title="${S.clBrush!=null?'눌러서 칠하기':'위에서 색을 고른 뒤 누르세요'}"><b>${esc(p.name)}</b></button>`:`<b>${esc(p.name)}</b>`}</td>
       <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('rg',r.rg,'n')}</td><td class="ctr">${inp('bl',r.bl,'n')}</td><td class="ctr cl-amt">${inp('amt',r.amt?(+r.amt).toLocaleString():'','m','')}${r.amt&&salesDed(r,CS)?`<small>-${salesDed(r,CS)}분</small>`:''}</td>
       <td class="ctr cl-p">${inp('pt',r.pt?hms(pt):'','t','0:00:00')}</td><td class="ctr cl-p">${inp('pc',r.pc,'n')}</td>
       <td class="ctr cl-e">${inp('et',r.et?hms(et):'','t','0:00:00')}</td><td class="ctr cl-e">${inp('ec',r.ec,'n')}</td>
-      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}</tr>`}).join('');
+      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||yx||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&!yx&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}<td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td><td class="cl-memo">${can?`<input class="cl-in cl-nt" data-cl="${esc(p.name)}|nt" value="${esc(r.nt??'')}" aria-label="비고">`:esc(r.nt??'')}</td></tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
     <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can&&CAN()?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
@@ -3274,7 +3289,7 @@ function viewCalls(){
     <div class="cr-help"><span><b>입력</b>통화량은 0:15:12 또는 15:12처럼 적습니다</span><span><b>이동</b>엔터·방향키로 옆 칸으로 넘어가면 바로 저장됩니다</span><span><b>제외</b>지점매출 달성에 체크하면 그날은 전원 통과입니다</span>${ed?`<button type="button" class="btn sm ghost" data-csreset="1">처음 값으로</button>`:''}</div>`,
     {right:CAN()?`<button type="button" class="btn sm${ed?' primary':''}" data-clruled="1">${ed?'다 고쳤어요':'기준 고치기'}</button>`:''})
     +(S.callsDenied?`<div class="banner">통화량이 저장되지 않고 있습니다. Firebase 콘솔 → Firestore Database → <b>규칙</b> 탭에 새 규칙 파일 내용을 붙여넣고 <b>게시</b>를 눌러 주세요. 게시할 때 빨간 오류가 뜨면 그 화면을 보내 주세요.</div>`:'');
-  const table=`<div class="tw"><table class="stk cl-tab"><thead><tr><th rowspan="2">팀</th><th rowspan="2" class="ctr">직급</th><th rowspan="2">이름</th><th colspan="2" class="ctr">상담</th><th rowspan="2" class="ctr">등록<br><small>COD·추등</small></th><th rowspan="2" class="ctr">블로그<br><small>기입</small></th><th rowspan="2" class="ctr">하루 매출<br><small>만원</small></th><th class="ctr cl-p" rowspan="2">개인<br>통화량</th><th class="ctr cl-p" rowspan="2">개인<br>건수</th><th class="ctr cl-e" rowspan="2">내선<br>통화량</th><th class="ctr cl-e" rowspan="2">내선<br>건수</th><th class="ctr cl-need" rowspan="2">기준<br><small>${callSet().base}:00에서 차감</small></th><th class="ctr" rowspan="2">합산<br>통화량</th><th class="ctr" rowspan="2">합산<br>건수</th>${callSet().cbase?`<th class="ctr cl-cc" rowspan="2">연결콜수<br><small>달성 / 기준</small></th>`:''}</tr><tr><th class="ctr">본인</th><th class="ctr">대리</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  const table=`<div class="tw"><table class="stk cl-tab"><thead><tr><th rowspan="2">팀</th><th rowspan="2" class="ctr">직급</th><th rowspan="2">이름</th><th colspan="2" class="ctr">상담</th><th rowspan="2" class="ctr">등록<br><small>COD·추등</small></th><th rowspan="2" class="ctr">블로그<br><small>기입</small></th><th rowspan="2" class="ctr">하루 매출<br><small>만원</small></th><th class="ctr cl-p" rowspan="2">개인<br>통화량</th><th class="ctr cl-p" rowspan="2">개인<br>건수</th><th class="ctr cl-e" rowspan="2">내선<br>통화량</th><th class="ctr cl-e" rowspan="2">내선<br>건수</th><th class="ctr cl-need" rowspan="2">기준<br>통화량</th>${callSet().cbase?`<th class="ctr cl-cc" rowspan="2">기준<br>건수<br><small>달성 / 기준</small></th>`:''}<th class="ctr" rowspan="2">합산<br>통화량</th><th class="ctr" rowspan="2">합산<br>건수</th><th rowspan="2" class="cl-memo">비고</th></tr><tr><th class="ctr">본인</th><th class="ctr">대리</th></tr></thead><tbody>${body}</tbody></table></div>`;
   const imp=can?card('clext','내선 통화내역 붙여넣기','가장 쉬운 방법: 통화량 사이트에서 Ctrl+A → Ctrl+C, 이 화면 아무 곳(빈 곳)에서 Ctrl+V. 상담원별 시간과 건수를 더해 지금 보고 있는 날짜의 내선 칸에 넣습니다.',
     `<div class="wk"><textarea id="clExt" class="in" rows="4" placeholder="내선 통화내역을 붙여넣으세요">${esc(S.clExt||'')}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clext="1">합산해서 내선 칸에 넣기</button>${S.clExtRes?`<span class="muted">${esc(S.clExtRes)}</span>`:''}</div></div>`):'';
   const ros=can&&isOwnerOrEditor()?card('clros','통화량 명단','한 줄에 ‘팀 직급 이름’ 순서로 적습니다. 예) 1-1팀 부장 김태원',`<div class="wk"><textarea id="clRos" class="in" rows="${S.clRosOpen?14:3}">${esc(S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT)}</textarea><div class="wk-top"><button type="button" class="btn sm" data-clros="1">명단 저장</button></div></div>`):'';
@@ -3284,7 +3299,11 @@ function viewCalls(){
   const LT=callLockTime();const lockAt=`${md(addDays(d,1))} ${LT}`;
   const lockBar=`<div class="cl-lock${locked?' on':''}"><span class="cl-lk-i">${icx(locked?'alert':'clock')}</span><div class="cl-lk-t">${locked?`<b>잠김</b> · ${own?'다른 사람은 고칠 수 없습니다. 관리자만 고칠 수 있습니다.':'이 날 통화량은 마감되어 고칠 수 없습니다. 고칠 내용이 있으면 관리자에게 말해 주세요.'}`:day.unlocked?`<b>잠금 풀림</b> · 관리자가 이 날 잠금을 풀었습니다. 다시 잠글 때까지 고칠 수 있습니다.`:`<b>${lockAt}</b>에 자동으로 잠깁니다. 그 전까지 적어 주세요.`}</div>
     ${own?`<div class="cl-lk-a">${locked?`<button type="button" class="btn sm primary" data-clunlock="1">이 날 잠금 풀기</button>`:day.unlocked?`<button type="button" class="btn sm" data-cllock="1">다시 잠그기</button>`:''}<label class="cl-lk-set">잠그는 시간 · 다음날<input type="time" id="clLockT" class="in sm" value="${LT}"></label></div>`:''}</div>`;
-  return head+bar+lockBar+card('cltab','일별 통화량','',ptool+table,{cls:'wide'})+(locked&&!own?'':imp)+rule+ros;
+  const XL=S.callsAll?.['_exempt']?.list||[];
+  const yxCard=CAN()?card('clyx','노란색 기간 (한 달 통화량 제외)','정한 기간 동안 그 사람 줄이 노란색으로 표시되고 통과로 칩니다. 날짜가 바뀌어도 지워지지 않습니다. 편집 권한자만 보입니다.',
+    `<div class="yx-f"><select class="in sm" id="yxN"><option value="">이름 고르기</option>${R.map(p=>`<option>${esc(p.name)}</option>`).join('')}</select><input type="date" class="in sm" id="yxA" value="${d.slice(0,8)}01"><span>~</span><input type="date" class="in sm" id="yxB" value="${(()=>{const [y,m]=d.split('-').map(Number);return d.slice(0,8)+String(new Date(y,m,0).getDate()).padStart(2,'0')})()}"><button type="button" class="btn sm primary" data-yxadd="1">추가</button></div>
+    ${XL.length?`<div class="yx-l">${XL.map((x,i)=>`<div class="yx-i${x.from<=d&&d<=x.to?' on':''}"><b>${esc(x.name)}</b><span>${esc(x.from)} ~ ${esc(x.to)}</span><button type="button" class="btn xs ghost" data-yxdel="${i}">빼기</button></div>`).join('')}</div>`:'<p class="muted" style="margin:8px 0 0">아직 정한 기간이 없습니다.</p>'}`):'';
+  return head+bar+lockBar+card('cltab','일별 통화량','',ptool+table,{cls:'wide'})+(locked&&!own?'':imp)+rule+yxCard+ros;
 }
 function isOwnerOrEditor(){return CAN()}
 function clImport(t,quick){const day=S.cdate||todayIso();S.clExt=quick?'':t;const r=parseExt(t,day);const ns=Object.keys(r.sum);
@@ -3468,6 +3487,8 @@ function act(t){
   if(d.cmode){const cur=S.callsAll?.['_settings']||{};logAdd('calls',[`통과 기준: ${CMODES.find(x=>x[0]===d.cmode)[1]}`]);callsWrite('_settings',{...(cur.v2?{}:CALL_DEF),mode:d.cmode,v2:true}).then(()=>{toast('통과 기준을 바꿨습니다');S.keepScroll=true;render()});return true}
   if(d.clunlock){const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} 통화량 잠금 풀기`]);callsWrite(dd,{unlocked:true}).then(()=>{toast(`${md(dd)} 잠금을 풀었습니다`);S.keepScroll=true;render()});return true}
   if(d.cllock){const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} 통화량 다시 잠금`]);callsWrite(dd,{unlocked:false}).then(()=>{toast(`${md(dd)} 다시 잠갔습니다`);S.keepScroll=true;render()});return true}
+  if(d.yxadd){const n=$('#yxN').value,a=$('#yxA').value,b=$('#yxB').value;if(!n||!a||!b){toast('이름과 기간을 골라 주세요');return true}if(a>b){toast('끝나는 날이 시작일보다 앞설 수 없습니다');return true}const L=[...(S.callsAll?.['_exempt']?.list||[]),{name:n,from:a,to:b}];logAdd('calls',[`노란색 기간 추가: ${n} ${a} ~ ${b}`]);callsWrite('_exempt',{list:L}).then(()=>{toast(`${n} 노란색 기간을 넣었습니다`);S.keepScroll=true;render()});return true}
+  if(d.yxdel!=null){const L=[...(S.callsAll?.['_exempt']?.list||[])];const x=L.splice(+d.yxdel,1)[0];logAdd('calls',[`노란색 기간 뺌: ${x?.name||''}`]);callsWrite('_exempt',{list:L}).then(()=>{S.keepScroll=true;render()});return true}
   if(d.clruled){S.clRuleEd=!S.clRuleEd;S.keepScroll=true;render();return true}
   if(d.csreset){callsWrite('_settings',{...CALL_DEF,v2:true}).then(()=>{toast('처음 기준으로 되돌렸습니다');S.keepScroll=true;render()});return true}
   if(d.clros){const t=$('#clRos').value;logAdd('calls',['통화량 명단 저장']);callsWrite('_roster',{text:t}).then(()=>{toast('통화량 명단을 저장했습니다');S.keepScroll=true;render()});return true}
@@ -3825,7 +3846,7 @@ function ntAct(d){
 
 /* ================= 수정 기록 (모든 화면) ================= */
 const LOG_CUT='2026-10-21T03:00';
-const CL_F={cbase:'기준 콜수',csc:'상담 1건(콜)',crg:'등록 1건(콜)',cd1:'매출 1단계(콜)',cd2:'매출 2단계(콜)',cmin:'최소 콜수',s1:'상담(본인)',s2:'상담(대리)',rg:'등록',bl:'블로그 기입',cbl:'블로그 1건(콜)',amt:'하루 매출',pt:'개인 통화량',pc:'개인 건수',et:'내선 통화량',ec:'내선 건수',base:'기본 기준',sc:'상담 1건',m1:'매출 1단계',d1:'1단계 차감',m2:'매출 2단계',d2:'2단계 차감',min:'최소 기준'};
+const CL_F={cbase:'기준 콜수',csc:'상담 1건(콜)',crg:'등록 1건(콜)',cd1:'매출 1단계(콜)',cd2:'매출 2단계(콜)',cmin:'최소 콜수',s1:'상담(본인)',s2:'상담(대리)',rg:'등록',bl:'블로그 기입',nt:'비고',cbl:'블로그 1건(콜)',amt:'하루 매출',pt:'개인 통화량',pc:'개인 건수',et:'내선 통화량',ec:'내선 건수',base:'기본 기준',sc:'상담 1건',m1:'매출 1단계',d1:'1단계 차감',m2:'매출 2단계',d2:'2단계 차감',min:'최소 기준'};
 const CL_C={g:'초록',y:'노랑',b:'파랑',r:'빨강'};
 const kstNow=()=>new Date(Date.now()+9*36e5).toISOString().slice(0,16);
 const logWho=()=>((typeof A!=='undefined'&&A.prof?.name)||S.myName||'').trim();
@@ -4295,7 +4316,7 @@ document.addEventListener('keydown',e=>{
   if(mod&&!inField&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
   if(mod&&!inField&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('.cell,.ag,.mc-c,[data-rsel],[data-csel]')&&!inField){e.preventDefault();e.target.click();return}
-  if(e.target.matches?.('.cl-in')&&['Enter','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(e.key)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){if(e.isComposing||e.keyCode===229)return;
+  if(e.target.matches?.('.cl-in')&&['Enter','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(e.key)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){if(e.isComposing||e.keyCode===229)return;if(e.target.classList.contains('cl-nt')){const t=e.target;if(e.key==='ArrowLeft'&&t.selectionStart>0)return;if(e.key==='ArrowRight'&&t.selectionEnd<t.value.length)return}
     const all=[...document.querySelectorAll('.cl-in')];const i=all.indexOf(e.target);const per=all.filter(x=>x.closest('tr')===e.target.closest('tr')).length||1;
     let j=i;const k=e.key;
     if(k==='Enter'||k==='Tab')j=e.shiftKey?i-1:i+1;else if(k==='ArrowRight')j=i+1;else if(k==='ArrowLeft')j=i-1;else if(k==='ArrowDown')j=i+per;else if(k==='ArrowUp')j=i-per;
@@ -4328,7 +4349,7 @@ document.addEventListener('change',e=>{
   if(t.dataset&&t.dataset.tvname!=null){const i=+t.dataset.tvname;const v=t.value.trim();S.edit=true;mutate(()=>{ensureTurns()[i].name=v},v?`이름을 ${v}(으)로 고쳤습니다`:'이름을 지웠습니다');return}
   if(t.dataset&&t.dataset.tvamt!=null){const i=+t.dataset.tvamt;const v=num(t.value);S.edit=true;mutate(()=>{ensureTurns()[i].amt=v},`매출 ${comma(String(v))}원`);return}
   if(t.dataset&&t.dataset.tvadd!=null){const i=+t.dataset.tvadd;const v=t.value.replace(/[^\d]/g,'');S.edit=true;mutate(()=>{const L=ensureTurns();L[i].add=v},v?`${turnsOf()[i].name} 추가모집 ${v}건`:'추가모집을 지웠습니다');return}
-  if(t.dataset&&t.dataset.cl){const [n,k]=sp(t.dataset.cl);let v=t.value.trim();if(k==='pt'||k==='et'){v=v?String(secOf(v)):''}else if(k==='amt')v=manOf(v);else v=v.replace(/[^\d]/g,'');{const old=S.callsAll?.[S.cdate||todayIso()]?.rows?.[n]?.[k]??'';if(String(old)!==String(v))logCall(S.cdate||todayIso(),n,k,v)}callsWrite(S.cdate||todayIso(),{rows:{[n]:{[k]:v}}}).then(()=>{S.keepScroll=true;render()});return}
+  if(t.dataset&&t.dataset.cl){const [n,k]=sp(t.dataset.cl);let v=t.value.trim();if(k==='pt'||k==='et'){v=v?String(secOf(v)):''}else if(k==='amt')v=manOf(v);else if(k==='nt')v=v.slice(0,200);else v=v.replace(/[^\d]/g,'');{const old=S.callsAll?.[S.cdate||todayIso()]?.rows?.[n]?.[k]??'';if(String(old)!==String(v))logCall(S.cdate||todayIso(),n,k,v)}callsWrite(S.cdate||todayIso(),{rows:{[n]:{[k]:v}}}).then(()=>{S.keepScroll=true;render()});return}
   if(t.dataset&&t.dataset.cset){const k=t.dataset.cset;const v=Math.max(0,Math.round(+t.value||0));logAdd('calls',[`통화량 기준 · ${CL_F[k]||k}: ${callSet()[k]} → ${v}`]);callsWrite('_settings',{...(S.callsAll?.['_settings']?.v2?{}:CALL_DEF),[k]:v,v2:true}).then(()=>{toast('통화량 기준을 바꿨습니다');S.keepScroll=true;render()});return}
   if(t.id==='clLockT'&&/^\d{2}:\d{2}$/.test(t.value)){const cur=S.callsAll?.['_settings']||{};logAdd('calls',[`통화량 잠그는 시간: 다음날 ${t.value}`]);callsWrite('_settings',{...(cur.v2?{}:CALL_DEF),lockAt:t.value,v2:true}).then(()=>{toast(`다음날 ${t.value}에 잠기도록 바꿨습니다`);S.keepScroll=true;render()});return}
   if(t.id==='cDate'&&t.value){S.cdate=t.value;S.keepScroll=true;render();return}
