@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261027-101347';
+window.OPS_BUILD = '20261027-133714';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2100,6 +2100,26 @@ body{padding-left:84px}
 .cl-fx{display:inline-flex;align-items:center;gap:4px;margin:2px 0 4px;padding:2px 4px 2px 8px;border-radius:999px;background:#e0e7ff;color:#3730a3;font-size:12px;font-weight:700}
 .cl-fxx{border:0;background:none;color:#6366f1;cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
 
+/* 비고 한 줄: 고정 버튼은 마우스를 올렸을 때만 */
+.cl-tab td.cl-memo{min-width:170px}
+.cl-ntw{display:flex;align-items:center;gap:4px}
+.cl-ntw .cl-in.cl-nt{flex:1;min-width:0}
+.cl-fxb{opacity:0;transition:opacity .12s}
+.cl-tab tr:hover .cl-fxb,.cl-fxb:focus-visible{opacity:1}
+.cl-fxb.on{opacity:1;background:#e0e7ff;border-color:#c7d2fe;color:#3730a3}
+td.cl-memo.fxd .cl-in{color:#3730a3;font-weight:700}
+.cl-fx{display:none}
+
+/* 인원 변동 기록 */
+.stu-hs{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.stu-hs summary{cursor:pointer;font-weight:700;font-size:13px}
+.stu-hl{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:220px;overflow:auto;overscroll-behavior:contain}
+.stu-hi{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12.5px;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+.stu-hi .t{font-variant-numeric:tabular-nums;color:var(--ink2);font-weight:700;min-width:84px}
+.stu-hi .w{display:flex;flex-wrap:wrap;gap:4px}
+.stu-hi b{font-weight:700;padding:1px 8px;border-radius:999px;font-size:12px}
+.stu-hi b.ad{background:#dcfce7;color:#15803d}.stu-hi b.dl{background:#fee2e2;color:#b91c1c}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -3286,7 +3306,7 @@ function viewCalls(){
       <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('rg',r.rg,'n')}</td><td class="ctr">${inp('bl',r.bl,'n')}</td><td class="ctr cl-amt">${inp('amt',r.amt?(+r.amt).toLocaleString():'','m','')}${r.amt&&salesDed(r,CS)?`<small>-${salesDed(r,CS)}분</small>`:''}</td>
       <td class="ctr cl-p">${inp('pt',r.pt?hms(pt):'','t','0:00:00')}</td><td class="ctr cl-p">${inp('pc',r.pc,'n')}</td>
       <td class="ctr cl-e">${inp('et',r.et?hms(et):'','t','0:00:00')}</td><td class="ctr cl-e">${inp('ec',r.ec,'n')}</td>
-      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||yx||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&!yx&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}<td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td><td class="cl-memo">${fx?`<span class="cl-fx" title="날짜가 바뀌어도 남는 고정 비고">${esc(fx)}${can?`<button type="button" class="cl-fxx" data-clfxdel="${esc(p.name)}" aria-label="고정 비고 지우기">×</button>`:''}</span>`:''}${can?`<span class="cl-ntw"><input class="cl-in cl-nt" data-cl="${esc(p.name)}|nt" value="${esc(r.nt??'')}" aria-label="비고"><button type="button" class="cl-fxb" data-clfx="${esc(p.name)}" title="적은 비고를 고정합니다. 다음 날에도 계속 보입니다.">고정</button></span>`:esc(r.nt??'')}</td></tr>`}).join('');
+      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||yx||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&!yx&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}<td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td><td class="cl-memo${fx&&!r.nt?' fxd':''}">${can?`<span class="cl-ntw"><input class="cl-in cl-nt" data-cl="${esc(p.name)}|nt"${fx&&!r.nt?' data-fx="1"':''} value="${esc(r.nt||fx||'')}" aria-label="비고"><button type="button" class="cl-fxb${fx?' on':''}" ${fx?`data-clfxdel="${esc(p.name)}" title="고정 풀기 (다음 날부터 안 보임)"`:`data-clfx="${esc(p.name)}" title="이 비고를 고정합니다. 다음 날에도 계속 보입니다."`}>${fx?'고정됨':'고정'}</button></span>`:esc(r.nt||fx||'')}</td></tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
     <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can&&CAN()?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
@@ -3510,7 +3530,7 @@ function act(t){
   if(d.cmode){const cur=S.callsAll?.['_settings']||{};logAdd('calls',[`통과 기준: ${CMODES.find(x=>x[0]===d.cmode)[1]}`]);callsWrite('_settings',{...(cur.v2?{}:CALL_DEF),mode:d.cmode,v2:true}).then(()=>{toast('통과 기준을 바꿨습니다');S.keepScroll=true;render()});return true}
   if(d.clunlock){const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} 통화량 잠금 풀기`]);callsWrite(dd,{unlocked:true}).then(()=>{toast(`${md(dd)} 잠금을 풀었습니다`);S.keepScroll=true;render()});return true}
   if(d.cllock){const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} 통화량 다시 잠금`]);callsWrite(dd,{unlocked:false}).then(()=>{toast(`${md(dd)} 다시 잠갔습니다`);S.keepScroll=true;render()});return true}
-  if(d.clfx){const n=d.clfx;const inp=[...document.querySelectorAll('.cl-nt')].find(x=>x.dataset.cl===n+'|nt');const v=(inp?.value||'').trim();if(!v){toast('비고 칸에 먼저 적어 주세요');return true}if(inp){inp.value='';inp.blur()}const notes={...(S.callsAll?.['_memo']?.notes||{}),[n]:v.slice(0,200)};const dd=S.cdate||todayIso();logAdd('calls',[`고정 비고: ${n} · ${v.slice(0,40)}`]);callsWrite('_memo',{notes}).then(()=>callsWrite(dd,{rows:{[n]:{nt:''}}})).then(()=>{toast('고정했습니다. 다음 날에도 보입니다');S.keepScroll=true;render()});return true}
+  if(d.clfx){const n=d.clfx;const inp=[...document.querySelectorAll('.cl-nt')].find(x=>x.dataset.cl===n+'|nt');const v=(inp?.value||'').trim();if(!v){toast('비고 칸에 먼저 적어 주세요');return true}if(inp){inp.dataset.fx='1';inp.blur()}const notes={...(S.callsAll?.['_memo']?.notes||{}),[n]:v.slice(0,200)};const dd=S.cdate||todayIso();logAdd('calls',[`고정 비고: ${n} · ${v.slice(0,40)}`]);callsWrite('_memo',{notes}).then(()=>callsWrite(dd,{rows:{[n]:{nt:''}}})).then(()=>{toast('고정했습니다. 다음 날에도 보입니다');S.keepScroll=true;render()});return true}
   if(d.clfxdel){const n=d.clfxdel;const notes={...(S.callsAll?.['_memo']?.notes||{})};delete notes[n];logAdd('calls',[`고정 비고 지움: ${n}`]);callsWrite('_memo',{notes}).then(()=>{S.keepScroll=true;render()});return true}
   if(d.yxadd){const n=$('#yxN').value,a=$('#yxA').value,b=$('#yxB').value;if(!n||!a||!b){toast('이름과 기간을 골라 주세요');return true}if(a>b){toast('끝나는 날이 시작일보다 앞설 수 없습니다');return true}const L=[...(S.callsAll?.['_exempt']?.list||[]),{name:n,from:a,to:b}];logAdd('calls',[`노란색 기간 추가: ${n} ${a} ~ ${b}`]);callsWrite('_exempt',{list:L}).then(()=>{toast(`${n} 노란색 기간을 넣었습니다`);S.keepScroll=true;render()});return true}
   if(d.yxdel!=null){const L=[...(S.callsAll?.['_exempt']?.list||[])];const x=L.splice(+d.yxdel,1)[0];logAdd('calls',[`노란색 기간 뺌: ${x?.name||''}`]);callsWrite('_exempt',{list:L}).then(()=>{S.keepScroll=true;render()});return true}
@@ -4141,18 +4161,29 @@ function stuFind(it){const docs=ttDocs();const L=[];docs.forEach(k=>(S.callsAll[
   return cand[0]||null}
 async function stuSave(items){const out={ok:0,miss:[]};const W=[];for(const it of items){const c=stuFind(it);if(!c){out.miss.push(it.head?.name||(it.card?.text||'').split('\n')[0]);continue}
     const rows=(it.rows||[]).map(r=>({c:r.map(x=>String(x??''))}));W.push({c,rows,cols:(it.cols||[]).map(String)})}
-  for(let i=0;i<W.length;i+=10){await Promise.all(W.slice(i,i+10).map(({c,rows,cols})=>A.fdb.collection('ops_students').doc(stuKey(c.id)).set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols,rows,at:kstNow(),by:logWho()}).then(()=>{delete STU[stuKey(c.id)];out.ok++})))}
-  logAdd('tt',[`수강생 목록 최신화: ${out.ok}반${out.miss.length?` · 못 찾은 반 ${out.miss.length}`:''}`]);return out}
+  const now=kstNow(),who=logWho(),chg=[];
+  const keyOf=(cols,r)=>{const i=Math.max(0,cols.findIndex(h=>/수강생|이름|성명/.test(h)));return String(r.c[i]||'').trim()};
+  for(let i=0;i<W.length;i+=10){await Promise.all(W.slice(i,i+10).map(async({c,rows,cols})=>{const ref=A.fdb.collection('ops_students').doc(stuKey(c.id));
+    let old=null;try{const g=await ref.get();old=g.exists?g.data():null}catch(_){}
+    let hist=(old&&old.hist)||[];
+    if(old&&(old.rows||old.cols)){const oc=old.cols||cols;const before=new Set((old.rows||[]).map(r=>keyOf(oc,r)).filter(Boolean)),after=new Set(rows.map(r=>keyOf(cols,r)).filter(Boolean));
+      const add=[...after].filter(x=>!before.has(x)),del=[...before].filter(x=>!after.has(x));
+      if(add.length||del.length){hist=hist.concat([{at:now,by:who,add,del,n:after.size}]).slice(-60);chg.push(`${c.name}(${c.room}${c.time?' '+c.time:''}): ${[...add.map(x=>'+'+x),...del.map(x=>'−'+x)].join(', ')}`)}}
+    await ref.set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols,rows,hist,at:now,by:who});delete STU[stuKey(c.id)];out.ok++}))}
+  out.chg=chg.length;
+  logAdd('tt',[`수강생 목록 최신화: ${out.ok}반${chg.length?` · 인원 바뀐 반 ${chg.length}`:''}${out.miss.length?` · 못 찾은 반 ${out.miss.length}`:''}`,...chg.slice(0,58)]);return out}
+function stuHist(D){const H=(D&&D.hist)||[];if(!H.length)return '';const nm=x=>esc(String(x).replace(/\s*\(\d+\)\s*$/,''));
+  return `<details class="stu-hs"${S.stuHsOpen?' open':''}><summary>인원 변동 기록 ${H.length}번 <span class="muted">최근 ${esc(String(H[H.length-1].at||'').replace('T',' ').slice(5,16))}</span></summary><div class="stu-hl">${H.slice().reverse().map(h=>`<div class="stu-hi"><span class="t">${esc(String(h.at||'').replace('T',' ').slice(5,16))}</span><span class="w">${(h.add||[]).map(x=>`<b class="ad">+ ${nm(x)}</b>`).join('')}${(h.del||[]).map(x=>`<b class="dl">− ${nm(x)}</b>`).join('')}</span><span class="muted">${h.n!=null?h.n+'명':''}${h.by?' · '+esc(h.by):''}</span></div>`).join('')}</div></details>`}
 function stuHtml(pk){if(!stuView())return '';const full=ttCan();const k=stuKey(pk.id);stuLoad(pk.id);const D=STU[k];
   if(D==='loading'||D===undefined)return '<div class="stu"><b>수강생</b><p class="muted">불러오는 중…</p></div>';
   if(D&&D.err)return `<div class="stu"><b>수강생</b><p class="muted">불러오지 못했습니다 (${esc(D.err)}). Firebase 규칙에 ops_students 부분이 들어갔는지 확인해 주세요.</p></div>`;
-  if(D&&!(D.rows||[]).length&&!(D.cols||[]).length)return `<div class="stu"><b>수강생 0명</b><p class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화 · 배정된 수강생이 없습니다.</p></div>`;
+  if(D&&!(D.rows||[]).length&&!(D.cols||[]).length)return `<div class="stu"><b>수강생 0명</b><p class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화 · 배정된 수강생이 없습니다.</p>${stuHist(D)}</div>`;
   if(!D)return `<div class="stu"><b>수강생</b><p class="muted">아직 넘어온 목록이 없습니다.${full?" 그룹웨어에서 '학생 최신화하기'를 눌러 주세요.":''}</p></div>`;
   const want=[/수강생|이름|성명/,/멘토/,/연락처|휴대|전화|핸드폰/,/상태|일지/];const cols=D.cols||[];const order=[];want.forEach(r=>cols.forEach((h,i)=>{if(r.test(h)&&!order.includes(i))order.push(i)}));
   const skip=/^(No\.?|선택|)$/i;cols.forEach((h,i)=>{if(!order.includes(i)&&!skip.test(String(h).trim()))order.push(i)});
   const q=(S.stuQ||'').trim();const cap=+pk.cap||0;const all=(D.rows||[]).map((r,n)=>({c:r.c||[],n}));const ovN=cap?Math.max(0,all.length-cap):0;const rows=all.filter(r=>!q||r.c.join(' ').includes(q));
   return `<div class="stu"><div class="stu-h"><b>수강생 ${(D.rows||[]).length}명${cap?` <small class="muted">정원 ${cap}</small>`:''}${ovN?` <span class="stu-ov">초과 ${ovN}명</span>`:''}</b><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화</span><input class="in sm" id="stuQ" placeholder="이름 찾기" value="${esc(q)}"></div>
-    <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map(R=>{const r=R.c,ov=cap&&R.n>=cap;return `<tr${ov?' class="ov"':''}><td>${R.n+1}${ov?'<span class="stu-ov">초과</span>':''}</td>${order.map(i=>`<td>${esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel(r[i]||''):(r[i]||''))}</td>`).join('')}</tr>`}).join('')||`<tr><td colspan="${order.length+1}" class="muted">배정된 수강생이 없습니다.</td></tr>`}</tbody></table></div></div>`}
+    <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map(R=>{const r=R.c,ov=cap&&R.n>=cap;return `<tr${ov?' class="ov"':''}><td>${R.n+1}${ov?'<span class="stu-ov">초과</span>':''}</td>${order.map(i=>`<td>${esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel(r[i]||''):(r[i]||''))}</td>`).join('')}</tr>`}).join('')||`<tr><td colspan="${order.length+1}" class="muted">배정된 수강생이 없습니다.</td></tr>`}</tbody></table></div>${stuHist(D)}</div>`}
 document.addEventListener('change',function(e){if(e.target.id==='stuQ'){S.stuQ=e.target.value;S.keepScroll=true;render()}});
 /* 확장 프로그램 연결 확인 */
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-ping')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
@@ -4181,7 +4212,7 @@ function stuTakeIn(){const J=STU_IN;if(!J||J.busy)return;
   if(!S.db||typeof A==='undefined'||!A.prof){J.reply({ok:false,wait:true,msg:'운영계획표 로그인을 기다리는 중입니다'});return setTimeout(stuTakeIn,1000)}
   callsSub();if(!S.callsLoaded)return setTimeout(stuTakeIn,500);
   if(!ttCan()){const r={ok:false,msg:'이 계정은 수강생 목록을 저장할 권한이 없습니다'};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r);return}
-  J.busy=true;stuSave(J.d.items||[]).then(o=>{const r={ok:o.ok>0,msg:`수강생 목록 ${o.ok}반을 넘겼습니다${o.miss.length?` · 시간표에서 못 찾은 반 ${o.miss.length}개(먼저 '운영계획표로 보내기'를 해 주세요)`:''}`};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r);S.tab='tt';try{ls.set('tab','tt')}catch(_){}S.keepScroll=true;render()}).catch(err=>{const r={ok:false,msg:'저장하지 못했습니다 ('+(err?.code||err?.message||'오류')+'). Firebase 규칙에 ops_students 부분을 넣었는지 확인해 주세요.'};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r)})}
+  J.busy=true;stuSave(J.d.items||[]).then(o=>{const r={ok:o.ok>0,msg:`수강생 목록 ${o.ok}반을 넘겼습니다${o.chg?` · 인원 바뀐 반 ${o.chg}`:''}${o.miss.length?` · 시간표에서 못 찾은 반 ${o.miss.length}개(먼저 '운영계획표로 보내기'를 해 주세요)`:''}`};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r);S.tab='tt';try{ls.set('tab','tt')}catch(_){}S.keepScroll=true;render()}).catch(err=>{const r={ok:false,msg:'저장하지 못했습니다 ('+(err?.code||err?.message||'오류')+'). Firebase 규칙에 ops_students 부분을 넣었는지 확인해 주세요.'};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r)})}
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
@@ -4374,6 +4405,7 @@ document.addEventListener('change',e=>{
   if(t.dataset&&t.dataset.tvname!=null){const i=+t.dataset.tvname;const v=t.value.trim();S.edit=true;mutate(()=>{ensureTurns()[i].name=v},v?`이름을 ${v}(으)로 고쳤습니다`:'이름을 지웠습니다');return}
   if(t.dataset&&t.dataset.tvamt!=null){const i=+t.dataset.tvamt;const v=num(t.value);S.edit=true;mutate(()=>{ensureTurns()[i].amt=v},`매출 ${comma(String(v))}원`);return}
   if(t.dataset&&t.dataset.tvadd!=null){const i=+t.dataset.tvadd;const v=t.value.replace(/[^\d]/g,'');S.edit=true;mutate(()=>{const L=ensureTurns();L[i].add=v},v?`${turnsOf()[i].name} 추가모집 ${v}건`:'추가모집을 지웠습니다');return}
+  if(t.dataset&&t.dataset.cl&&t.dataset.fx&&t.dataset.cl.endsWith('|nt')){const n=t.dataset.cl.slice(0,-3);const v=t.value.trim().slice(0,200);const notes={...(S.callsAll?.['_memo']?.notes||{})};if(v)notes[n]=v;else delete notes[n];logAdd('calls',[`고정 비고${v?'':' 지움'}: ${n}${v?' · '+v.slice(0,40):''}`]);callsWrite('_memo',{notes}).then(()=>{S.keepScroll=true;render()});return}
   if(t.dataset&&t.dataset.cl){const [n,k]=sp(t.dataset.cl);let v=t.value.trim();if(k==='pt'||k==='et'){v=v?String(secOf(v)):''}else if(k==='amt')v=manOf(v);else if(k==='nt')v=v.slice(0,200);else v=v.replace(/[^\d]/g,'');{const old=S.callsAll?.[S.cdate||todayIso()]?.rows?.[n]?.[k]??'';if(String(old)!==String(v))logCall(S.cdate||todayIso(),n,k,v)}callsWrite(S.cdate||todayIso(),{rows:{[n]:{[k]:v}}}).then(()=>{S.keepScroll=true;render()});return}
   if(t.dataset&&t.dataset.cset){const k=t.dataset.cset;const v=Math.max(0,Math.round(+t.value||0));logAdd('calls',[`통화량 기준 · ${CL_F[k]||k}: ${callSet()[k]} → ${v}`]);callsWrite('_settings',{...(S.callsAll?.['_settings']?.v2?{}:CALL_DEF),[k]:v,v2:true}).then(()=>{toast('통화량 기준을 바꿨습니다');S.keepScroll=true;render()});return}
   if(t.id==='clLockT'&&/^\d{2}:\d{2}$/.test(t.value)){const cur=S.callsAll?.['_settings']||{};logAdd('calls',[`통화량 잠그는 시간: 다음날 ${t.value}`]);callsWrite('_settings',{...(cur.v2?{}:CALL_DEF),lockAt:t.value,v2:true}).then(()=>{toast(`다음날 ${t.value}에 잠기도록 바꿨습니다`);S.keepScroll=true;render()});return}
