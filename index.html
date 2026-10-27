@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261027-133714';
+window.OPS_BUILD = '20261027-134139';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2120,6 +2120,8 @@ td.cl-memo.fxd .cl-in{color:#3730a3;font-weight:700}
 .stu-hi b{font-weight:700;padding:1px 8px;border-radius:999px;font-size:12px}
 .stu-hi b.ad{background:#dcfce7;color:#15803d}.stu-hi b.dl{background:#fee2e2;color:#b91c1c}
 
+.stu-hs0{font-size:12px;margin:8px 0 0}
+
 /* ===== 로그인 · 가입 · 회원 관리 ===== */
 body.locked .top2,body.locked #msw,body.locked .dchip,body.locked #editBtn,body.locked .menu-wrap{display:none!important}
 .gate{display:grid;place-items:center;min-height:calc(100vh - 60px);padding-block:40px}
@@ -4172,7 +4174,7 @@ async function stuSave(items){const out={ok:0,miss:[]};const W=[];for(const it o
     await ref.set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols,rows,hist,at:now,by:who});delete STU[stuKey(c.id)];out.ok++}))}
   out.chg=chg.length;
   logAdd('tt',[`수강생 목록 최신화: ${out.ok}반${chg.length?` · 인원 바뀐 반 ${chg.length}`:''}${out.miss.length?` · 못 찾은 반 ${out.miss.length}`:''}`,...chg.slice(0,58)]);return out}
-function stuHist(D){const H=(D&&D.hist)||[];if(!H.length)return '';const nm=x=>esc(String(x).replace(/\s*\(\d+\)\s*$/,''));
+function stuHist(D){const H=(D&&D.hist)||[];if(!H.length)return '<p class="muted stu-hs0">인원 변동 기록: 아직 바뀐 적이 없습니다. 학생 최신화를 할 때마다 지난번 명단과 비교해 여기에 남깁니다.</p>';const nm=x=>esc(String(x).replace(/\s*\(\d+\)\s*$/,''));
   return `<details class="stu-hs"${S.stuHsOpen?' open':''}><summary>인원 변동 기록 ${H.length}번 <span class="muted">최근 ${esc(String(H[H.length-1].at||'').replace('T',' ').slice(5,16))}</span></summary><div class="stu-hl">${H.slice().reverse().map(h=>`<div class="stu-hi"><span class="t">${esc(String(h.at||'').replace('T',' ').slice(5,16))}</span><span class="w">${(h.add||[]).map(x=>`<b class="ad">+ ${nm(x)}</b>`).join('')}${(h.del||[]).map(x=>`<b class="dl">− ${nm(x)}</b>`).join('')}</span><span class="muted">${h.n!=null?h.n+'명':''}${h.by?' · '+esc(h.by):''}</span></div>`).join('')}</div></details>`}
 function stuHtml(pk){if(!stuView())return '';const full=ttCan();const k=stuKey(pk.id);stuLoad(pk.id);const D=STU[k];
   if(D==='loading'||D===undefined)return '<div class="stu"><b>수강생</b><p class="muted">불러오는 중…</p></div>';
