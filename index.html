@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261027-101112';
+window.OPS_BUILD = '20261027-101347';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3255,7 +3255,7 @@ function callBonusC(r){const c=callSet();return ((+r.s1||0)+(+r.s2||0))*c.csc+(+
 function salesDed(r,c){const a=+r.amt||0;if(c.m2&&a>=c.m2)return c.d2;if(c.m1&&a>=c.m1)return c.d1;return 0}
 function callNeed(r){const c=callSet();return Math.max(c.min*60,(c.base-((+r.s1||0)+(+r.s2||0))*c.sc-(+r.rg||0)*c.rg-Math.min(1,+r.bl||0)*c.bl-salesDed(r,c))*60)}
 const manOf=v=>{const n=+String(v||'').replace(/[^\d.]/g,'');if(!n)return '';return String(n>=10000?Math.round(n/10000):Math.round(n))};
-const secOf=v=>{v=String(v??'').trim();if(!v)return 0;if(/^\d+$/.test(v))return +v*60;const m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);if(m)return m[3]!=null?(+m[1])*3600+(+m[2])*60+(+m[3]):(+m[1])*60+(+m[2]);const k=v.match(/(?:(\d+)\s*시간)?\s*(?:(\d+)\s*분)?\s*(?:(\d+)\s*초)?/);return k?(+(k[1]||0))*3600+(+(k[2]||0))*60+(+(k[3]||0)):0};
+const secOf=v=>{v=String(v??'').trim();if(!v)return 0;if(/^\d+$/.test(v)){if(v.length<=2)return +v*60;if(v.length<=4){v=v.padStart(4,'0');return (+v.slice(0,2))*60+(+v.slice(2))}v=v.slice(-6).padStart(6,'0');return (+v.slice(0,2))*3600+(+v.slice(2,4))*60+(+v.slice(4))}const m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);if(m)return m[3]!=null?(+m[1])*3600+(+m[2])*60+(+m[3]):(+m[1])*60+(+m[2]);const k=v.match(/(?:(\d+)\s*시간)?\s*(?:(\d+)\s*분)?\s*(?:(\d+)\s*초)?/);return k?(+(k[1]||0))*3600+(+(k[2]||0))*60+(+(k[3]||0)):0};
 const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`};
 const hms=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
 function callRoster(){const t=S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT;return t.split(/\r?\n/).map(l=>l.trim().split(/\s+/)).filter(a=>a.length>=3).map(a=>({team:a[0],rank:a.slice(1,-1).join(' '),name:a[a.length-1]}))}
@@ -3309,7 +3309,7 @@ function viewCalls(){
       ${tile(`하루 매출 ${C.m1}만원 이상`,C.cd1?`+${C.cd1}콜`:'더하지 않음',[['cd1','콜','+']])}
       ${tile(`하루 매출 ${C.m2}만원 이상`,C.cd2?`+${C.cd2}콜`:'더하지 않음',[['cd2','콜','+']])}</div>
     <div class="cr-sub"><b>통과 기준</b>${ed?`<span class="cr-modes">${CMODES.map(([k,l])=>`<button type="button" class="${C.mode===k?'on':''}" data-cmode="${k}">${l}</button>`).join('')}</span>`:`<span>${C.cbase?CMODES.find(x=>x[0]===C.mode)[1]:'통화량만 봄 (연결콜수 기준을 정하면 고를 수 있습니다)'}</span>`}</div>
-    <div class="cr-help"><span><b>입력</b>통화량은 0:15:12 또는 15:12처럼 적습니다</span><span><b>이동</b>엔터·방향키로 옆 칸으로 넘어가면 바로 저장됩니다</span><span><b>제외</b>지점매출 달성에 체크하면 그날은 전원 통과입니다</span>${ed?`<button type="button" class="btn sm ghost" data-csreset="1">처음 값으로</button>`:''}</div>`,
+    <div class="cr-help"><span><b>입력</b>통화량은 숫자만 적어도 됩니다 (0501 → 5:01, 010301 → 1:03:01)</span><span><b>이동</b>엔터·방향키로 옆 칸으로 넘어가면 바로 저장됩니다</span><span><b>제외</b>지점매출 달성에 체크하면 그날은 전원 통과입니다</span>${ed?`<button type="button" class="btn sm ghost" data-csreset="1">처음 값으로</button>`:''}</div>`,
     {right:CAN()?`<button type="button" class="btn sm${ed?' primary':''}" data-clruled="1">${ed?'다 고쳤어요':'기준 고치기'}</button>`:''})
     +(S.callsDenied?`<div class="banner">통화량이 저장되지 않고 있습니다. Firebase 콘솔 → Firestore Database → <b>규칙</b> 탭에 새 규칙 파일 내용을 붙여넣고 <b>게시</b>를 눌러 주세요. 게시할 때 빨간 오류가 뜨면 그 화면을 보내 주세요.</div>`:'');
   const table=`<div class="tw"><table class="stk cl-tab"><thead><tr><th rowspan="2">팀</th><th rowspan="2" class="ctr">직급</th><th rowspan="2">이름</th><th colspan="2" class="ctr">상담</th><th rowspan="2" class="ctr">등록<br><small>COD·추등</small></th><th rowspan="2" class="ctr">블로그<br><small>기입</small></th><th rowspan="2" class="ctr">하루 매출<br><small>만원</small></th><th class="ctr cl-p" rowspan="2">개인<br>통화량</th><th class="ctr cl-p" rowspan="2">개인<br>건수</th><th class="ctr cl-e" rowspan="2">내선<br>통화량</th><th class="ctr cl-e" rowspan="2">내선<br>건수</th><th class="ctr cl-need" rowspan="2">기준<br>통화량</th>${callSet().cbase?`<th class="ctr cl-cc" rowspan="2">기준<br>건수<br><small>달성 / 기준</small></th>`:''}<th class="ctr" rowspan="2">합산<br>통화량</th><th class="ctr" rowspan="2">합산<br>건수</th><th rowspan="2" class="cl-memo">비고</th></tr><tr><th class="ctr">본인</th><th class="ctr">대리</th></tr></thead><tbody>${body}</tbody></table></div>`;
