@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261028-134229';
+window.OPS_BUILD = '20261028-134653';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3124,7 +3124,7 @@ function startData(){
   db.collection('common').onSnapshot(snap=>{
     const d=snap.docs.find(x=>x.id==='main'&&x.exists);const next=d?d.data():null;const prev=S.common;S.common=next;gotC=true;
     if(!booted)return boot();
-    if(JSON.stringify(next)!==JSON.stringify(prev)){if(S.dirtyC){if(next&&next.updatedAt!==S.com?.updatedAt){S.remoteNewer=true;render()}}else{pickCommon();S.keepScroll=true;render()}}
+    if(JSON.stringify(next)!==JSON.stringify(prev)){if(S.dirtyC){if(next&&next.updatedAt!==S.com?.updatedAt&&next.updatedAt!==S.savingAt){S.remoteNewer=true;render()}}else{pickCommon();S.keepScroll=true;render()}}
   },err=>{gotC=true;S.msg={text:'내용을 불러오지 못했습니다. ('+(err?.code||'오류')+')'};boot();render()});
   db.collection('months').onSnapshot(snap=>{
     const next={};snap.docs.forEach(d=>{if(d.exists)next[d.id]=d.data()});
@@ -3132,7 +3132,7 @@ function startData(){
     {const sp9=next['2026-09'];if(sp9&&sp9.period&&sp9.period.end==='2026-10-19'){sp9.period={...sp9.period,end:'2026-10-18'};if(!S.fix918&&canAny()){S.fix918=true;try{db.doc('months/2026-09').set({period:sp9.period},{merge:true})}catch(_){}}}}
     if(!booted)return boot();
     if(!S.id||!next[S.id]){const ids=Object.keys(next).sort();pickDoc(ids[ids.length-1]||null);render()}
-    else if(JSON.stringify(next[S.id])!==JSON.stringify(prevDoc)){if(S.dirtyM){if(next[S.id].updatedAt!==S.doc.updatedAt){S.remoteNewer=true;render()}}else{pickDoc(S.id);S.keepScroll=true;render()}}
+    else if(JSON.stringify(next[S.id])!==JSON.stringify(prevDoc)){if(S.dirtyM){if(next[S.id].updatedAt!==S.doc.updatedAt&&next[S.id].updatedAt!==S.savingAt){S.remoteNewer=true;render()}}else{pickDoc(S.id);S.keepScroll=true;render()}}
     else renderChrome();
   },err=>{S.msg={text:'운영표를 불러오지 못했습니다. 페이지를 새로 고쳐 주세요. ('+(err?.code||'오류')+')'};render()});
 }
@@ -3487,18 +3487,18 @@ async function save(){
   if(!S.db||!S.dirty||!canAny())return;
   if(S.dirtyC&&!S.revOk){S.revAsk=true;render();return}
   const btn=$('#saveBtn');btn.disabled=true;btn.textContent='저장 중…';
-  const now=new Date().toISOString().slice(0,19);
+  const now=new Date().toISOString().slice(0,19);S.savingAt=now;
   try{
     /* 고정 내용을 먼저 따로 저장해 둔 뒤에야 달 자료에서 뺀다 (순서가 바뀌면 내용이 사라짐) */
     const needC=S.dirtyC||(!S.common&&(S.com?.blocks||[]).length>0);
     let oldM=null;try{oldM=S.savedM?JSON.parse(S.savedM):null}catch(_){}const preM=S.dirtyM?logMonthDiff(oldM||S.months[S.id],S.doc):[];const preC=S.dirtyC?{pages:changedPages(),note:S.revOk?.note||'',date:S.revOk?.date||''}:null;
     if(needC){if(S.dirtyC){const r=S.revOk;S.com.revs=(S.com.revs||[]).concat([{date:r.date,at:now,by:r.by||'',pages:changedPages(),note:r.note||''}]).slice(-200)}
-      const out=clone(S.com);out.updatedAt=S.dirtyC?now:(out.updatedAt||now);await S.db.doc('common/main').set(out);S.com.updatedAt=out.updatedAt;S.common=clone(out);S.savedC=JSON.stringify(S.com)}
+      const out=clone(S.com);out.updatedAt=S.dirtyC?now:(out.updatedAt||now);{let sz=JSON.stringify(out).length;if(sz>800000&&(out.revs||[]).length>30){out.revs=out.revs.slice(-30);S.com.revs=out.revs;sz=JSON.stringify(out).length}if(sz>1000000)throw{code:'too-big'}}await S.db.doc('common/main').set(out);S.com.updatedAt=out.updatedAt;S.common=clone(out);S.savedC=JSON.stringify(S.com)}
     if(S.dirtyM){logChanges();const keepCommon=!S.common;const out=clone(S.doc);out.updatedAt=now;if(!keepCommon)out.blocks=out.blocks.filter(b=>!isCommonTab(b.tab));out.schema=2;await S.db.doc('months/'+S.id).set(out);S.doc.updatedAt=now;S.months[S.id]=clone(out);S.savedM=JSON.stringify(S.doc)}
     preM.forEach(x=>logAdd(x.tab,x.t));if(preC)preC.pages.forEach(l=>{const t=Object.keys(PAGES).find(k=>PAGES[k].label===l);logAdd(t||'rules',[`내용 수정${preC.date?' (수정일 '+preC.date+')':''}${preC.note?' · '+preC.note:''}`])});
     S.revOk=null;S.remoteNewer=false;S.msg=null;changed();toast('저장했습니다');
     if(S.rollPending&&!S.dirtyM){const c=S.rollPending;S.rollPending=null;if(S.months[c]&&c!==S.id){pickDoc(c);S.date=todayIso();render();toast(`새 영업월 ‘${S.months[c]?.label||c}’로 넘어갔습니다`)}}
-  }catch(e){S.revOk=null;S.msg={text:e?.code==='quota_exceeded'?'저장 공간이 가득 찼습니다. 오래된 달을 삭제한 뒤 다시 저장하세요.':'저장하지 못했습니다. 편집 권한이 있는지 확인하고 다시 눌러 주세요. ('+(e?.code||'오류')+')'};changed()}
+  }catch(e){S.revOk=null;S.remoteNewer=false;toast('저장하지 못했습니다 ('+(e?.code||'오류')+')');S.msg={text:e?.code==='too-big'?'내용이 너무 커서 저장할 수 없습니다. 표나 글을 조금 줄인 뒤 다시 저장해 주세요.':e?.code==='quota_exceeded'?'저장 공간이 가득 찼습니다. 오래된 달을 삭제한 뒤 다시 저장하세요.':'저장하지 못했습니다. 편집 권한이 있는지 확인하고 다시 눌러 주세요. ('+(e?.code||'오류')+')'};changed()}
   btn.disabled=false;btn.textContent='저장';S.keepScroll=true;render();
 }
 async function createMonth(){
