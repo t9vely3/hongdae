@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261027-134810';
+window.OPS_BUILD = '20261028-134229';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -3603,7 +3603,7 @@ function act(t){
   if(d.revs){S.showRevs=!S.showRevs;S.keepScroll=true;render();return true}
   if(d.revx){S.revAsk=false;S.keepScroll=true;render();return true}
   if(d.revgo){const dt=$('#revDate').value;if(!dt){toast('수정 날짜를 골라 주세요');return true}S.revOk={date:dt,note:$('#revNote').value.trim(),by:(typeof A!=='undefined'&&A.prof?.name)||''};S.revAsk=false;save();return true}
-  if(d.jump){const el=document.getElementById(d.jump);if(el){const y=el.getBoundingClientRect().top+scrollY-(document.querySelector('.top2').offsetHeight+12);scrollTo({top:y,behavior:'smooth'})}return true}
+  if(d.jump){const el=document.getElementById(d.jump);if(el){const y=el.getBoundingClientRect().top+scrollY-((document.querySelector('.top')?.offsetHeight||56)+12);scrollTo({top:y,behavior:'smooth'})}return true}
   if(d.cm){const ms=calMonths();if(d.cm==='0'){const t0=todayIso().slice(0,7);S.cm=ms.includes(t0)?t0:ms[0]}else{const i=ms.indexOf(calMonth())+Number(d.cm);if(ms[i])S.cm=ms[i]}S.pop=null;S.keepScroll=true;render();return true}
   if(d.pop){const [key,x]=sp(d.pop);const inPop=!!t.closest('#pop');if(!inPop&&S.pop&&S.pop.key===key&&S.pop.date===x)S.pop=null;else{S.pop={key,date:x};if(GK[key])S.rsel[key]=x;else S.csel[key]=x;if(inPop&&calMonths().includes(x.slice(0,7)))S.cm=x.slice(0,7)}S.keepScroll=true;render();return true}
   if(d.popx){S.pop=null;S.keepScroll=true;render();return true}
