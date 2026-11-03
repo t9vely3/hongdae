@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261103-150000';
+window.OPS_BUILD = '20261103-153000';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2215,6 +2215,7 @@ tr.mgrp b{font-size:13px;margin-right:8px}tr.mgrp small{font-size:11.5px;color:v
 
 .top .dchip{display:none!important}
 .rc-mem{align-items:center}.rc-mem small{font-size:11.5px;font-weight:700;color:var(--ink2);margin-right:2px}
+.rc-tl{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--ink2)}.rc-tl input{width:100%;min-height:40px;padding:0 12px;font-size:14px;font-weight:600}
 .rc-work{padding:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch}
 .rc-col{display:flex;flex-direction:column;gap:10px;min-width:0}
 .rc-l{font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px;flex-wrap:wrap}
@@ -4508,7 +4509,8 @@ function rcCollect(list,slot){
   const fx=rows.map(r=>r.fixed||0).filter(v=>v!==0);
   return {rows,dup:[...dup],sales:sum('sales'),consult:sum('consult'),fixedTotal:rcRound(fx.reduce((a,b)=>a+b,0)),fx};
 }
-function rcText(c){return [`[AIX홍대]`,c.sales.join(' / '),`상담완료 ${c.consult.join(' / ')}`,'',`확정매출: ${c.fx.length?`${c.fixedTotal} = ${c.fx.join(' + ')}`:'0'}`].join('\n')}
+function rcTitle(){const v=ls.get('rcTitle');return v==null?'AIX홍대':String(v)}
+function rcText(c){const tt=rcTitle().trim();return [...(tt?[`[${tt}]`]:[]),c.sales.join(' / '),`상담완료 ${c.consult.join(' / ')}`,'',`확정매출: ${c.fx.length?`${c.fixedTotal} = ${c.fx.join(' + ')}`:'0'}`].join('\n')}
 function rcResult(){
   const R=S.rc||(S.rc={src:'',slot:null}),list=rcParse(R.src),slots=[...new Set(list.map(r=>r.slot))].sort();
   if(!slots.includes(R.slot))R.slot=slots[slots.length-1]||null;
@@ -4529,10 +4531,10 @@ function viewRc(){
   if(!rcCan())return pageHead('rc','보고 취합')+'<div class="empty-state" style="margin-top:24px">이 화면은 팀장급 이상만 볼 수 있습니다. 직급이 잘못 적혀 있으면 관리자에게 말해 주세요.</div>';
   const v=rcResult();
   return pageHead('rc','보고 취합')+`<section class="card" id="b-rcw"><div class="rc-work"><div class="rc-col"><label class="rc-l" for="rcSrc">1. 카톡 보고 붙여넣기<button type="button" class="btn sm" id="rcClear">비우기</button></label><textarea id="rcSrc" spellcheck="false" placeholder="카톡 보고방 내용을 그대로 붙여넣으세요.&#10;[1-2팀 09:30 보고] 같은 팀 보고만 골라 더합니다.">${esc(S.rc.src)}</textarea></div>
-    <div class="rc-col"><div class="rc-l">2. 복사해서 보내기<div class="rc-slots" id="rcSlots">${v.slots}</div></div><textarea id="rcOut" readonly aria-label="완성된 보고문">${esc(v.text)}</textarea><button type="button" class="btn primary" id="rcCopy"${v.count?'':' disabled'}>복사하기</button><div class="rc-notes" id="rcNotes">${v.notes}</div></div></div></section>`+
+    <div class="rc-col"><div class="rc-l">2. 복사해서 보내기<div class="rc-slots" id="rcSlots">${v.slots}</div></div><label class="rc-tl" for="rcTitle">보고문 제목<input type="text" id="rcTitle" class="in" autocomplete="off" value="${esc(rcTitle())}" placeholder="예: AIX홍대"></label><textarea id="rcOut" readonly aria-label="완성된 보고문">${esc(v.text)}</textarea><button type="button" class="btn primary" id="rcCopy"${v.count?'':' disabled'}>복사하기</button><div class="rc-notes" id="rcNotes">${v.notes}</div></div></div></section>`+
     card('rct','팀별 확인표','',`<div id="rcTable">${v.table}</div>`,{right:`<span class="muted" id="rcCount">${v.count?v.count+'개 팀':''}</span>`});
 }
-document.addEventListener('input',e=>{if(e.target.id==='rcSrc'){S.rc.src=e.target.value;S.rc.slot=null;rcPaint()}});
+document.addEventListener('input',e=>{if(e.target.id==='rcSrc'){S.rc.src=e.target.value;S.rc.slot=null;rcPaint()}else if(e.target.id==='rcTitle'){ls.set('rcTitle',e.target.value);rcPaint()}});
 document.addEventListener('click',e=>{const t=e.target.closest?.('#rcCopy,#rcClear,[data-rcslot],[data-rcacc]');if(!t)return;
   if(t.dataset.rcacc){if(!isOwnerA())return;const i=t.dataset.rcacc.lastIndexOf('|'),id=t.dataset.rcacc.slice(0,i),k=t.dataset.rcacc.slice(i+1);setField(id,{rcAccess:k},`보고 취합: ${t.textContent}`);return}
   if(t.id==='rcClear'){S.rc={src:'',slot:null};const a=document.getElementById('rcSrc');a.value='';rcPaint();a.focus()}
