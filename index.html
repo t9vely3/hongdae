@@ -4267,7 +4267,10 @@ function stuTakeIn(){const J=STU_IN;if(!J||J.busy)return;
   J.busy=true;stuSave(J.d.items||[]).then(o=>{const r={ok:o.ok>0,msg:`수강생 목록 ${o.ok}반을 넘겼습니다${o.chg?` · 인원 바뀐 반 ${o.chg}`:''}${o.miss.length?` · 시간표에서 못 찾은 반 ${o.miss.length}개(먼저 '운영계획표로 보내기'를 해 주세요)`:''}`};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r);S.tab='tt';try{ls.set('tab','tt')}catch(_){}S.keepScroll=true;render()}).catch(err=>{const r={ok:false,msg:'저장하지 못했습니다 ('+(err?.code||err?.message||'오류')+'). Firebase 규칙에 ops_students 부분을 넣었는지 확인해 주세요.'};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r)})}
 
 /* ---------- 장기결석 명단 (그룹웨어 '연속결석 체크'에서 받음 · ops_students/_abs · 수강생 목록과 같은 권한) ---------- */
-let ABS=null,ABS_IN=null;const ABS_DONE={};
+let ABS=null,ABS_IN=null,ABS_SENT={};const ABS_DONE={};
+function absSentLoad(){if(!stuView())return;A.fdb.collection('ops_students').doc('_abs_sent').get().then(d=>{ABS_SENT=d.exists?(d.data().sent||{}):{};S.keepScroll=true;render()}).catch(()=>{})}
+function absSentSet(id,on,name){const cur={...ABS_SENT};if(on)cur[id]={at:kstNow(),by:logWho(),name:name||''};else delete cur[id];ABS_SENT=cur;S.keepScroll=true;render();
+  return A.fdb.collection('ops_students').doc('_abs_sent').set({sent:cur,updatedAt:new Date().toISOString()}).then(()=>toast(on?`${name||''} 문자 보냄으로 표시했습니다`:'표시를 지웠습니다')).catch(e=>toast('저장하지 못했습니다 ('+(e?.code||'오류')+')'))}
 document.head.insertAdjacentHTML('beforeend',`<style>
 #ttAbs{position:fixed;inset:0;z-index:251;background:var(--bg,#f6f7f9);display:flex;flex-direction:column}
 #ttAbs .ab-body{flex:1;overflow:auto;padding:14px 18px 40px}
@@ -4281,6 +4284,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #ttAbs th{position:sticky;top:0;background:var(--surface,#fff);font-weight:700;z-index:1}
 #ttAbs .ab-grp td{background:#f3f4f6;font-weight:700}
 #ttAbs .ab-on{color:#b91c1c;font-weight:700}
+#ttAbs .ab-sent{color:#15803d;font-weight:700}
 #ttAbs .ab-tag{display:inline-block;margin-left:4px;padding:0 5px;border-radius:4px;background:#eef2ff;color:#3730a3;font-size:11px}
 #ttAbs .ab-tag.q{background:#fee2e2;color:#991b1b}
 #ttAbs .ab-days{font-weight:700}
@@ -4295,10 +4299,12 @@ function absTakeIn(){const J=ABS_IN;if(!J||J.busy)return;
   if(!ttCan()){const r={ok:false,msg:'이 계정은 장기결석 명단을 저장할 권한이 없습니다'};ABS_DONE[J.d.id]=r;ABS_IN=null;J.reply(r);return}
   J.busy=true;const d=J.d;const classes=(d.classes||[]).map(c=>({title:String(c.title||''),teacher:String(c.teacher||''),hits:(c.hits||[]).map(h=>({name:String(h.name||''),id:String(h.id||''),tags:(h.tags||[]).map(String),mentor:String(h.mentor||''),from:String(h.from||''),to:String(h.to||''),days:+h.days||0,ongoing:!!h.ongoing}))})).filter(c=>c.hits.length);
   const doc={at:kstNow(),by:logWho(),need:+d.need||3,checkedAt:String(d.checkedAt||''),classes};
+  const inSent=d.sent&&typeof d.sent==='object'?d.sent:{};const add={};Object.entries(inSent).forEach(([id,v])=>{if(!ABS_SENT[id])add[String(id)]={at:String(v.at||kstNow()),by:String(v.by||logWho()),name:String(v.name||'')}});
+  if(Object.keys(add).length){ABS_SENT={...ABS_SENT,...add};A.fdb.collection('ops_students').doc('_abs_sent').set({sent:ABS_SENT,updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{})}
   A.fdb.collection('ops_students').doc('_abs').set(doc).then(()=>{ABS=doc;const n=classes.reduce((k,c)=>k+c.hits.length,0);const r={ok:true,msg:`장기결석 ${n}명을 운영계획표에 넘겼습니다`};ABS_DONE[d.id]=r;ABS_IN=null;J.reply(r);
     logAdd('tt',[`장기결석 명단 받음: ${n}명 (${doc.need}일 이상 연속결석)`]);S.tab='tt';S.ttAbs=true;try{ls.set('tab','tt')}catch(_){}S.keepScroll=true;render()})
    .catch(err=>{const r={ok:false,msg:'저장하지 못했습니다 ('+(err?.code||err?.message||'오류')+'). Firebase 규칙에 ops_students 부분이 있는지 확인해 주세요.'};ABS_DONE[d.id]=r;ABS_IN=null;J.reply(r)})}
-function absLoad(force){if(!stuView())return;if(ABS&&ABS!=='loading'&&!force)return;ABS='loading';
+function absLoad(force){if(!stuView())return;if(ABS&&ABS!=='loading'&&!force)return;ABS='loading';absSentLoad();
   A.fdb.collection('ops_students').doc('_abs').get().then(d=>{ABS=d.exists?d.data():{classes:[]};S.keepScroll=true;render()}).catch(e=>{ABS={err:e?.code||'오류',classes:[]};S.keepScroll=true;render()})}
 const absQuit=h=>(h.tags||[]).some(t=>t==='퇴'||t==='퇴원');
 /* 보기 범위: 담당 멘토 이름(숫자 뺀 것)과 로그인한 사람 이름을 맞춤. 팀장은 팀, 부장·선임팀장은 부서, 관리자는 전체 */
@@ -4317,11 +4323,11 @@ function absScope(){const me=absPure(A.prof?.name);const all=typeof isOwnerA==='
   return {me,opts,names,def:opts[opts.length-1][0]}}
 function absRows(){const D=ABS&&ABS!=='loading'?ABS:{classes:[]};const F=S.absF||(S.absF={noquit:true,on:false,by:'class'});
   const sc=absScope();if(!sc.opts.some(o=>o[0]===F.scope))F.scope=sc.def;const allow=sc.names(F.scope);const ok=allow&&new Set(allow);
-  const rows=[];(D.classes||[]).forEach(c=>(c.hits||[]).forEach(h=>{if(F.noquit&&absQuit(h))return;if(F.on&&!h.ongoing)return;if(ok&&!ok.has(absPure(h.mentor)))return;rows.push({...h,cls:c.title,teacher:c.teacher})}));return rows}
+  const rows=[];(D.classes||[]).forEach(c=>(c.hits||[]).forEach(h=>{if(F.noquit&&absQuit(h))return;if(F.on&&!h.ongoing)return;if(ok&&!ok.has(absPure(h.mentor)))return;if(F.unsent&&ABS_SENT[h.id])return;rows.push({...h,cls:c.title,teacher:c.teacher})}));return rows}
 function absText(){const F=S.absF;const rows=absRows();const D=ABS||{};const by=F.by==='mentor';const g={};
   rows.forEach(r=>{const k=by?(r.mentor||'멘토 미확인'):`${r.cls} (${r.teacher})`;(g[k]=g[k]||[]).push(r)});
   const L=[`[장기결석 ${D.need||3}일 이상] ${rows.length}명 · ${String(D.at||'').replace('T',' ')} 기준`];
-  Object.keys(g).sort().forEach(k=>{L.push(`■ ${k}`);g[k].sort((a,b)=>b.days-a.days).forEach(r=>L.push(`  - ${r.name}(${r.id})${r.tags?.length?' ['+r.tags.join('·')+']':''}${by?' · '+r.cls:' · 멘토 '+(r.mentor||'-')} · ${r.from}~${r.to} ${r.days}일${r.ongoing?' 진행 중':''}`))});
+  Object.keys(g).sort().forEach(k=>{L.push(`■ ${k}`);g[k].sort((a,b)=>b.days-a.days).forEach(r=>L.push(`  - ${r.name}(${r.id})${r.tags?.length?' ['+r.tags.join('·')+']':''}${by?' · '+r.cls:' · 멘토 '+(r.mentor||'-')} · ${r.from}~${r.to} ${r.days}일${r.ongoing?' 진행 중':''}${ABS_SENT[r.id]?' · 문자 보냄':''}`))});
   return L.join('\n')}
 function absOverlay(){if(!S.ttAbs)return '';
   if(!stuView())return `<div id="ttAbs"><div class="tb-bar"><b>장기결석 명단</b><span class="sp"></span><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body"><div class="empty-state">장기결석 명단은 수강생 목록을 볼 수 있는 계정만 볼 수 있습니다.</div></div></div>`;
@@ -4330,17 +4336,20 @@ function absOverlay(){if(!S.ttAbs)return '';
   const keys=Object.keys(g).sort((a,b)=>g[b].length-g[a].length||a.localeCompare(b));
   const tag=h=>(h.tags||[]).map(t=>`<span class="ab-tag${t==='퇴'||t==='퇴원'?' q':''}">${esc(t)}</span>`).join('');
   const body=ABS==='loading'?'<div class="empty-state">불러오는 중…</div>':D?.err?`<div class="empty-state">명단을 불러오지 못했습니다 (${esc(D.err)})</div>`:!rows.length?`<div class="empty-state">${(D?.classes||[]).length?'조건에 맞는 학생이 없습니다.':'아직 받은 명단이 없습니다. 그룹웨어 시간표에서 연속결석 확인 뒤 「운영계획표로 보내기」를 눌러 주세요.'}</div>`
-    :`<table><thead><tr><th>${by?'담당 멘토':'반'}</th><th>학생</th><th>${by?'반':'담당 멘토'}</th><th>결석 기간</th><th>일수</th><th>상태</th></tr></thead><tbody>${keys.map(k=>{const L=g[k].sort((a,b)=>b.ongoing-a.ongoing||b.days-a.days);const [t1,t2]=by?[k,'']:k.split('|');
-      return `<tr class="ab-grp"><td colspan="6">${esc(t1)}${t2?` <span class="ab-meta">${esc(t2)}</span>`:''} · ${L.length}명</td></tr>`+L.map(r=>`<tr><td></td><td>${esc(r.name)} <span class="ab-meta">(${esc(r.id)})</span>${tag(r)}</td><td>${by?`${esc(r.cls)} <span class="ab-meta">${esc(r.teacher)}</span>`:esc(r.mentor||'-')}</td><td>${esc(r.from)} ~ ${esc(r.to)}</td><td class="ab-days">${r.days}일</td><td>${r.ongoing?'<span class="ab-on">지금도 결석 중</span>':'<span class="ab-meta">다시 나옴</span>'}</td></tr>`).join('')}).join('')}</tbody></table>`;
+    :`<table><thead><tr><th>${by?'담당 멘토':'반'}</th><th>학생</th><th>${by?'반':'담당 멘토'}</th><th>결석 기간</th><th>일수</th><th>상태</th><th>문자</th></tr></thead><tbody>${keys.map(k=>{const L=g[k].sort((a,b)=>b.ongoing-a.ongoing||b.days-a.days);const [t1,t2]=by?[k,'']:k.split('|');
+      return `<tr class="ab-grp"><td colspan="7">${esc(t1)}${t2?` <span class="ab-meta">${esc(t2)}</span>`:''} · ${L.length}명</td></tr>`+L.map(r=>`<tr><td></td><td>${esc(r.name)} <span class="ab-meta">(${esc(r.id)})</span>${tag(r)}</td><td>${by?`${esc(r.cls)} <span class="ab-meta">${esc(r.teacher)}</span>`:esc(r.mentor||'-')}</td><td>${esc(r.from)} ~ ${esc(r.to)}</td><td class="ab-days">${r.days}일</td><td>${r.ongoing?'<span class="ab-on">지금도 결석 중</span>':'<span class="ab-meta">다시 나옴</span>'}</td><td>${(()=>{const x=ABS_SENT[r.id];const can=ttCan();
+        if(x)return `<span class="ab-sent">✓ 보냄</span> <span class="ab-meta">${esc(String(x.at||'').slice(5).replace('T',' '))} ${esc(x.by||'')}</span>${can?` <button type="button" class="lnk" data-abssent="${esc(r.id)}|0">취소</button>`:''}`;
+        return can?`<button type="button" class="btn sm" data-abssent="${esc(r.id)}|1|${esc(r.name)}">보냄 표시</button>`:'<span class="ab-meta">안 보냄</span>'})()}</td></tr>`).join('')}).join('')}</tbody></table>`;
   return `<div id="ttAbs"><div class="tb-bar"><b>장기결석 명단 ${rows.length}명</b><span class="ab-meta">${D&&D.at?`${esc(String(D.at).replace('T',' '))} · ${esc(D.by||'')} 받음 · ${D.need||3}일 이상 연속결석`:''}</span>
     ${(()=>{const sc=absScope();return sc.opts.length>1?`<div class="seg">${sc.opts.map(([k,l])=>`<button type="button" class="${F.scope===k?'on':''}" data-absscope="${k}">${esc(l)}</button>`).join('')}</div>`:`<span class="ab-meta">${esc(sc.me||'')} 담당 학생만</span>`})()}
     <div class="seg"><button type="button" class="${!by?'on':''}" data-absby="class">반별</button><button type="button" class="${by?'on':''}" data-absby="mentor">멘토별</button></div>
-    <label class="ab-meta"><input type="checkbox" data-absf="noquit" ${F.noquit?'checked':''}> '퇴' 학생 빼기</label><label class="ab-meta"><input type="checkbox" data-absf="on" ${F.on?'checked':''}> 지금도 결석 중만</label>
+    <label class="ab-meta"><input type="checkbox" data-absf="noquit" ${F.noquit?'checked':''}> '퇴' 학생 빼기</label><label class="ab-meta"><input type="checkbox" data-absf="on" ${F.on?'checked':''}> 지금도 결석 중만</label><label class="ab-meta"><input type="checkbox" data-absf="unsent" ${F.unsent?'checked':''}> 문자 안 보낸 학생만</label>
     <span class="sp"></span><button type="button" class="btn sm" data-abscopy="1">명단 복사</button><button type="button" class="btn sm" data-ttabs="r">새로 불러오기</button><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body">${body}</div></div>`}
 function absAct(d){
   if(d.ttabs!=null){if(d.ttabs==='r'){absLoad(true);return true}S.ttAbs=d.ttabs==='1';if(S.ttAbs)absLoad(true);S.keepScroll=true;render();return true}
   if(d.absby){S.absF.by=d.absby;S.keepScroll=true;render();return true}
   if(d.absscope){S.absF.scope=d.absscope;S.keepScroll=true;render();return true}
+  if(d.abssent){const [id,on,name]=sp(d.abssent);absSentSet(id,on==='1',name||'');return true}
   if(d.abscopy){const v=absText();(navigator.clipboard?.writeText(v)||Promise.reject()).then(()=>toast('장기결석 명단을 복사했습니다'),()=>toast('복사하지 못했습니다'));return true}
   return false}
 document.addEventListener('change',e=>{const k=e.target?.dataset?.absf;if(!k)return;S.absF[k]=e.target.checked;S.keepScroll=true;render()});
