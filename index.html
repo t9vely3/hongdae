@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261028-160613';
+window.OPS_BUILD = '20261103-150000';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -2214,6 +2214,22 @@ tr.mgrp td{background:var(--sunk);padding:8px 16px!important;border-top:2px soli
 tr.mgrp b{font-size:13px;margin-right:8px}tr.mgrp small{font-size:11.5px;color:var(--muted)}
 
 .top .dchip{display:none!important}
+.rc-mem{align-items:center}.rc-mem small{font-size:11.5px;font-weight:700;color:var(--ink2);margin-right:2px}
+.rc-work{padding:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch}
+.rc-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.rc-l{font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px;flex-wrap:wrap}
+#rcSrc{width:100%;flex:1;min-height:300px;resize:vertical;font:inherit;font-size:13px;line-height:1.55;color:var(--ink);background:var(--sunk);border:1px solid var(--line-strong);border-radius:10px;padding:12px}
+#rcOut{width:100%;height:158px;resize:none;font:inherit;font-size:17px;font-weight:600;line-height:1.6;color:var(--ink);background:var(--head);border:0;border-radius:10px;padding:12px 14px}
+#rcCopy{width:100%;min-height:46px;font-size:15px}
+.rc-slots{display:flex;gap:6px;flex-wrap:wrap}
+.rc-notes{display:grid;gap:6px}
+.rc-note{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:7px 11px;font-size:13.5px;font-weight:600}
+.rc-tb{min-width:560px}
+.rc-tb th,.rc-tb td{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rc-tb th:first-child,.rc-tb td:first-child{text-align:left}
+.rc-tb tfoot td{font-weight:800}
+.rc-tb .rc-chk{color:var(--warn);font-weight:700}
+@media (max-width:760px){.rc-work{grid-template-columns:minmax(0,1fr)}#rcSrc{min-height:200px}}
 </style>
 </head>
 <body>
@@ -2252,6 +2268,7 @@ const ICON={
   edu:'<path d="M21.42 10.92a1 1 0 0 0-.02-1.84l-8.57-3.9a2 2 0 0 0-1.66 0l-8.57 3.9a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
   ops:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   calls:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/>',
+  rc:'<path d="M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M8 12h8M8 16h5"/>',
   log:'<path d="M12 8v4l3 2"/><path d="M3.05 11a9 9 0 1 1 .5 4M3 4v5h5"/>',
   tt:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M9 4v17M15 4v17"/>',
   judge:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M8.5 11l2 2 3.5-4"/>',
@@ -2289,6 +2306,7 @@ const PAGES={
   log:{label:'수정 기록',g:'m',desc:'모든 화면에서 누가 언제 무엇을 고쳤는지 모아 봅니다. 편집 권한이 있는 사람만 볼 수 있습니다.'},
   judge:{label:'디비턴 판독',g:'m',desc:'문의과목이나 학과를 적으면 어느 턴으로 배정할지 바로 알려 줍니다.'},
   tt:{label:'시간표',g:'m',desc:'그룹웨어 강의시간표를 붙여넣으면 강의실·시간대별로 정리하고 배정인원을 최신으로 맞춥니다. 평일·주말을 나눠 봅니다.'},
+  rc:{label:'보고 취합',g:'m',desc:'카톡 팀 보고를 붙여넣으면 숫자를 더해 줄 끝 공백 없는 취합 보고문으로 만듭니다. 팀장급 이상만 볼 수 있습니다.'},
   calls:{label:'통화량',g:'m',desc:'매일 퇴근 전까지 개인·내선 통화량을 적습니다. 합산 60분에서 상담·등록·하루 매출만큼 기준이 줄어듭니다.'},
   rules:{label:'DB 규정',g:'c',subs:[['turn','디비턴·배정'],['rights','권한 기간·규정'],['visit','방문·더블 처리'],['reassign','재배정'],['penalty','패널티·메모'],['duty','당직·배정조 운영'],['group','계열사 지침']],desc:'주제별로 나눴습니다. 검색하면 모든 주제에서 찾아 줍니다.'},
   tuition:{label:'수강료',g:'c',subs:[['weekday','평일'],['weekend','주말'],['vacation','방학특강']],desc:'청소년가는 총 수업시간(분) × 163원에서 천 원 아래를 버린 금액입니다.'},
@@ -2296,7 +2314,7 @@ const PAGES={
   members:{label:'회원 관리',g:'x',desc:'가입 신청을 승인하고, 사람마다 열람·편집 권한을 정합니다.'},
   lead:{label:'업무분장',g:'c',subs:[['fixed','공통·고정 업무'],['rotate','분기 업무'],['order','순번']],desc:''}
 };
-const NAV=[['m','운영계획',['today','duty','assign','edu','ops','sales','dbturn','judge','calls','tt']],['c','내용',['rules','tuition','org','lead']]];
+const NAV=[['m','운영계획',['today','duty','assign','edu','ops','sales','dbturn','judge','calls','tt','rc']],['c','내용',['rules','tuition','org','lead']]];
 const COMMON_TABS=new Set(['rules','tuition','org','lead']);
 const SEC_DEFAULT={turnBase:'turn',turnWeekday:'turn',turnDuty:'turn',rights:'rights',rulesInter:'rights',rulesInner:'rights',dismissed:'rights',ndb:'rights',ambVisit:'visit',ambStudent:'visit',ambDouble:'visit',reassignRoom:'reassign',reassign:'reassign',penalty:'penalty',memoRule:'penalty',dutyRule:'duty',assignRule:'duty',groupRule:'group',signers:'group',heads:'dept',dept1:'dept',dept2:'dept',dept3:'dept',dept4:'dept',opsStaff:'staff',teachers:'staff',seats:'seat',leadFixed:'fixed',leadRotate:'rotate',leadRotation:'rotate',leadOrder:'order',turns:'turns',acp:'acp',dbAssign:'assign',dbAssignPrev:'assign',dbLog:'log',reLog:'log',assignOrder:'order',opsRoles:'info',opsOrder:'info',tuitionWeekday:'weekday',tuitionWeekend:'weekend',tuitionVacation:'vacation'};
 const TAB_FIX={assignOrder:'assign',opsRoles:'ops',opsOrder:'ops',dutyGroups:'legacy',assignGroups:'legacy'};
@@ -2431,8 +2449,8 @@ function renderChrome(){
 const NAVL={today:'홈',edu:'교육',ops:'운영부',sales:'영업',rules:'규정'};
 function renderNav(){
   const [m,c]=NAV;const it=(k,cls)=>`<button type="button" data-tab="${k}" class="${cls}" aria-current="${S.tab===k}">${I(ICON[k])}<span>${PAGES[k].label}</span></button>`;
-  const BIZ=['calls','tt'];const mm=m[2].filter(k=>!BIZ.includes(k)),cc=[...c[2],...(logCan()?['log']:[])];
-  const SL={today:'오늘',duty:'당직표',assign:'배정표',edu:'교육',ops:'운영부',sales:'영업',dbturn:'디비턴',judge:'판독',calls:'통화량',tt:'시간표',rules:'DB 규정',tuition:'수강료',org:'조직도',lead:'업무분장',log:'수정기록'};
+  const BIZ=['calls','tt',...(rcCan()?['rc']:[])];const mm=m[2].filter(k=>!['calls','tt','rc'].includes(k)),cc=[...c[2],...(logCan()?['log']:[])];
+  const SL={today:'오늘',duty:'당직표',assign:'배정표',edu:'교육',ops:'운영부',sales:'영업',dbturn:'디비턴',judge:'판독',calls:'통화량',tt:'시간표',rc:'보고취합',rules:'DB 규정',tuition:'수강료',org:'조직도',lead:'업무분장',log:'수정기록'};
   const grp=[['운영계획',mm],['사업부',BIZ],['내용',cc]];
   $('#nav').innerHTML=`<button type="button" class="rl-logo" data-tab="today" title="오늘 현황">AIX</button>`+grp.map(([l,ks],gi)=>`<div class="rl-g g${gi}"><span class="rl-l">${l}</span>${ks.map(k=>`<button type="button" data-tab="${k}" aria-current="${S.tab===k}" title="${esc(PAGES[k].label)}">${I(ICON[k])}<span>${SL[k]||PAGES[k].label}</span></button>`).join('')}</div>`).join('');
 }
@@ -3080,13 +3098,13 @@ function viewMembers(){
   if(G!=='all')mem.sort((x,y)=>{const a=gKey(x[1]),b=gKey(y[1]);const ia=G==='dept'?deptList().indexOf(a):rankIx(a),ib=G==='dept'?deptList().indexOf(b):rankIx(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b,'ko')||rankIx(x[1].rank)-rankIx(y[1].rank)||(x[1].name||'').localeCompare(y[1].name||'','ko')});
   let lastG=null;const cntG={};mem.forEach(([,u])=>{const k=gKey(u);cntG[k]=(cntG[k]||0)+1});
   const mRows=mem.map(([id,u])=>{const k=gKey(u);const hd=G!=='all'&&k!==lastG?`<tr class="mgrp"><td colspan="6"><b>${esc(k)}</b><small>${cntG[k]}명</small></td></tr>`:'';lastG=k;return hd+`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td>
-    <td data-l="권한">${u.owner?'<span class="chip">관리자 · 모든 권한</span>':`<div class="seg rolesel">${['view','edit'].map(r=>`<button type="button" class="${u.role===r?'on':''}" data-role="${esc(id)}|${r}">${ROLE_L[r]}</button>`).join('')}</div>${u.role==='edit'?'<small class="bd-note">모든 화면 편집</small>':`<div class="bd-chips" aria-label="편집할 수 있는 화면">${BOARDS.map(([b,l])=>`<button type="button" class="bd${(u.boards||[]).includes(b)?' on':''}" data-uboard="${esc(id)}|${b}">${l}</button>`).join('')}</div>`}`}</td><td class="nw" data-l="승인">${esc(fmtAt(u.decidedAt))}</td>
+    <td data-l="권한">${u.owner?'<span class="chip">관리자 · 모든 권한</span>':`<div class="seg rolesel">${['view','edit'].map(r=>`<button type="button" class="${u.role===r?'on':''}" data-role="${esc(id)}|${r}">${ROLE_L[r]}</button>`).join('')}</div>${u.role==='edit'?'<small class="bd-note">모든 화면 편집</small>':`<div class="bd-chips" aria-label="편집할 수 있는 화면">${BOARDS.map(([b,l])=>`<button type="button" class="bd${(u.boards||[]).includes(b)?' on':''}" data-uboard="${esc(id)}|${b}">${l}</button>`).join('')}</div>`}`}${u.owner?'':rcMemHtml(id,u)}</td><td class="nw" data-l="승인">${esc(fmtAt(u.decidedAt))}</td>
     <td class="act" data-l="처리">${u.owner?'':S.confirm==='mem:'+id?`<span class="muted">이용을 중지할까요?</span><button type="button" class="btn sm danger" data-kickgo="${esc(id)}">중지</button><button type="button" class="btn sm" data-cancel="1">취소</button>`:`<button type="button" class="btn sm ghost" data-kick="${esc(id)}">이용 중지</button>`}</td></tr>`}).join('');
   const rRows=rej.map(([id,u])=>`<tr><td class="nw" data-l="부서">${esc(u.dept||'-')}</td><td data-l="이름">${who(u)}</td><td class="nw" data-l="상태">${u.status==='removed'?'이용 중지':'반려'} · ${esc(fmtAt(u.decidedAt))}</td><td class="act" data-l="처리"><button type="button" class="btn sm" data-approve="${esc(id)}|view">다시 승인</button></td></tr>`).join('');
   const t=(head,rows,empty)=>`<div class="tw"><table class="stk"><thead><tr>${head.map(h=>`<th${h==='처리'?' class="act"':''}>${h}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${head.length}" class="empty-cell">${empty}</td></tr>`}</tbody></table></div>`;
   return pageHead('members','회원 관리')+
     card('mpend',`가입 신청${pend.length?' '+pend.length+'건':''}`,'승인할 때 열람만 할지, 편집까지 할지 고릅니다.',t(['부서','직급','이름','신청','처리'],pRows,'새 가입 신청이 없습니다.'))+
-    card('mlist',`회원 ${mem.length}명`,'‘편집’은 모든 화면을 고칠 수 있습니다. ‘열람’인 사람도 아래에서 화면(게시판)을 골라 주면 그 화면만 고칠 수 있습니다. 관리자(김태욱)는 항상 모든 권한을 가집니다.',t(['부서','직급','이름','권한','승인','처리'],mRows,'아직 승인한 회원이 없습니다.'),{right:`<div class="seg">${[['all','전체'],['dept','부서별'],['rank','직급별']].map(([k,l])=>`<button type="button" class="${(S.memGroup||'all')===k?'on':''}" data-mgroup="${k}">${l}</button>`).join('')}</div>`})+listsCard()+
+    card('mlist',`회원 ${mem.length}명`,'‘편집’은 모든 화면을 고칠 수 있습니다. ‘열람’인 사람도 아래에서 화면(게시판)을 골라 주면 그 화면만 고칠 수 있습니다. 관리자(김태욱)는 항상 모든 권한을 가집니다. ‘보고 취합’은 팀장급 이상만 들어오며, 사람별로 항상 허용이나 차단으로 바꿀 수 있습니다.',t(['부서','직급','이름','권한','승인','처리'],mRows,'아직 승인한 회원이 없습니다.'),{right:`<div class="seg">${[['all','전체'],['dept','부서별'],['rank','직급별']].map(([k,l])=>`<button type="button" class="${(S.memGroup||'all')===k?'on':''}" data-mgroup="${k}">${l}</button>`).join('')}</div>`})+listsCard()+
     (rRows?card('mrej','반려 · 이용 중지','',t(['부서','이름','상태','처리'],rRows,'')):'')+
     card('mimport','자료 가져오기','Claude 운영표에서 내려받은 자료 파일(.json)을 한 번 올리면 이 사이트로 옮겨집니다. 같은 달이 이미 있으면 덮어씁니다.',`<div class="imp"><label class="btn sm">파일 고르기<input type="file" id="impFile" accept=".json,application/json" hidden></label><span class="muted">${A.impFile?esc(A.impFile.name):'고른 파일 없음'}</span><button type="button" class="btn sm primary" id="impGo" ${A.impFile?'':'disabled'}>가져오기</button></div>`);
 }
@@ -3442,7 +3460,7 @@ function render0(){
   if(S.tab==='members'){page.innerHTML=viewMembers().replace('%%TOP%%',top)+'</main>';return}
   if(!S.db){page.innerHTML=`<main class="wrap">${top}<div class="empty-state" style="margin-top:40px">저장소에 연결하지 못해 운영표를 열 수 없습니다. 로그인한 상태로 이 페이지를 다시 열어 주세요.</div></main>`;return}
   if(!S.doc){page.innerHTML=`<main class="wrap">${top}${emptyHtml()}</main>`;return}
-  const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),dbturn:()=>secPage('dbturn'),judge:()=>pageHead('judge','디비턴 판독',jSetSw())+judgePage(),log:viewLog,tt:viewTT,calls:viewCalls,tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
+  const v={today:viewToday,duty:()=>viewRoster('duty'),assign:()=>viewRoster('assign'),edu:viewEdu,ops:viewOps,sales:()=>secPage('sales'),dbturn:()=>secPage('dbturn'),judge:()=>pageHead('judge','디비턴 판독',jSetSw())+judgePage(),log:viewLog,tt:viewTT,calls:viewCalls,rc:viewRc,tuition:viewTuition,rules:viewRules,org:()=>secPage('org'),lead:()=>secPage('lead')}[S.tab];
   const foot=`<div class="foot">원본 ${esc(S.doc.source||'-')} · 이번 달 저장 ${esc(String(S.doc.updatedAt||'').replace('T',' ').slice(0,16))}${S.com?.updatedAt?` · 내용 수정 ${esc(String(S.com.updatedAt).replace('T',' ').slice(0,16))}`:''}</div>`;
   const y=scrollY;callsSub();page.innerHTML=v().replace('%%TOP%%',top+noticeBox(S.tab)+revPanel())+foot+'</main>'+popHtml()+randHtml()+revAskHtml()+renHtml()+saveAskHtml()+revsPop()+printOvl();
   if(S.keepScroll){scrollTo(0,y);S.keepScroll=false}
@@ -3450,7 +3468,7 @@ function render0(){
 }
 function buildToc(){
   if(['today','duty','assign','edu','ops'].includes(S.tab))return;
-  if(S.tab==='dbturn'||S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt')return;
+  if(S.tab==='dbturn'||S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||S.tab==='rc')return;
   const cards=[...document.querySelectorAll('#page main .card[id^="b-"]')].filter(c=>c.querySelector('h2'));
   if(cards.length<3)return;
   const nav=document.createElement('nav');nav.className='toc';nav.setAttribute('aria-label','이 화면 바로가기');
@@ -4450,6 +4468,77 @@ window.addEventListener('beforeunload',e=>{if(S.dirty){e.preventDefault();e.retu
 
 /* ================= boot ================= */
 A.mode='boot';render();authStart();
+/* ================= 보고 취합 (팀장급 이상 · 저장하지 않음) ================= */
+const RC_RANK=/^(원장|부원장|실장|부장|(선임\s*)?팀장)$/;
+function rcByRank(rank,name){
+  if(RC_RANK.test(String(rank||'').trim()))return true;
+  const nm=String(name||'').trim();if(!nm)return false;
+  try{return callRoster().some(p=>p.name===nm&&RC_RANK.test(p.rank.trim()))}catch(e){return false}
+}
+function rcCan(){
+  if(isOwnerA())return true;if(!approved())return false;
+  const x=A.prof?.rcAccess;if(x==='allow')return true;if(x==='deny')return false;
+  return rcByRank(A.prof?.rank,A.prof?.name);
+}
+function rcMemHtml(id,u){const x=u.rcAccess==='allow'||u.rcAccess==='deny'?u.rcAccess:'auto';const auto=rcByRank(u.rank,u.name)?'직급대로 · 입장 가능':'직급대로 · 입장 불가';
+  return `<div class="bd-chips rc-mem" aria-label="보고 취합 입장"><small>보고 취합</small>${[['auto',auto],['allow','항상 허용'],['deny','차단']].map(([k,l])=>`<button type="button" class="bd${x===k?' on':''}" data-rcacc="${esc(id)}|${k}">${l}</button>`).join('')}</div>`}
+const RC_TEAMS=['1-1','1-2','1-3','2-1','2-2','3-1','3-2','4-1','4-2'];
+const RC_HEAD=/\[\s*([^\[\]]*?팀)\s*(\d{1,2}:\d{2})\s*보고\s*\]/;
+const rcNum=v=>{const n=parseFloat(String(v).replace(/,/g,''));return isNaN(n)?0:n};
+const rcRound=n=>Math.round(n*100)/100;
+function rcTriple(line){const a=line.split('/').map(x=>x.trim());if(a.length!==3)return null;const v=a.map(x=>x==='-'?0:(/^-?[\d,.]+/.test(x)?rcNum(x):NaN));return v.some(isNaN)?null:v}
+function rcParse(text){
+  const out=[];let cur=null;
+  for(const raw of String(text||'').split(/\r?\n/)){
+    const l=raw.trim(),h=l.match(RC_HEAD);
+    if(h){cur={team:h[1].trim(),slot:h[2].padStart(5,'0'),sales:null,consult:null,fixed:null};out.push(cur);continue}
+    if(l.startsWith('[')||/^-{3,}/.test(l)){cur=null;continue}
+    if(!cur)continue;let m;
+    if((m=l.match(/^확정\s*매출\s*:?\s*(-|[\d,.]+)?/)))cur.fixed=m[1]===undefined?null:rcNum(m[1]);
+    else if((m=l.match(/^매출\s*:?\s*(.+)$/)))cur.sales=rcTriple(m[1]);
+    else if((m=l.match(/^상담(?:건|완료)?\s*:?\s*(.+)$/)))cur.consult=rcTriple(m[1]);
+  }
+  return out;
+}
+function rcCollect(list,slot){
+  const by=new Map(),dup=new Set();
+  list.forEach(r=>{if(r.slot!==slot)return;if(by.has(r.team))dup.add(r.team);by.set(r.team,r)});
+  const rows=[...by.values()].sort((a,b)=>a.team.localeCompare(b.team,'ko',{numeric:true}));
+  const sum=k=>[0,1,2].map(i=>rcRound(rows.reduce((t,r)=>t+(r[k]?r[k][i]:0),0)));
+  const fx=rows.map(r=>r.fixed||0).filter(v=>v!==0);
+  return {rows,dup:[...dup],sales:sum('sales'),consult:sum('consult'),fixedTotal:rcRound(fx.reduce((a,b)=>a+b,0)),fx};
+}
+function rcText(c){return [`[AIX홍대]`,c.sales.join(' / '),`상담완료 ${c.consult.join(' / ')}`,'',`확정매출: ${c.fx.length?`${c.fixedTotal} = ${c.fx.join(' + ')}`:'0'}`].join('\n')}
+function rcResult(){
+  const R=S.rc||(S.rc={src:'',slot:null}),list=rcParse(R.src),slots=[...new Set(list.map(r=>r.slot))].sort();
+  if(!slots.includes(R.slot))R.slot=slots[slots.length-1]||null;
+  const c=rcCollect(list,R.slot),notes=[];
+  const bad=c.rows.filter(r=>!r.sales||!r.consult||r.fixed===null).map(r=>r.team);
+  if(bad.length)notes.push(`숫자를 못 읽은 칸이 있습니다: ${bad.join(', ')}. ‘확인’ 칸은 0으로 더했습니다.`);
+  if(c.dup.length)notes.push(`두 번 올린 팀은 마지막 보고만 더했습니다: ${c.dup.join(', ')}`);
+  if(R.src.trim()){const have=new Set(c.rows.map(r=>r.team.replace(/\s|팀/g,'')));const miss=RC_TEAMS.filter(t=>!have.has(t));notes.push(miss.length?`미보고팀 ${miss.length}개: ${miss.join(', ')}`:'미보고팀 없음. 전체 팀이 보고했습니다.')}
+  if(R.src.trim()&&!list.length)notes.push('보고를 찾지 못했습니다. ‘[1-2팀 09:30 보고]’ 같은 제목 줄이 있어야 합니다.');
+  const three=v=>(v||[null,null,null]).map(x=>x===null?'<td class="rc-chk">확인</td>':`<td>${x}</td>`).join('');
+  const table=c.rows.length?`<div class="tw"><table class="rc-tb"><thead><tr><th>팀</th><th>입금매출</th><th>예정매출</th><th>총매출</th><th>상담완료</th><th>익일매출</th><th>모레매출</th><th>확정매출</th></tr></thead><tbody>${c.rows.map(r=>`<tr><td>${esc(r.team)}</td>${three(r.sales)}${three(r.consult)}${r.fixed===null?'<td class="rc-chk">확인</td>':`<td>${r.fixed}</td>`}</tr>`).join('')}</tbody><tfoot><tr><td>합계</td>${[...c.sales,...c.consult,c.fixedTotal].map(v=>`<td>${v}</td>`).join('')}</tr></tfoot></table></div>`:'<div class="empty-cell" style="padding:18px;text-align:center;color:var(--muted)">보고를 붙여넣으면 팀별 숫자가 여기에 나옵니다.</div>';
+  return {text:c.rows.length?rcText(c):'',count:c.rows.length,
+    slots:slots.map(x=>`<button type="button" class="btn sm${x===R.slot?' primary':''}" data-rcslot="${x}">${x} 보고</button>`).join(''),
+    notes:notes.map(n=>`<div class="rc-note">${esc(n)}</div>`).join(''),table};
+}
+function rcPaint(){const v=rcResult(),g=id=>document.getElementById(id);if(!g('rcOut'))return;g('rcOut').value=v.text;g('rcCopy').disabled=!v.count;g('rcSlots').innerHTML=v.slots;g('rcNotes').innerHTML=v.notes;g('rcTable').innerHTML=v.table;g('rcCount').textContent=v.count?`${v.count}개 팀`:''}
+function viewRc(){
+  if(!rcCan())return pageHead('rc','보고 취합')+'<div class="empty-state" style="margin-top:24px">이 화면은 팀장급 이상만 볼 수 있습니다. 직급이 잘못 적혀 있으면 관리자에게 말해 주세요.</div>';
+  const v=rcResult();
+  return pageHead('rc','보고 취합')+`<section class="card" id="b-rcw"><div class="rc-work"><div class="rc-col"><label class="rc-l" for="rcSrc">1. 카톡 보고 붙여넣기<button type="button" class="btn sm" id="rcClear">비우기</button></label><textarea id="rcSrc" spellcheck="false" placeholder="카톡 보고방 내용을 그대로 붙여넣으세요.&#10;[1-2팀 09:30 보고] 같은 팀 보고만 골라 더합니다.">${esc(S.rc.src)}</textarea></div>
+    <div class="rc-col"><div class="rc-l">2. 복사해서 보내기<div class="rc-slots" id="rcSlots">${v.slots}</div></div><textarea id="rcOut" readonly aria-label="완성된 보고문">${esc(v.text)}</textarea><button type="button" class="btn primary" id="rcCopy"${v.count?'':' disabled'}>복사하기</button><div class="rc-notes" id="rcNotes">${v.notes}</div></div></div></section>`+
+    card('rct','팀별 확인표','',`<div id="rcTable">${v.table}</div>`,{right:`<span class="muted" id="rcCount">${v.count?v.count+'개 팀':''}</span>`});
+}
+document.addEventListener('input',e=>{if(e.target.id==='rcSrc'){S.rc.src=e.target.value;S.rc.slot=null;rcPaint()}});
+document.addEventListener('click',e=>{const t=e.target.closest?.('#rcCopy,#rcClear,[data-rcslot],[data-rcacc]');if(!t)return;
+  if(t.dataset.rcacc){if(!isOwnerA())return;const i=t.dataset.rcacc.lastIndexOf('|'),id=t.dataset.rcacc.slice(0,i),k=t.dataset.rcacc.slice(i+1);setField(id,{rcAccess:k},`보고 취합: ${t.textContent}`);return}
+  if(t.id==='rcClear'){S.rc={src:'',slot:null};const a=document.getElementById('rcSrc');a.value='';rcPaint();a.focus()}
+  else if(t.id==='rcCopy'){const o=document.getElementById('rcOut'),say=x=>{t.textContent=x;setTimeout(()=>{t.textContent='복사하기'},1500)},fb=()=>{o.focus();o.select();t.textContent='Ctrl+C를 눌러 복사하세요'};if(navigator.clipboard)navigator.clipboard.writeText(o.value).then(()=>say('복사됨'),fb);else fb()}
+  else{S.rc.slot=t.dataset.rcslot;rcPaint()}
+});
 })();
 </script>
 
