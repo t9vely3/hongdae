@@ -4125,10 +4125,11 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
     <div class="tt-chips">${TT_ST.slice(0,4).map(([l,k,col])=>`<span class="tb-lg"><i style="background:${col}"></i>${l}</span>`).join('')}</div><span class="sp"></span>
     <button type="button" class="btn sm" data-ttzoom="-1">작게</button><button type="button" class="btn sm" data-ttzoom="1">크게</button><button type="button" class="btn sm primary" data-ttbig="0">닫기 (Esc)</button></div>${grid(L,true)}</div>`:'';
   const hidN=inTab.filter(c=>c.hide).length;
-  return head+card('ttv',RG?`${md2(R_.a)} ~ ${md2(R_.b)} 수업 중인 반`:`${clab(cyc)} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 반을 누르면 크게 자세히 봅니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide',right:`<button type="button" class="btn sm primary" data-ttbig="1">${icx('arrow')}크게 보기</button>`})+pasteCard+bigOvl+pop;
+  return head+card('ttv',RG?`${md2(R_.a)} ~ ${md2(R_.b)} 수업 중인 반`:`${clab(cyc)} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 반을 누르면 크게 자세히 봅니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide',right:`${stuView()?`<button type="button" class="btn sm" data-ttabs="1" title="그룹웨어 '연속결석 체크'에서 보낸 명단">장기결석</button>`:''}<button type="button" class="btn sm primary" data-ttbig="1">${icx('arrow')}크게 보기</button>`})+pasteCard+bigOvl+pop+absOverlay();
 }
 const ttTime=v=>{v=String(v||'').replace(/[^\d:]/g,'');if(!v)return '';if(/^\d{3,4}$/.test(v))v=v.padStart(4,'0').replace(/(\d\d)(\d\d)/,'$1:$2');const m=v.match(/^(\d{1,2}):?(\d{2})?$/);if(!m)return '';return `${m[1].padStart(2,'0')}:${m[2]||'00'}`};
 function ttAct(d){
+  if(absAct(d))return true;
   if(d.ttin){const t=$('#ttText')?.value||'';if(!t.trim()){toast('붙여넣을 내용이 없습니다');return true}ttImport(t);return true}
   if(d.ttf){const [k,v]=sp(d.ttf);S.ttF[k]=v||'';S.keepScroll=true;render();return true}
   if(d.tttime){S.ttTime=!S.ttTime;S.keepScroll=true;render();return true}
@@ -4253,6 +4254,62 @@ function stuTakeIn(){const J=STU_IN;if(!J||J.busy)return;
   callsSub();if(!S.callsLoaded)return setTimeout(stuTakeIn,500);
   if(!ttCan()){const r={ok:false,msg:'이 계정은 수강생 목록을 저장할 권한이 없습니다'};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r);return}
   J.busy=true;stuSave(J.d.items||[]).then(o=>{const r={ok:o.ok>0,msg:`수강생 목록 ${o.ok}반을 넘겼습니다${o.chg?` · 인원 바뀐 반 ${o.chg}`:''}${o.miss.length?` · 시간표에서 못 찾은 반 ${o.miss.length}개(먼저 '운영계획표로 보내기'를 해 주세요)`:''}`};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r);S.tab='tt';try{ls.set('tab','tt')}catch(_){}S.keepScroll=true;render()}).catch(err=>{const r={ok:false,msg:'저장하지 못했습니다 ('+(err?.code||err?.message||'오류')+'). Firebase 규칙에 ops_students 부분을 넣었는지 확인해 주세요.'};STU_DONE[J.d.id]=r;STU_IN=null;J.reply(r)})}
+
+/* ---------- 장기결석 명단 (그룹웨어 '연속결석 체크'에서 받음 · ops_students/_abs · 수강생 목록과 같은 권한) ---------- */
+let ABS=null,ABS_IN=null;const ABS_DONE={};
+document.head.insertAdjacentHTML('beforeend',`<style>
+#ttAbs{position:fixed;inset:0;z-index:251;background:var(--bg,#f6f7f9);display:flex;flex-direction:column}
+#ttAbs .ab-body{flex:1;overflow:auto;padding:14px 18px 40px}
+#ttAbs table{width:100%;border-collapse:collapse;background:var(--surface,#fff);font-size:13px}
+#ttAbs th,#ttAbs td{padding:7px 10px;border-bottom:1px solid var(--line,#e5e7eb);text-align:left;vertical-align:top}
+#ttAbs th{position:sticky;top:0;background:var(--surface,#fff);font-weight:700;z-index:1}
+#ttAbs .ab-grp td{background:#f3f4f6;font-weight:700}
+#ttAbs .ab-on{color:#b91c1c;font-weight:700}
+#ttAbs .ab-tag{display:inline-block;margin-left:4px;padding:0 5px;border-radius:4px;background:#eef2ff;color:#3730a3;font-size:11px}
+#ttAbs .ab-tag.q{background:#fee2e2;color:#991b1b}
+#ttAbs .ab-days{font-weight:700}
+#ttAbs .ab-meta{color:var(--muted,#6b7280);font-size:12px}
+</style>`);
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-abs-push')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
+  if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-abs-ack',id:d.id,...m},e.origin)}catch(_){}};
+  if(ABS_DONE[d.id])return reply(ABS_DONE[d.id]);if(ABS_IN&&ABS_IN.d.id===d.id){ABS_IN.reply=reply;return}ABS_IN={d,reply};absTakeIn()});
+function absTakeIn(){const J=ABS_IN;if(!J||J.busy)return;
+  if(!S.db||typeof A==='undefined'||!A.prof||!A.fdb){J.reply({ok:false,wait:true,msg:'운영계획표 로그인을 기다리는 중입니다'});return setTimeout(absTakeIn,1000)}
+  if(!ttCan()){const r={ok:false,msg:'이 계정은 장기결석 명단을 저장할 권한이 없습니다'};ABS_DONE[J.d.id]=r;ABS_IN=null;J.reply(r);return}
+  J.busy=true;const d=J.d;const classes=(d.classes||[]).map(c=>({title:String(c.title||''),teacher:String(c.teacher||''),hits:(c.hits||[]).map(h=>({name:String(h.name||''),id:String(h.id||''),tags:(h.tags||[]).map(String),mentor:String(h.mentor||''),from:String(h.from||''),to:String(h.to||''),days:+h.days||0,ongoing:!!h.ongoing}))})).filter(c=>c.hits.length);
+  const doc={at:kstNow(),by:logWho(),need:+d.need||3,checkedAt:String(d.checkedAt||''),classes};
+  A.fdb.collection('ops_students').doc('_abs').set(doc).then(()=>{ABS=doc;const n=classes.reduce((k,c)=>k+c.hits.length,0);const r={ok:true,msg:`장기결석 ${n}명을 운영계획표에 넘겼습니다`};ABS_DONE[d.id]=r;ABS_IN=null;J.reply(r);
+    logAdd('tt',[`장기결석 명단 받음: ${n}명 (${doc.need}일 이상 연속결석)`]);S.tab='tt';S.ttAbs=true;try{ls.set('tab','tt')}catch(_){}S.keepScroll=true;render()})
+   .catch(err=>{const r={ok:false,msg:'저장하지 못했습니다 ('+(err?.code||err?.message||'오류')+'). Firebase 규칙에 ops_students 부분이 있는지 확인해 주세요.'};ABS_DONE[d.id]=r;ABS_IN=null;J.reply(r)})}
+function absLoad(force){if(!stuView())return;if(ABS&&ABS!=='loading'&&!force)return;ABS='loading';
+  A.fdb.collection('ops_students').doc('_abs').get().then(d=>{ABS=d.exists?d.data():{classes:[]};S.keepScroll=true;render()}).catch(e=>{ABS={err:e?.code||'오류',classes:[]};S.keepScroll=true;render()})}
+const absQuit=h=>(h.tags||[]).some(t=>t==='퇴'||t==='퇴원');
+function absRows(){const D=ABS&&ABS!=='loading'?ABS:{classes:[]};const F=S.absF||(S.absF={noquit:true,on:false,by:'class'});
+  const rows=[];(D.classes||[]).forEach(c=>(c.hits||[]).forEach(h=>{if(F.noquit&&absQuit(h))return;if(F.on&&!h.ongoing)return;rows.push({...h,cls:c.title,teacher:c.teacher})}));return rows}
+function absText(){const F=S.absF;const rows=absRows();const D=ABS||{};const by=F.by==='mentor';const g={};
+  rows.forEach(r=>{const k=by?(r.mentor||'멘토 미확인'):`${r.cls} (${r.teacher})`;(g[k]=g[k]||[]).push(r)});
+  const L=[`[장기결석 ${D.need||3}일 이상] ${rows.length}명 · ${String(D.at||'').replace('T',' ')} 기준`];
+  Object.keys(g).sort().forEach(k=>{L.push(`■ ${k}`);g[k].sort((a,b)=>b.days-a.days).forEach(r=>L.push(`  - ${r.name}(${r.id})${r.tags?.length?' ['+r.tags.join('·')+']':''}${by?' · '+r.cls:' · 멘토 '+(r.mentor||'-')} · ${r.from}~${r.to} ${r.days}일${r.ongoing?' 진행 중':''}`))});
+  return L.join('\n')}
+function absOverlay(){if(!S.ttAbs)return '';
+  if(!stuView())return `<div id="ttAbs"><div class="tb-bar"><b>장기결석 명단</b><span class="sp"></span><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body"><div class="empty-state">장기결석 명단은 수강생 목록을 볼 수 있는 계정만 볼 수 있습니다.</div></div></div>`;
+  absLoad();const F=S.absF||(S.absF={noquit:true,on:false,by:'class'});const D=ABS&&ABS!=='loading'?ABS:null;const rows=absRows();const by=F.by==='mentor';
+  const g={};rows.forEach(r=>{const k=by?(r.mentor||'멘토 미확인'):`${r.cls}|${r.teacher}`;(g[k]=g[k]||[]).push(r)});
+  const keys=Object.keys(g).sort((a,b)=>g[b].length-g[a].length||a.localeCompare(b));
+  const tag=h=>(h.tags||[]).map(t=>`<span class="ab-tag${t==='퇴'||t==='퇴원'?' q':''}">${esc(t)}</span>`).join('');
+  const body=ABS==='loading'?'<div class="empty-state">불러오는 중…</div>':D?.err?`<div class="empty-state">명단을 불러오지 못했습니다 (${esc(D.err)})</div>`:!rows.length?`<div class="empty-state">${(D?.classes||[]).length?'조건에 맞는 학생이 없습니다.':'아직 받은 명단이 없습니다. 그룹웨어 시간표에서 연속결석 확인 뒤 「운영계획표로 보내기」를 눌러 주세요.'}</div>`
+    :`<table><thead><tr><th>${by?'담당 멘토':'반'}</th><th>학생</th><th>${by?'반':'담당 멘토'}</th><th>결석 기간</th><th>일수</th><th>상태</th></tr></thead><tbody>${keys.map(k=>{const L=g[k].sort((a,b)=>b.ongoing-a.ongoing||b.days-a.days);const [t1,t2]=by?[k,'']:k.split('|');
+      return `<tr class="ab-grp"><td colspan="6">${esc(t1)}${t2?` <span class="ab-meta">${esc(t2)}</span>`:''} · ${L.length}명</td></tr>`+L.map(r=>`<tr><td></td><td>${esc(r.name)} <span class="ab-meta">(${esc(r.id)})</span>${tag(r)}</td><td>${by?`${esc(r.cls)} <span class="ab-meta">${esc(r.teacher)}</span>`:esc(r.mentor||'-')}</td><td>${esc(r.from)} ~ ${esc(r.to)}</td><td class="ab-days">${r.days}일</td><td>${r.ongoing?'<span class="ab-on">지금도 결석 중</span>':'<span class="ab-meta">다시 나옴</span>'}</td></tr>`).join('')}).join('')}</tbody></table>`;
+  return `<div id="ttAbs"><div class="tb-bar"><b>장기결석 명단 ${rows.length}명</b><span class="ab-meta">${D&&D.at?`${esc(String(D.at).replace('T',' '))} · ${esc(D.by||'')} 받음 · ${D.need||3}일 이상 연속결석`:''}</span>
+    <div class="seg"><button type="button" class="${!by?'on':''}" data-absby="class">반별</button><button type="button" class="${by?'on':''}" data-absby="mentor">멘토별</button></div>
+    <label class="ab-meta"><input type="checkbox" data-absf="noquit" ${F.noquit?'checked':''}> '퇴' 학생 빼기</label><label class="ab-meta"><input type="checkbox" data-absf="on" ${F.on?'checked':''}> 지금도 결석 중만</label>
+    <span class="sp"></span><button type="button" class="btn sm" data-abscopy="1">명단 복사</button><button type="button" class="btn sm" data-ttabs="r">새로 불러오기</button><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body">${body}</div></div>`}
+function absAct(d){
+  if(d.ttabs!=null){if(d.ttabs==='r'){absLoad(true);return true}S.ttAbs=d.ttabs==='1';if(S.ttAbs)absLoad(true);S.keepScroll=true;render();return true}
+  if(d.absby){S.absF.by=d.absby;S.keepScroll=true;render();return true}
+  if(d.abscopy){const v=absText();(navigator.clipboard?.writeText(v)||Promise.reject()).then(()=>toast('장기결석 명단을 복사했습니다'),()=>toast('복사하지 못했습니다'));return true}
+  return false}
+document.addEventListener('change',e=>{const k=e.target?.dataset?.absf;if(!k)return;S.absF[k]=e.target.checked;S.keepScroll=true;render()});
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
@@ -4397,6 +4454,7 @@ document.addEventListener('keydown',e=>{
   if(asgActive()&&!inField&&e.key!=='Escape'&&!(mod&&['c','x','v','z','y','s'].includes(e.key.toLowerCase()))){if(asgKey(e)){e.preventDefault();return}}
   if(e.key==='Escape'&&S.navAll){S.navAll=false;renderNav();return}
   if(e.key==='Escape'&&S.ttPick!=null){S.ttPick=null;S.keepScroll=true;render();return}
+  if(e.key==='Escape'&&S.ttAbs){S.ttAbs=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.ttBig){S.ttBig=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.printOpen){S.printOpen=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.showRevs){S.showRevs=false;S.keepScroll=true;render();return}
