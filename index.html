@@ -2984,6 +2984,14 @@ const ROLE_L={view:'열람',edit:'편집'};
 const RANKS=['원장','부원장','실장','부장','팀장','과장','대리','주임','사원','강사'];
 const deptList=()=>(A.lists&&A.lists.depts&&A.lists.depts.length)?A.lists.depts:DEPTS;
 const rankList=()=>(A.lists&&A.lists.ranks&&A.lists.ranks.length)?A.lists.ranks:RANKS;
+const teamList=()=>(A.lists&&A.lists.teams&&A.lists.teams.length)?A.lists.teams:[...new Set((typeof callRoster==='function'?callRoster():[]).map(r=>r.team))];
+const metaListOf=k=>k==='depts'?deptList():k==='ranks'?rankList():teamList();
+/* 조직: 이름 → 팀·부서·직급 (관리자가 회원 관리에서 정하면 모두가 읽을 수 있게 ops_meta/org 에 저장) */
+let ORG_T=null;
+function syncOrg(){if(!(typeof isOwnerA==='function'&&isOwnerA())||!A.users)return;clearTimeout(ORG_T);ORG_T=setTimeout(()=>{const m={};
+  Object.values(A.users).forEach(u=>{if(!(u.owner||u.status==='approved'))return;const n=String(u.name||'').replace(/[\d\s]/g,'');if(!n)return;m[n]={team:u.team||'',dept:u.dept||'',rank:u.rank||''}});
+  if(JSON.stringify(m)===JSON.stringify(A.org?.members||{}))return;
+  A.fdb.collection('ops_meta').doc('org').set({members:m,updatedAt:new Date().toISOString()}).catch(()=>{})},600)}
 const A={fb:null,auth:null,fdb:null,user:null,prof:null,mode:'login',busy:false,err:'',users:{},unsubU:null,unsubMe:null,started:false};
 const isOwnerA=()=>!!A.user&&(A.user.email||'').toLowerCase()===OWNER_MAIL;
 const approved=()=>isOwnerA()||(A.prof&&A.prof.status==='approved');
@@ -3015,6 +3023,7 @@ function authStart(){
   A.fb=firebase.apps.find(a=>a.name==='ops')||firebase.initializeApp(FB_CFG,'ops');
   A.auth=A.fb.auth();A.fdb=A.fb.firestore();try{A.fdb.settings({ignoreUndefinedProperties:true,merge:true})}catch(e){}
   try{A.fdb.collection('ops_meta').doc('lists').onSnapshot(s=>{A.lists=s.exists?s.data():null;if(S.tab==='members'||A.mode!=='in'){S.keepScroll=true;render()}},()=>{})}catch(e){}
+  try{A.fdb.collection('ops_meta').doc('org').onSnapshot(s=>{A.org=s.exists?s.data():null;if(S.ttAbs){S.keepScroll=true;render()}},()=>{})}catch(e){}
   A.auth.onAuthStateChanged(u=>{
     A.user=u;if(A.unsubMe){A.unsubMe();A.unsubMe=null}if(A.unsubU){A.unsubU();A.unsubU=null}
     if(!u){A.prof=null;A.mode=A.mode==='signup'?'signup':'login';S.db=null;render();return}
@@ -3091,21 +3100,23 @@ function viewMembers(){
   const opts=(list,v,ph)=>`<option value=>${ph}</option>${(v&&!list.includes(v)?[v,...list]:list).map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}`;
   const dSel=(id,u)=>`<select class="in sm msel" data-udept="${esc(id)}" aria-label="부서">${opts(deptList(),u.dept||'','부서 없음')}</select>`;
   const rSel=(id,u)=>`<select class="in sm msel" data-urank="${esc(id)}" aria-label="직급">${opts(rankList(),u.rank||'','직급 선택')}</select>`;
+  const tSel=(id,u)=>`<select class="in sm msel" data-uteam="${esc(id)}" aria-label="팀">${opts(teamList(),u.team||'','팀 없음')}</select>`;
+  syncOrg();
   const rej=all.filter(([,u])=>u.status==='rejected'||u.status==='removed');
   const who=u=>`<b>${esc(u.name||'(이름 없음)')}</b><small class="acct">${esc(u.email||'')}</small>`;
   const pRows=pend.map(([id,u])=>`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td><td class="nw" data-l="신청">${esc(fmtAt(u.createdAt))}</td>
     <td class="act" data-l="처리"><button type="button" class="btn sm" data-approve="${esc(id)}|view">${icx('check')}열람으로 승인</button><button type="button" class="btn sm primary" data-approve="${esc(id)}|edit">${icx('check')}편집으로 승인</button><button type="button" class="btn sm danger" data-reject="${esc(id)}">${icx('x')}반려</button></td></tr>`).join('');
-  const G=S.memGroup||'all';const gKey=u=>G==='dept'?(u.dept||'부서 없음'):G==='rank'?(u.rank||'직급 없음'):'';
-  if(G!=='all')mem.sort((x,y)=>{const a=gKey(x[1]),b=gKey(y[1]);const ia=G==='dept'?deptList().indexOf(a):rankIx(a),ib=G==='dept'?deptList().indexOf(b):rankIx(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b,'ko')||rankIx(x[1].rank)-rankIx(y[1].rank)||(x[1].name||'').localeCompare(y[1].name||'','ko')});
+  const G=S.memGroup||'all';const gKey=u=>G==='dept'?(u.dept||'부서 없음'):G==='rank'?(u.rank||'직급 없음'):G==='team'?(u.team||'팀 없음'):'';
+  if(G!=='all')mem.sort((x,y)=>{const a=gKey(x[1]),b=gKey(y[1]);const L=G==='dept'?deptList():G==='team'?teamList():null;const ia=L?L.indexOf(a):rankIx(a),ib=L?L.indexOf(b):rankIx(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b,'ko')||rankIx(x[1].rank)-rankIx(y[1].rank)||(x[1].name||'').localeCompare(y[1].name||'','ko')});
   let lastG=null;const cntG={};mem.forEach(([,u])=>{const k=gKey(u);cntG[k]=(cntG[k]||0)+1});
-  const mRows=mem.map(([id,u])=>{const k=gKey(u);const hd=G!=='all'&&k!==lastG?`<tr class="mgrp"><td colspan="6"><b>${esc(k)}</b><small>${cntG[k]}명</small></td></tr>`:'';lastG=k;return hd+`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td>
+  const mRows=mem.map(([id,u])=>{const k=gKey(u);const hd=G!=='all'&&k!==lastG?`<tr class="mgrp"><td colspan="7"><b>${esc(k)}</b><small>${cntG[k]}명</small></td></tr>`:'';lastG=k;return hd+`<tr><td class="nw" data-l="부서">${dSel(id,u)}</td><td class="nw" data-l="팀">${tSel(id,u)}</td><td class="nw" data-l="직급">${rSel(id,u)}</td><td data-l="이름">${who(u)}</td>
     <td data-l="권한">${u.owner?'<span class="chip">관리자 · 모든 권한</span>':`<div class="seg rolesel">${['view','edit'].map(r=>`<button type="button" class="${u.role===r?'on':''}" data-role="${esc(id)}|${r}">${ROLE_L[r]}</button>`).join('')}</div>${u.role==='edit'?'<small class="bd-note">모든 화면 편집</small>':`<div class="bd-chips" aria-label="편집할 수 있는 화면">${BOARDS.map(([b,l])=>`<button type="button" class="bd${(u.boards||[]).includes(b)?' on':''}" data-uboard="${esc(id)}|${b}">${l}</button>`).join('')}</div>`}`}${u.owner?'':rcMemHtml(id,u)}</td><td class="nw" data-l="승인">${esc(fmtAt(u.decidedAt))}</td>
     <td class="act" data-l="처리">${u.owner?'':S.confirm==='mem:'+id?`<span class="muted">이용을 중지할까요?</span><button type="button" class="btn sm danger" data-kickgo="${esc(id)}">중지</button><button type="button" class="btn sm" data-cancel="1">취소</button>`:`<button type="button" class="btn sm ghost" data-kick="${esc(id)}">이용 중지</button>`}</td></tr>`}).join('');
   const rRows=rej.map(([id,u])=>`<tr><td class="nw" data-l="부서">${esc(u.dept||'-')}</td><td data-l="이름">${who(u)}</td><td class="nw" data-l="상태">${u.status==='removed'?'이용 중지':'반려'} · ${esc(fmtAt(u.decidedAt))}</td><td class="act" data-l="처리"><button type="button" class="btn sm" data-approve="${esc(id)}|view">다시 승인</button></td></tr>`).join('');
   const t=(head,rows,empty)=>`<div class="tw"><table class="stk"><thead><tr>${head.map(h=>`<th${h==='처리'?' class="act"':''}>${h}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${head.length}" class="empty-cell">${empty}</td></tr>`}</tbody></table></div>`;
   return pageHead('members','회원 관리')+
     card('mpend',`가입 신청${pend.length?' '+pend.length+'건':''}`,'승인할 때 열람만 할지, 편집까지 할지 고릅니다.',t(['부서','직급','이름','신청','처리'],pRows,'새 가입 신청이 없습니다.'))+
-    card('mlist',`회원 ${mem.length}명`,'‘편집’은 모든 화면을 고칠 수 있습니다. ‘열람’인 사람도 아래에서 화면(게시판)을 골라 주면 그 화면만 고칠 수 있습니다. 관리자(김태욱)는 항상 모든 권한을 가집니다. ‘보고 취합’은 팀장급 이상만 들어오며, 사람별로 항상 허용이나 차단으로 바꿀 수 있습니다.',t(['부서','직급','이름','권한','승인','처리'],mRows,'아직 승인한 회원이 없습니다.'),{right:`<div class="seg">${[['all','전체'],['dept','부서별'],['rank','직급별']].map(([k,l])=>`<button type="button" class="${(S.memGroup||'all')===k?'on':''}" data-mgroup="${k}">${l}</button>`).join('')}</div>`})+listsCard()+
+    card('mlist',`회원 ${mem.length}명`,'‘편집’은 모든 화면을 고칠 수 있습니다. ‘열람’인 사람도 아래에서 화면(게시판)을 골라 주면 그 화면만 고칠 수 있습니다. 관리자(김태욱)는 항상 모든 권한을 가집니다. ‘보고 취합’은 팀장급 이상만 들어오며, 사람별로 항상 허용이나 차단으로 바꿀 수 있습니다.',t(['부서','팀','직급','이름','권한','승인','처리'],mRows,'아직 승인한 회원이 없습니다.'),{right:`<div class="seg">${[['all','전체'],['dept','부서별'],['team','팀별'],['rank','직급별']].map(([k,l])=>`<button type="button" class="${(S.memGroup||'all')===k?'on':''}" data-mgroup="${k}">${l}</button>`).join('')}</div>`})+listsCard()+
     (rRows?card('mrej','반려 · 이용 중지','',t(['부서','이름','상태','처리'],rRows,'')):'')+
     card('mimport','자료 가져오기','Claude 운영표에서 내려받은 자료 파일(.json)을 한 번 올리면 이 사이트로 옮겨집니다. 같은 달이 이미 있으면 덮어씁니다.',`<div class="imp"><label class="btn sm">파일 고르기<input type="file" id="impFile" accept=".json,application/json" hidden></label><span class="muted">${A.impFile?esc(A.impFile.name):'고른 파일 없음'}</span><button type="button" class="btn sm primary" id="impGo" ${A.impFile?'':'disabled'}>가져오기</button></div>`);
 }
@@ -3113,15 +3124,15 @@ const rankIx=r=>{const i=rankList().indexOf(r||'');return i<0?99:i};
 function listsCard(){
   const box=(k,title,list,ph)=>`<div class="lsbox"><h3>${title}<small>${list.length}개</small></h3><div class="lschips">${list.map((v,i)=>`<span class="lschip">${esc(v)}<button type="button" data-lsup="${k}|${i}" title="앞으로" ${i?'':'disabled'}>${icx('left')}</button><button type="button" data-lsdel="${k}|${i}" title="빼기">${icx('x')}</button></span>`).join('')}</div>
     <div class="lsadd"><input type="text" class="in sm" id="lsIn-${k}" maxlength="20" placeholder="${ph}"><button type="button" class="btn sm" data-lsadd="${k}">${icx('plus')}추가</button></div></div>`;
-  return card('mlists','부서 · 직급 목록','가입 신청 화면과 회원 목록의 선택칸에 나오는 목록입니다. 목록에서 빼도 이미 그 값을 가진 회원은 그대로 남습니다.',`<div class="lsgrid">${box('depts','부서',deptList(),'새 부서 이름')}${box('ranks','직급',rankList(),'새 직급 이름')}</div>`);
+  return card('mlists','부서 · 팀 · 직급 목록','가입 신청 화면과 회원 목록의 선택칸에 나오는 목록입니다. 목록에서 빼도 이미 그 값을 가진 회원은 그대로 남습니다. 팀은 장기결석 명단을 팀장에게 팀별로 보여 줄 때 씁니다.',`<div class="lsgrid">${box('depts','부서',deptList(),'새 부서 이름')}${box('teams','팀',teamList(),'새 팀 이름 (예: 3-1팀)')}${box('ranks','직급',rankList(),'새 직급 이름')}</div>`);
 }
-async function saveLists(k,list,msg){const cur={depts:deptList().slice(),ranks:rankList().slice()};cur[k]=list;
+async function saveLists(k,list,msg){const cur={depts:deptList().slice(),ranks:rankList().slice(),teams:teamList().slice()};cur[k]=list;
   try{await A.fdb.collection('ops_meta').doc('lists').set({...cur,updatedAt:new Date().toISOString()});A.lists=cur;toast(msg);S.keepScroll=true;render()}
   catch(e){toast(e?.code==='permission-denied'?'저장 권한이 없습니다. Firebase 규칙을 새로 게시해 주세요.':authMsg(e))}}
 function listAct(d){
-  if(d.lsadd){const k=d.lsadd,inp=document.getElementById('lsIn-'+k),v=(inp?.value||'').trim();if(!v){toast('이름을 적어 주세요');return true}const L=(k==='depts'?deptList():rankList()).slice();if(L.includes(v)){toast('이미 있습니다');return true}L.push(v);saveLists(k,L,`‘${v}’ 추가했습니다`);return true}
-  if(d.lsdel){const [k,i]=sp(d.lsdel);const L=(k==='depts'?deptList():rankList()).slice();const v=L.splice(+i,1)[0];saveLists(k,L,`‘${v}’ 뺐습니다`);return true}
-  if(d.lsup){const [k,i]=sp(d.lsup);const L=(k==='depts'?deptList():rankList()).slice();const n=+i;if(n>0){[L[n-1],L[n]]=[L[n],L[n-1]];saveLists(k,L,'순서를 바꿨습니다')}return true}
+  if(d.lsadd){const k=d.lsadd,inp=document.getElementById('lsIn-'+k),v=(inp?.value||'').trim();if(!v){toast('이름을 적어 주세요');return true}const L=metaListOf(k).slice();if(L.includes(v)){toast('이미 있습니다');return true}L.push(v);saveLists(k,L,`‘${v}’ 추가했습니다`);return true}
+  if(d.lsdel){const [k,i]=sp(d.lsdel);const L=metaListOf(k).slice();const v=L.splice(+i,1)[0];saveLists(k,L,`‘${v}’ 뺐습니다`);return true}
+  if(d.lsup){const [k,i]=sp(d.lsup);const L=metaListOf(k).slice();const n=+i;if(n>0){[L[n-1],L[n]]=[L[n],L[n-1]];saveLists(k,L,'순서를 바꿨습니다')}return true}
   return false}
 document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&!e.isComposing&&t.id&&t.id.startsWith('lsIn-')){e.preventDefault();listAct({lsadd:t.id.slice(5)})}});
 async function setField(id,patch,msg){try{await A.fdb.collection('ops_users').doc(id).set({...A.users[id],...patch});toast(msg)}catch(e){toast(authMsg(e))}}
@@ -4125,7 +4136,7 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
     <div class="tt-chips">${TT_ST.slice(0,4).map(([l,k,col])=>`<span class="tb-lg"><i style="background:${col}"></i>${l}</span>`).join('')}</div><span class="sp"></span>
     <button type="button" class="btn sm" data-ttzoom="-1">작게</button><button type="button" class="btn sm" data-ttzoom="1">크게</button><button type="button" class="btn sm primary" data-ttbig="0">닫기 (Esc)</button></div>${grid(L,true)}</div>`:'';
   const hidN=inTab.filter(c=>c.hide).length;
-  return head+card('ttv',RG?`${md2(R_.a)} ~ ${md2(R_.b)} 수업 중인 반`:`${clab(cyc)} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 반을 누르면 크게 자세히 봅니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide',right:`${stuView()?`<button type="button" class="btn sm" data-ttabs="1" title="그룹웨어 '연속결석 체크'에서 보낸 명단">장기결석</button>`:''}<button type="button" class="btn sm primary" data-ttbig="1">${icx('arrow')}크게 보기</button>`})+pasteCard+bigOvl+pop+absOverlay();
+  return head+card('ttv',RG?`${md2(R_.a)} ~ ${md2(R_.b)} 수업 중인 반`:`${clab(cyc)} 강의시간표`,`${F.wk==='we'?'주말':'평일'} 반만 보여 줍니다. 반을 누르면 크게 자세히 봅니다.${hidN?` 숨긴 반 ${hidN}개 <button type="button" class="lnk" data-tthid="1">${S.ttHid?'숨기기':'보기'}</button>`:''}`,tools+body,{cls:'wide',right:`${stuView()?`<button type="button" class="btn" data-ttabs="1" title="그룹웨어 '연속결석 체크'에서 보낸 명단" style="background:#b91c1c;border-color:#b91c1c;color:#fff;font-size:15px;font-weight:700;padding:9px 18px">장기결석 명단</button>`:''}<button type="button" class="btn sm primary" data-ttbig="1">${icx('arrow')}크게 보기</button>`})+pasteCard+bigOvl+pop+absOverlay();
 }
 const ttTime=v=>{v=String(v||'').replace(/[^\d:]/g,'');if(!v)return '';if(/^\d{3,4}$/.test(v))v=v.padStart(4,'0').replace(/(\d\d)(\d\d)/,'$1:$2');const m=v.match(/^(\d{1,2}):?(\d{2})?$/);if(!m)return '';return `${m[1].padStart(2,'0')}:${m[2]||'00'}`};
 function ttAct(d){
@@ -4260,15 +4271,21 @@ let ABS=null,ABS_IN=null;const ABS_DONE={};
 document.head.insertAdjacentHTML('beforeend',`<style>
 #ttAbs{position:fixed;inset:0;z-index:251;background:var(--bg,#f6f7f9);display:flex;flex-direction:column}
 #ttAbs .ab-body{flex:1;overflow:auto;padding:14px 18px 40px}
-#ttAbs table{width:100%;border-collapse:collapse;background:var(--surface,#fff);font-size:13px}
-#ttAbs th,#ttAbs td{padding:7px 10px;border-bottom:1px solid var(--line,#e5e7eb);text-align:left;vertical-align:top}
+#ttAbs table{width:100%;border-collapse:collapse;background:var(--surface,#fff);font-size:15px}
+#ttAbs .tb-bar{font-size:14px;padding:14px 20px}
+#ttAbs .tb-bar>b{font-size:20px;color:#b91c1c}
+#ttAbs .tb-bar .btn{font-size:14px;padding:8px 14px}
+#ttAbs .tb-bar label{font-size:14px;display:inline-flex;align-items:center;gap:5px}
+#ttAbs .tb-bar input[type=checkbox]{width:18px;height:18px}
+#ttAbs th,#ttAbs td{padding:11px 14px;border-bottom:1px solid var(--line,#e5e7eb);text-align:left;vertical-align:top}
 #ttAbs th{position:sticky;top:0;background:var(--surface,#fff);font-weight:700;z-index:1}
 #ttAbs .ab-grp td{background:#f3f4f6;font-weight:700}
 #ttAbs .ab-on{color:#b91c1c;font-weight:700}
 #ttAbs .ab-tag{display:inline-block;margin-left:4px;padding:0 5px;border-radius:4px;background:#eef2ff;color:#3730a3;font-size:11px}
 #ttAbs .ab-tag.q{background:#fee2e2;color:#991b1b}
 #ttAbs .ab-days{font-weight:700}
-#ttAbs .ab-meta{color:var(--muted,#6b7280);font-size:12px}
+#ttAbs .ab-meta{color:var(--muted,#6b7280);font-size:13px}
+#ttAbs .ab-tag{font-size:12px}
 </style>`);
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-abs-push')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
   if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-abs-ack',id:d.id,...m},e.origin)}catch(_){}};
@@ -4284,8 +4301,23 @@ function absTakeIn(){const J=ABS_IN;if(!J||J.busy)return;
 function absLoad(force){if(!stuView())return;if(ABS&&ABS!=='loading'&&!force)return;ABS='loading';
   A.fdb.collection('ops_students').doc('_abs').get().then(d=>{ABS=d.exists?d.data():{classes:[]};S.keepScroll=true;render()}).catch(e=>{ABS={err:e?.code||'오류',classes:[]};S.keepScroll=true;render()})}
 const absQuit=h=>(h.tags||[]).some(t=>t==='퇴'||t==='퇴원');
+/* 보기 범위: 담당 멘토 이름(숫자 뺀 것)과 로그인한 사람 이름을 맞춤. 팀장은 팀, 부장·선임팀장은 부서, 관리자는 전체 */
+const absPure=v=>String(v||'').split('|')[0].replace(/[\d\s]/g,'');
+function absScope(){const me=absPure(A.prof?.name);const all=typeof isOwnerA==='function'&&isOwnerA();
+  const O=A.org?.members||{};const R=callRoster();const rr=R.find(r=>r.name===me);
+  // 회원 관리에 정한 값이 먼저, 없으면 통화량 직원 명단
+  const people=Object.keys(O).length?Object.entries(O).map(([name,v])=>({name,team:v.team||'',dept:v.dept||'',rank:v.rank||''})):R.map(r=>({name:r.name,team:r.team,dept:String(r.team).split('-')[0]+'부서',rank:r.rank}));
+  const my=people.find(p=>p.name===me)||(rr?{name:me,team:rr.team,dept:String(rr.team).split('-')[0]+'부서',rank:rr.rank}:{name:me,team:'',dept:'',rank:''});
+  const rank=my.rank||A.prof?.rank||'';const team=my.team||'';const dept=my.dept||A.prof?.dept||'';
+  const opts=[['me','나']];
+  if(team&&/팀장|부장|실장|원장/.test(rank))opts.push(['team',team]);
+  if(dept&&/부장|선임팀장|실장|원장/.test(rank))opts.push(['dept',dept]);
+  if(all)opts.push(['all','전체']);
+  const names=k=>k==='all'?null:k==='dept'?people.filter(p=>p.dept===dept).map(p=>p.name).concat(me):k==='team'?people.filter(p=>p.team===team).map(p=>p.name).concat(me):[me];
+  return {me,opts,names,def:opts[opts.length-1][0]}}
 function absRows(){const D=ABS&&ABS!=='loading'?ABS:{classes:[]};const F=S.absF||(S.absF={noquit:true,on:false,by:'class'});
-  const rows=[];(D.classes||[]).forEach(c=>(c.hits||[]).forEach(h=>{if(F.noquit&&absQuit(h))return;if(F.on&&!h.ongoing)return;rows.push({...h,cls:c.title,teacher:c.teacher})}));return rows}
+  const sc=absScope();if(!sc.opts.some(o=>o[0]===F.scope))F.scope=sc.def;const allow=sc.names(F.scope);const ok=allow&&new Set(allow);
+  const rows=[];(D.classes||[]).forEach(c=>(c.hits||[]).forEach(h=>{if(F.noquit&&absQuit(h))return;if(F.on&&!h.ongoing)return;if(ok&&!ok.has(absPure(h.mentor)))return;rows.push({...h,cls:c.title,teacher:c.teacher})}));return rows}
 function absText(){const F=S.absF;const rows=absRows();const D=ABS||{};const by=F.by==='mentor';const g={};
   rows.forEach(r=>{const k=by?(r.mentor||'멘토 미확인'):`${r.cls} (${r.teacher})`;(g[k]=g[k]||[]).push(r)});
   const L=[`[장기결석 ${D.need||3}일 이상] ${rows.length}명 · ${String(D.at||'').replace('T',' ')} 기준`];
@@ -4301,12 +4333,14 @@ function absOverlay(){if(!S.ttAbs)return '';
     :`<table><thead><tr><th>${by?'담당 멘토':'반'}</th><th>학생</th><th>${by?'반':'담당 멘토'}</th><th>결석 기간</th><th>일수</th><th>상태</th></tr></thead><tbody>${keys.map(k=>{const L=g[k].sort((a,b)=>b.ongoing-a.ongoing||b.days-a.days);const [t1,t2]=by?[k,'']:k.split('|');
       return `<tr class="ab-grp"><td colspan="6">${esc(t1)}${t2?` <span class="ab-meta">${esc(t2)}</span>`:''} · ${L.length}명</td></tr>`+L.map(r=>`<tr><td></td><td>${esc(r.name)} <span class="ab-meta">(${esc(r.id)})</span>${tag(r)}</td><td>${by?`${esc(r.cls)} <span class="ab-meta">${esc(r.teacher)}</span>`:esc(r.mentor||'-')}</td><td>${esc(r.from)} ~ ${esc(r.to)}</td><td class="ab-days">${r.days}일</td><td>${r.ongoing?'<span class="ab-on">지금도 결석 중</span>':'<span class="ab-meta">다시 나옴</span>'}</td></tr>`).join('')}).join('')}</tbody></table>`;
   return `<div id="ttAbs"><div class="tb-bar"><b>장기결석 명단 ${rows.length}명</b><span class="ab-meta">${D&&D.at?`${esc(String(D.at).replace('T',' '))} · ${esc(D.by||'')} 받음 · ${D.need||3}일 이상 연속결석`:''}</span>
+    ${(()=>{const sc=absScope();return sc.opts.length>1?`<div class="seg">${sc.opts.map(([k,l])=>`<button type="button" class="${F.scope===k?'on':''}" data-absscope="${k}">${esc(l)}</button>`).join('')}</div>`:`<span class="ab-meta">${esc(sc.me||'')} 담당 학생만</span>`})()}
     <div class="seg"><button type="button" class="${!by?'on':''}" data-absby="class">반별</button><button type="button" class="${by?'on':''}" data-absby="mentor">멘토별</button></div>
     <label class="ab-meta"><input type="checkbox" data-absf="noquit" ${F.noquit?'checked':''}> '퇴' 학생 빼기</label><label class="ab-meta"><input type="checkbox" data-absf="on" ${F.on?'checked':''}> 지금도 결석 중만</label>
     <span class="sp"></span><button type="button" class="btn sm" data-abscopy="1">명단 복사</button><button type="button" class="btn sm" data-ttabs="r">새로 불러오기</button><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body">${body}</div></div>`}
 function absAct(d){
   if(d.ttabs!=null){if(d.ttabs==='r'){absLoad(true);return true}S.ttAbs=d.ttabs==='1';if(S.ttAbs)absLoad(true);S.keepScroll=true;render();return true}
   if(d.absby){S.absF.by=d.absby;S.keepScroll=true;render();return true}
+  if(d.absscope){S.absF.scope=d.absscope;S.keepScroll=true;render();return true}
   if(d.abscopy){const v=absText();(navigator.clipboard?.writeText(v)||Promise.reject()).then(()=>toast('장기결석 명단을 복사했습니다'),()=>toast('복사하지 못했습니다'));return true}
   return false}
 document.addEventListener('change',e=>{const k=e.target?.dataset?.absf;if(!k)return;S.absF[k]=e.target.checked;S.keepScroll=true;render()});
@@ -4516,6 +4550,7 @@ document.addEventListener('change',e=>{
   if(t.id==='impFile'){A.impFile=t.files[0]||null;S.keepScroll=true;render()}
   if(t.dataset.udept!=null){setField(t.dataset.udept,{dept:t.value},'부서를 바꿨습니다')}
   if(t.dataset.urank!=null){setField(t.dataset.urank,{rank:t.value},t.value?`직급을 ${t.value}(으)로 바꿨습니다`:'직급을 비웠습니다')}
+  if(t.dataset.uteam!=null){setField(t.dataset.uteam,{team:t.value},t.value?`팀을 ${t.value}(으)로 바꿨습니다`:'팀을 비웠습니다')}
   if(t.id==='datePick'&&t.value){S.date=t.value;render()}
   if(t.id==='showNames'){S.showNames=t.checked;S.keepScroll=true;render()}
   if(t.id==='tdept'){S.tdept=t.value;S.keepScroll=true;render()}
