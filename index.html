@@ -3572,7 +3572,13 @@ function act(t){
   if(d.clunlock){const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} 통화량 잠금 풀기`]);callsWrite(dd,{unlocked:true}).then(()=>{toast(`${md(dd)} 잠금을 풀었습니다`);S.keepScroll=true;render()});return true}
   if(d.cllock){const dd=S.cdate||todayIso();logAdd('calls',[`${md(dd)} 통화량 다시 잠금`]);callsWrite(dd,{unlocked:false}).then(()=>{toast(`${md(dd)} 다시 잠갔습니다`);S.keepScroll=true;render()});return true}
   if(d.clfx){const n=d.clfx;const inp=[...document.querySelectorAll('.cl-nt')].find(x=>x.dataset.cl===n+'|nt');const v=(inp?.value||'').trim();if(!v){toast('비고 칸에 먼저 적어 주세요');return true}if(inp){inp.dataset.fx='1';inp.blur()}const notes={...(S.callsAll?.['_memo']?.notes||{}),[n]:v.slice(0,200)};const dd=S.cdate||todayIso();logAdd('calls',[`고정 비고: ${n} · ${v.slice(0,40)}`]);callsWrite('_memo',{notes}).then(()=>callsWrite(dd,{rows:{[n]:{nt:''}}})).then(()=>{toast('고정했습니다. 다음 날에도 보입니다');S.keepScroll=true;render()});return true}
-  if(d.clfxdel){const n=d.clfxdel;const notes={...(S.callsAll?.['_memo']?.notes||{})};delete notes[n];logAdd('calls',[`고정 비고 지움: ${n}`]);callsWrite('_memo',{notes}).then(()=>{S.keepScroll=true;render()});return true}
+  if(d.clfxdel){const n=d.clfxdel;const notes={...(S.callsAll?.['_memo']?.notes||{})};delete notes[n];
+    // Firestore의 merge 저장은 맵에서 빠진 키를 삭제하지 않으므로 해당 필드만 명시적으로 삭제한다.
+    const ref=A.fdb.collection('ops_calls').doc('_memo');const FV=window.firebase.firestore.FieldValue;
+    ref.update(new window.firebase.firestore.FieldPath('notes',n),FV.delete()).then(()=>{
+      S.callsAll=S.callsAll||{};S.callsAll['_memo']={...(S.callsAll['_memo']||{}),notes};
+      logAdd('calls',[`고정 비고 지움: ${n}`]);toast('고정을 풀었습니다');S.keepScroll=true;render();
+    }).catch(e=>{toast('고정을 풀지 못했습니다 ('+(e?.code||'오류')+')');S.keepScroll=true;render()});return true}
   if(d.yxadd){const n=$('#yxN').value,a=$('#yxA').value,b=$('#yxB').value;if(!n||!a||!b){toast('이름과 기간을 골라 주세요');return true}if(a>b){toast('끝나는 날이 시작일보다 앞설 수 없습니다');return true}const L=[...(S.callsAll?.['_exempt']?.list||[]),{name:n,from:a,to:b}];logAdd('calls',[`노란색 기간 추가: ${n} ${a} ~ ${b}`]);callsWrite('_exempt',{list:L}).then(()=>{toast(`${n} 노란색 기간을 넣었습니다`);S.keepScroll=true;render()});return true}
   if(d.yxdel!=null){const L=[...(S.callsAll?.['_exempt']?.list||[])];const x=L.splice(+d.yxdel,1)[0];logAdd('calls',[`노란색 기간 뺌: ${x?.name||''}`]);callsWrite('_exempt',{list:L}).then(()=>{S.keepScroll=true;render()});return true}
   if(d.clruled){S.clRuleEd=!S.clRuleEd;S.keepScroll=true;render();return true}
