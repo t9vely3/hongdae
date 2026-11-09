@@ -3452,7 +3452,10 @@ function panelHtml(){
 /* ================= render ================= */
 function render(){
   const fe=document.activeElement,fk=fe?.dataset?.cl;let fv,fs;if(fk){fv=fe.value;try{fs=[fe.selectionStart,fe.selectionEnd]}catch(_){}}
+  const SC_SEL='.tt-gw,.stu-tw,#ttAbs .ab-body,.tt-big-body';const scTab=S.tab;
+  const sc=[...document.querySelectorAll(SC_SEL)].map((el,i)=>({k:el.className+'|'+i,l:el.scrollLeft,t:el.scrollTop}));
   render0();ttFit();
+  if(S.tab===scTab)document.querySelectorAll(SC_SEL).forEach((el,i)=>{const o=sc.find(x=>x.k===el.className+'|'+i);if(o&&(o.l||o.t)){el.scrollLeft=o.l;el.scrollTop=o.t}});
   if(fk){const q=document.querySelector(`.cl-in[data-cl="${fk}"]`);if(q){if(q.value!==fv)q.value=fv;q.focus();try{if(fs)q.setSelectionRange(fs[0],fs[1])}catch(_){}}}
 }
 /* 시간표: 화면 높이에 맞춰 가로 스크롤바가 늘 보이게 */
@@ -4061,13 +4064,16 @@ const ttLow=c=>(+c.cap||0)>0&&(+c.cnt||0)<(+c.cap)*0.3&&ttSt(c.st)[1]!=='closed'
 const ttWeekend=c=>/[토일]/.test(c.days||'')&&!/[월화수목금]/.test(c.days||'');
 function ttCan(){return CAN()}
 async function ttImport(text){const r=ttParse(text);if(!r.list.length){toast('붙여넣은 내용에서 반을 찾지 못했습니다. 그룹웨어 강의시간표 화면에서 Ctrl+A → Ctrl+C 한 내용인지 확인해 주세요.');return}return ttImportList(r,'붙여넣기')}
+function ttExtraHtml(x){x=String(x||'').trim();if(!x)return '';const w=x.match(/대기\s*\d+/);const rest=x.replace(/대기\s*\d+/,'').trim();
+  return `${rest?` <em>${esc(rest)}</em>`:''}${w?` <span class="tt-wait">${esc(w[0].replace(/\s+/,' '))}</span>`:''}`}
+document.head.insertAdjacentHTML('beforeend','<style>.tt-wait{display:inline-block;margin-left:2px;padding:0 6px;border-radius:5px;background:#f3e8ff;color:#7c3aed;font-weight:800;font-size:.92em}</style>');
 function ttStCalc(c){if(c.st)return;if(!c.cap){c.st='정원 미입력';return}if(c.cnt>c.cap){c.st='정원초과';c.extra='초과 '+(c.cnt-c.cap);return}if(c.cnt===c.cap){c.st='정원마감';return}if(c.cnt===0){c.st='폐강';return}c.st='정원미달'}
 async function ttImportList(r,src){
   const per=r.period||{a:r.list.map(c=>c.start).sort()[0],z:''};const id='_tt_'+per.a;const old=S.callsAll?.[id]?.classes||[];
   const prevAll=ttDocs().filter(k=>k<id).map(k=>S.callsAll[k].classes||[]).flat();
   const others=ttDocs().filter(k=>k!==id);const otherAll=others.flatMap(k=>S.callsAll[k].classes||[]);
   const byId=Object.fromEntries([...otherAll,...old].map(c=>[c.id,c])),byK2=Object.fromEntries(prevAll.map(c=>[c.k2,c]));
-  let ch=0,nw=0;const classes=r.list.map(c=>{const o=byId[c.id];if(c.xl&&o&&o.cnt===c.cnt&&o.st){c.st=o.st;c.extra=o.extra||''}ttStCalc(c);delete c.xl;if(o){if(o.cnt!==c.cnt)ch++;return {...c,time:c.time||o.time||'',tend:c.end2||o.tend||'',note:o.note||'',prev:o.cnt!==c.cnt?o.cnt:(o.prev??null),hide:!!o.hide}}nw++;const pv=byK2[c.k2];return {...c,time:c.time||pv?.time||'',tend:c.end2||pv?.tend||'',note:'',prev:null,hide:false}});classes.forEach(c=>delete c.end2);
+  let ch=0,nw=0;const classes=r.list.map(c=>{const o=byId[c.id];if(c.xl&&!c.ext&&o&&o.cnt===c.cnt&&o.st){c.st=o.st;c.extra=o.extra||''}ttStCalc(c);delete c.xl;delete c.ext;if(o){if(o.cnt!==c.cnt)ch++;return {...c,time:c.time||o.time||'',tend:c.end2||o.tend||'',note:o.note||'',prev:o.cnt!==c.cnt?o.cnt:(o.prev??null),hide:!!o.hide}}nw++;const pv=byK2[c.k2];return {...c,time:c.time||pv?.time||'',tend:c.end2||pv?.tend||'',note:'',prev:null,hide:false}});classes.forEach(c=>delete c.end2);
   /* 이번에 보낸 화면의 개강일 범위 안에서만 '없어진 반'을 지움. 범위 밖(기간을 바꿔서 안 보인 반)은 그대로 둠 */
   const kinds=new Set(classes.map(ttWeekend));const ss=classes.map(c=>c.start).filter(Boolean).sort();const lo=ss[0]||'',hi=ss[ss.length-1]||'';
   const newIds=new Set(classes.map(c=>c.id));const inRange=o=>kinds.has(ttWeekend(o))&&o.start&&o.start>=lo&&o.start<=hi;
@@ -4112,7 +4118,7 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
   const tm=t=>{const [h,m]=String(t).split(':').map(Number);return h*60+(m||0)};const fm=x=>`${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
   const cardH=(c,mini)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
     return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}${mini?' mini':''}" style="--c:${S_[2]}" data-ttpick="${c._d}|${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>${ttLow(c)?`<span class="tt-lowt">모집저조 ${Math.round((+c.cnt||0)/(+c.cap)*100)}%</span>`:''}
-      <div class="tt-l tt-as"><span class="tt-cap">정원 ${c.cap} /</span> 배정 ${c.cnt}${c.extra?` <em>${esc(c.extra)}</em>`:''}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
+      <div class="tt-l tt-as"><span class="tt-cap">정원 ${c.cap} /</span> 배정 ${c.cnt}${ttExtraHtml(c.extra)}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
       <div class="tt-l tt-x">${esc(c.teacher||'-')} · ${esc(c.days)}</div>${c.time?`<div class="tt-l tt-x"><b>${esc(c.time)}~${esc(c.tend||fm(tm(c.time)>=1140?1320:tm(c.time)+120))}</b></div>`:''}<div class="tt-l tt-sm tt-x">${esc(String(c.start||'').slice(2).replace(/-/g,'.'))} ~ ${esc(String(c.end||'').slice(2).replace(/-/g,'.'))}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
   const grid=(L,big)=>{if(!L.length)return '<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>';
     const T0=L.filter(c=>c.time),U=L.filter(c=>!c.time);
@@ -4200,7 +4206,7 @@ function ttTakeIn(){const J=TT_IN;if(!J)return;if(J.busy)return;
   callsSub();if(!S.callsLoaded)return setTimeout(ttTakeIn,500);
   if(!ttCan()){const r={ok:false,msg:'이 계정은 시간표를 고칠 권한이 없습니다'};TT_DONE[J.d.id]=r;TT_IN=null;J.reply(r);toast(r.msg);return}
   J.busy=true;const d=J.d;const items=[];
-  (d.cards||[]).forEach(x=>{const one=ttParse(x.text).list[0];if(!one)return;one.time=x.time||'';one.end2=x.end||'';one.xl=1;one._o=[x.top||0,x.left||0];items.push(one)});
+  (d.cards||[]).forEach(x=>{const one=ttParse(x.text).list[0];if(!one)return;one.time=x.time||'';one.end2=x.end||'';one.xl=1;one.ext=1;one._o=[x.top||0,x.left||0];items.push(one)});
   if(!items.length){const r={ok:false,msg:'보낸 내용에서 반을 찾지 못했습니다'};TT_DONE[d.id]=r;TT_IN=null;J.reply(r);return}
   items.sort((a,b)=>a.room.localeCompare(b.room)||a._o[0]-b._o[0]||a._o[1]-b._o[1]);
   const seen={};items.forEach(c=>{delete c._o;const b=[c.name,c.room,c.teacher,c.days].join('|');seen[b]=(seen[b]||0)+1;c.k2=b+'#'+seen[b];c.id=c.k2+'|'+c.start});
