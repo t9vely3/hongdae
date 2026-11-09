@@ -4276,8 +4276,12 @@ function stuTakeIn(){const J=STU_IN;if(!J||J.busy)return;
 /* ---------- 장기결석 명단 (그룹웨어 '연속결석 체크'에서 받음 · ops_students/_abs · 수강생 목록과 같은 권한) ---------- */
 let ABS=null,ABS_IN=null,ABS_SENT={};const ABS_DONE={};
 function absSentLoad(){if(!stuView())return;A.fdb.collection('ops_students').doc('_abs_sent').get().then(d=>{ABS_SENT=d.exists?(d.data().sent||{}):{};S.keepScroll=true;render()}).catch(()=>{})}
-function absSentSet(id,on,name){const cur={...ABS_SENT};if(on)cur[id]={at:kstNow(),by:logWho(),name:name||''};else delete cur[id];ABS_SENT=cur;S.keepScroll=true;render();
-  return A.fdb.collection('ops_students').doc('_abs_sent').set({sent:cur,updatedAt:new Date().toISOString()}).then(()=>toast(on?`${name||''} 체크완료로 표시했습니다`:'체크를 취소했습니다')).catch(e=>toast('저장하지 못했습니다 ('+(e?.code||'오류')+')'))}
+function absSentSet(id,on,name){id=String(id);const prev=ABS_SENT[id];const v={at:kstNow(),by:logWho(),name:name||''};const cur={...ABS_SENT};if(on)cur[id]=v;else delete cur[id];ABS_SENT=cur;S.keepScroll=true;render();
+  /* 그 학생 한 명만 고쳐 저장 (다른 사람이 동시에 체크한 것을 지우지 않게) */
+  const ref=A.fdb.collection('ops_students').doc('_abs_sent');const FS=window.firebase?.firestore;const now=new Date().toISOString();
+  const p=on?ref.set({sent:{[id]:v},updatedAt:now},{merge:true}):(FS?ref.update(new FS.FieldPath('sent',id),FS.FieldValue.delete(),'updatedAt',now):ref.set({sent:cur,updatedAt:now}));
+  return p.then(()=>toast(on?`${name||''} 체크완료로 저장했습니다`:'체크를 취소했습니다')).catch(e=>{const c={...ABS_SENT};if(prev)c[id]=prev;else delete c[id];ABS_SENT=c;S.keepScroll=true;render();
+    toast(e?.code==='permission-denied'?'저장 권한이 없어 체크가 저장되지 않았습니다. 관리자에게 알려 주세요':'저장하지 못했습니다 ('+(e?.code||'오류')+')')})}
 document.head.insertAdjacentHTML('beforeend',`<style>
 #ttAbs{position:fixed;inset:0;z-index:251;background:var(--bg,#f6f7f9);display:flex;flex-direction:column}
 #ttAbs .ab-body{flex:1;overflow:auto;padding:14px 18px 40px}
