@@ -4404,6 +4404,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #ttAbs .ax-gh{padding:9px 16px}
 #ttAbs .ax-grp{margin-bottom:12px;border-radius:14px}
 @media (max-width:760px){#ttAbs .ax-row{grid-template-columns:1fr;gap:4px;padding:8px 14px}}
+
+#ttAbs .ax-dur{min-width:60px}
 </style>`);
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-abs-push')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
   if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-abs-ack',id:d.id,...m},e.origin)}catch(_){}};
@@ -4499,7 +4501,7 @@ function absTr(r,ret){const tag=(r.tags||[]).map(t=>`<span class="ax-tag${t==='�
   const tools=!ret&&absFullTel()&&r.phone?`<button type="button" class="ax-ic" data-absmsg="${esc(r.id)}" title="번호와 문자 문구 복사">복사</button><a class="ax-ic" href="sms:${esc(r.phone.replace(/[^\d]/g,''))}?body=${encodeURIComponent(absMsg(r))}" title="휴대폰에서 문자 앱 열기">문자</a>`:'';
   const memo=last?`<div class="ax-memo"><span class="ax-md">${esc(amMd(last.date))}</span>${last.reason?`<span><b>사유</b> ${esc(last.reason)}</span>`:''}${last.action?`<span><b>조치</b> ${esc(last.action)}</span>`:''}${ms.length>1?`<span class="ax-sm">외 ${ms.length-1}건</span>`:''}</div>`:'';
   return `<div class="ax-row${x?' done':''}${ret?' ret':''}"><div class="ax-who"><div class="ax-nm">${esc(r.name)} <span class="ax-sm">${esc(r.id)}</span>${tag}</div><div class="ax-sub">${esc(r.cls)} <span class="ax-sm">${esc(r.teacher||'')}</span> · ${esc(absPure(r.mentor)||'-')}${r.phone?` · <span class="ax-tel">${esc(absTel(r))}</span>`:''}</div>${memo}</div>
-    <div class="ax-dur"><span class="ax-days${r.days>=7?' hi':''}">${r.days}일</span><span class="ax-sm">${esc(String(r.from).slice(5))} ~ ${ret?esc(String(r.to).slice(5)):'지금'}</span></div>
+    <div class="ax-dur"><span class="ax-days${r.days>=7?' hi':''}">${r.days}일</span>${ret?`<span class="ax-sm">${esc(String(r.from).slice(5))} ~ ${esc(String(r.to).slice(5))}</span>`:''}</div>
     <div class="ax-act">${tools}${can||ms.length?`<button type="button" class="ax-ic memo${ms.length?' has':''}" data-ammemo="${esc(r.id)}">메모${ms.length?` ${ms.length}`:''}</button>`:''}${chk}</div></div>`}
 function amModal(){const id=S.amOpen;if(!id)return '';const r=absRows().find(x=>String(x.id)===String(id))||{id,name:(amOf(id)[0]||{}).name||id,mentor:(amOf(id)[0]||{}).mentor,cls:(amOf(id)[0]||{}).cls};const can=absCanCheck(r);const ms=amOf(id);const E=S.amEdit||(S.amEdit={date:amToday(),reason:'',action:'',idx:-1});
   return `<div class="ax-ovl" id="amOvl"><div class="ax-dlg" role="dialog" aria-label="장기결석 메모"><div class="ax-dh"><div><b>${esc(r.name)}</b> <span class="ax-sm">${esc(r.id)} · ${esc(r.cls||'')} · 멘토 ${esc(absPure(r.mentor)||'-')}</span></div><button type="button" class="ax-x" data-amclose="1" aria-label="닫기">×</button></div>
