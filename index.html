@@ -4389,6 +4389,21 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #ttAbs .ax-rt{table-layout:fixed}
 
 #ttAbs .sp{flex:1}
+
+/* 장기결석 줄 얇게 */
+#ttAbs{z-index:450!important}
+#ttAbs .ax-row{grid-template-columns:minmax(0,1fr) auto auto;gap:12px;padding:6px 16px}
+#ttAbs .ax-who{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;min-width:0}
+#ttAbs .ax-nm{font-size:14.5px;min-width:150px}
+#ttAbs .ax-sub{margin-top:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#ttAbs .ax-memo{flex-basis:100%;margin-top:2px;padding:3px 8px;font-size:12.5px}
+#ttAbs .ax-dur{flex-direction:row;align-items:center;gap:8px;min-width:150px}
+#ttAbs .ax-days{font-size:13.5px;padding:1px 8px;min-width:36px;text-align:center}
+#ttAbs .ax-ic{padding:4px 9px;font-size:12.5px;border-radius:7px}
+#ttAbs .ax-chk{padding:5px 12px;font-size:13px;border-radius:7px}
+#ttAbs .ax-gh{padding:9px 16px}
+#ttAbs .ax-grp{margin-bottom:12px;border-radius:14px}
+@media (max-width:760px){#ttAbs .ax-row{grid-template-columns:1fr;gap:4px;padding:8px 14px}}
 </style>`);
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-abs-push')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
   if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-abs-ack',id:d.id,...m},e.origin)}catch(_){}};
@@ -4462,7 +4477,7 @@ function amReport(){const F=S.absF;const sc=absScope();const [a,b]=[F.ra||amWeek
   return {a,b,rows:out,teams:amTeams(sc)}}
 const amTitle=(a,b)=>`${+a.slice(5,7)}월 ${+a.slice(8)}일 ~ ${+b.slice(5,7)}월 ${+b.slice(8)}일 미확인 장기결석 수강생`;
 function amJoin(ms,k){return ms.filter(x=>x[k]).map(x=>`${amMd(x.date)} ${x[k]}`).join('\n')}
-async function amExcel(){const R=amReport();
+async function amExcel(){const R=amReport();R.rows=R.rows.filter(x=>x.ms.length);if(!R.rows.length){toast('이 기간에 메모를 쓴 학생이 없습니다');return}
   if(!window.ExcelJS){toast('엑셀 도구를 불러오는 중…');await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)}).catch(()=>null);if(!window.ExcelJS){toast('엑셀 도구를 불러오지 못했습니다');return}}
   const wb=new ExcelJS.Workbook();const ws=wb.addWorksheet('장기결석');ws.columns=[{width:22},{width:24},{width:62},{width:62}];ws.pageSetup={paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,printTitlesRow:'2:2',margins:{left:0.3,right:0.3,top:0.4,bottom:0.4,header:0.2,footer:0.2}};
   const thin={style:'thin',color:{argb:'FF000000'}},dot={style:'dotted',color:{argb:'FF9CA3AF'}},med={style:'medium',color:{argb:'FF000000'}};
@@ -4477,7 +4492,7 @@ async function amExcel(){const R=amReport();
         c.border={left:thin,right:thin,top:i===0?med:dot,bottom:i===n-1?med:dot}});r++}
     ws.mergeCells(top,1,r-1,1);const tc=ws.getCell(top,1);tc.value=T.lead?`${T.team}\n(${T.lead.name} ${T.lead.rank})`:T.team;tc.alignment={horizontal:'center',vertical:'middle',wrapText:true};tc.font={size:11}});
   const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const u=URL.createObjectURL(blob);const lk=document.createElement('a');lk.href=u;lk.download=`장기결석_${R.a}_${R.b}.xlsx`;document.body.appendChild(lk);lk.click();setTimeout(()=>{URL.revokeObjectURL(u);lk.remove()},800);toast('엑셀 파일을 내려받았습니다')}
-function amText(){const R=amReport();const L=[amTitle(R.a,R.b)];[...new Set(R.rows.map(x=>x.team))].sort((a,b)=>amTeamRank(a)-amTeamRank(b)).forEach(t=>{L.push(`■ ${t}`);R.rows.filter(x=>x.team===t).forEach(x=>L.push(`  - ${x.mentor} / ${x.name} · 사유: ${amJoin(x.ms,'reason').replace(/\n/g,' / ')||'-'} · 조치: ${amJoin(x.ms,'action').replace(/\n/g,' / ')||'-'}`))});return L.join('\n')}
+function amText(){const R=amReport();R.rows=R.rows.filter(x=>x.ms.length);const L=[amTitle(R.a,R.b)];[...new Set(R.rows.map(x=>x.team))].sort((a,b)=>amTeamRank(a)-amTeamRank(b)).forEach(t=>{L.push(`■ ${t}`);R.rows.filter(x=>x.team===t).forEach(x=>L.push(`  - ${x.mentor} / ${x.name} · 사유: ${amJoin(x.ms,'reason').replace(/\n/g,' / ')||'-'} · 조치: ${amJoin(x.ms,'action').replace(/\n/g,' / ')||'-'}`))});return L.join('\n')}
 function absTr(r,ret){const tag=(r.tags||[]).map(t=>`<span class="ax-tag${t==='퇴'||t==='퇴원'?' q':''}">${esc(t)}</span>`).join('');const can=absCanCheck(r);const x=ABS_SENT[r.id];const ms=amOf(r.id);const last=ms[0];
   const chk=x?`<span class="ax-ok">확인완료</span><span class="ax-sm">${esc(String(x.at||'').slice(5,16).replace('T',' '))} · ${esc(x.by||'')}</span>${can?`<button type="button" class="ax-lnk" data-abssent="${esc(r.id)}|0">취소</button>`:''}`
     :ret?'':can?`<button type="button" class="ax-chk" data-abssent="${esc(r.id)}|1|${esc(r.name)}">확인완료</button>`:'<span class="ax-sm">확인 전</span>';
@@ -4499,7 +4514,7 @@ function amListView(){const F=S.absF;const R=amReport();const teams=[...R.teams.
   const nMemo=R.rows.filter(x=>x.ms.length).length;
   return `<div class="ax-lhead"><div><b class="ax-ttl">${esc(amTitle(R.a,R.b))}</b><div class="ax-sm">학생 ${R.rows.length}명 · 메모 쓴 학생 ${nMemo}명 · 이 기간 안에 쓴 메모만 모읍니다</div></div>
     <div class="ax-range"><input type="date" class="in" data-amr="ra" value="${esc(R.a)}"><span>~</span><input type="date" class="in" data-amr="rb" value="${esc(R.b)}"><button type="button" class="btn sm ghost" data-amwk="0">이번 주</button><button type="button" class="btn sm ghost" data-amwk="-7">지난 주</button></div></div>
-    <div class="ax-lopt"><label class="ax-sm"><input type="checkbox" data-absf="unchk" ${F.unchk?'checked':''}> 확인완료 학생 빼기 (미확인만)</label><label class="ax-sm"><input type="checkbox" data-absf="allTeams" ${F.allTeams?'checked':''}> 학생 없는 팀도 보기</label><span class="sp"></span><button type="button" class="btn sm" data-amcopy="1">글로 복사</button><button type="button" class="btn sm primary" data-amxls="1">엑셀로 내려받기</button></div>
+    <div class="ax-lopt"><label class="ax-sm"><input type="checkbox" data-absf="unchk" ${F.unchk?'checked':''}> 확인완료 학생 빼기 (미확인만)</label><label class="ax-sm"><input type="checkbox" data-absf="allTeams" ${F.allTeams?'checked':''}> 학생 없는 팀도 보기</label><span class="sp"></span><button type="button" class="btn sm" data-amcopy="1">글로 복사</button><button type="button" class="btn sm primary" data-amxls="1" title="이 기간에 메모를 쓴 학생만 들어갑니다">엑셀로 내려받기 (작성 ${nMemo}명)</button></div>
     ${blocks||'<div class="empty-state">이 기간에 해당하는 학생이 없습니다.</div>'}`}
 function absOverlay(){if(!S.ttAbs)return '';
   if(!stuView())return `<div id="ttAbs"><div class="ax-top"><b class="ax-h">장기결석 관리</b><span class="sp"></span><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body"><div class="empty-state">장기결석 명단은 수강생 목록을 볼 수 있는 계정만 볼 수 있습니다.</div></div></div>`;
