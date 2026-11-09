@@ -4066,8 +4066,9 @@ const ttLow=c=>(+c.cap||0)>0&&(+c.cnt||0)<(+c.cap)*0.3&&ttSt(c.st)[1]!=='closed'
 const ttWeekend=c=>/[토일]/.test(c.days||'')&&!/[월화수목금]/.test(c.days||'');
 function ttCan(){return CAN()}
 async function ttImport(text){const r=ttParse(text);if(!r.list.length){toast('붙여넣은 내용에서 반을 찾지 못했습니다. 그룹웨어 강의시간표 화면에서 Ctrl+A → Ctrl+C 한 내용인지 확인해 주세요.');return}return ttImportList(r,'붙여넣기')}
-function ttExtraHtml(x){x=String(x||'').trim();if(!x)return '';const w=x.match(/대기\s*\d+/);const rest=x.replace(/대기\s*\d+/,'').trim();
-  return `${rest?` <em>${esc(rest)}</em>`:''}${w?` <span class="tt-wait">${esc(w[0].replace(/\s+/,' '))}</span>`:''}`}
+function ttExtraHtml(x,wn){x=String(x||'').trim();const w=x.match(/대기\s*(\d+)/);const rest=x.replace(/대기\s*\d+/,'').trim();
+  const n=w?+w[1]:(+wn||0);
+  return `${rest?` <em>${esc(rest)}</em>`:''}${n?` <span class="tt-wait">대기 ${n}</span>`:''}`}
 document.head.insertAdjacentHTML('beforeend','<style>.tt-wait{display:inline-block;margin-left:2px;padding:0 6px;border-radius:5px;background:#f3e8ff;color:#7c3aed;font-weight:800;font-size:.92em}</style>');
 function ttStCalc(c){if(c.st)return;if(!c.cap){c.st='정원 미입력';return}if(c.cnt>c.cap){c.st='정원초과';c.extra='초과 '+(c.cnt-c.cap);return}if(c.cnt===c.cap){c.st='정원마감';return}if(c.cnt===0){c.st='폐강';return}c.st='정원미달'}
 async function ttImportList(r,src){
@@ -4075,7 +4076,7 @@ async function ttImportList(r,src){
   const prevAll=ttDocs().filter(k=>k<id).map(k=>S.callsAll[k].classes||[]).flat();
   const others=ttDocs().filter(k=>k!==id);const otherAll=others.flatMap(k=>S.callsAll[k].classes||[]);
   const byId=Object.fromEntries([...otherAll,...old].map(c=>[c.id,c])),byK2=Object.fromEntries(prevAll.map(c=>[c.k2,c]));
-  let ch=0,nw=0;const classes=r.list.map(c=>{const o=byId[c.id];if(c.xl&&!c.ext&&o&&o.cnt===c.cnt&&o.st){c.st=o.st;c.extra=o.extra||''}ttStCalc(c);delete c.xl;delete c.ext;if(o){if(o.cnt!==c.cnt)ch++;return {...c,time:c.time||o.time||'',tend:c.end2||o.tend||'',note:o.note||'',prev:o.cnt!==c.cnt?o.cnt:(o.prev??null),hide:!!o.hide}}nw++;const pv=byK2[c.k2];return {...c,time:c.time||pv?.time||'',tend:c.end2||pv?.tend||'',note:'',prev:null,hide:false}});classes.forEach(c=>delete c.end2);
+  let ch=0,nw=0;const classes=r.list.map(c=>{const o=byId[c.id];if(c.xl&&!c.ext&&o&&o.cnt===c.cnt&&o.st){c.st=o.st;c.extra=o.extra||''}ttStCalc(c);delete c.xl;delete c.ext;if(o){if(o.cnt!==c.cnt)ch++;return {...c,time:c.time||o.time||'',tend:c.end2||o.tend||'',note:o.note||'',prev:o.cnt!==c.cnt?o.cnt:(o.prev??null),hide:!!o.hide,wait:o.wait??null}}nw++;const pv=byK2[c.k2];return {...c,time:c.time||pv?.time||'',tend:c.end2||pv?.tend||'',note:'',prev:null,hide:false}});classes.forEach(c=>delete c.end2);
   /* 이번에 보낸 화면의 개강일 범위 안에서만 '없어진 반'을 지움. 범위 밖(기간을 바꿔서 안 보인 반)은 그대로 둠 */
   const kinds=new Set(classes.map(ttWeekend));const ss=classes.map(c=>c.start).filter(Boolean).sort();const lo=ss[0]||'',hi=ss[ss.length-1]||'';
   const newIds=new Set(classes.map(c=>c.id));const inRange=o=>kinds.has(ttWeekend(o))&&o.start&&o.start>=lo&&o.start<=hi;
@@ -4120,7 +4121,7 @@ function viewTT(){callsSub();const head='<main class="wrap tt-main">%%TOP%%';con
   const tm=t=>{const [h,m]=String(t).split(':').map(Number);return h*60+(m||0)};const fm=x=>`${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
   const cardH=(c,mini)=>{const S_=ttSt(c.st);const dif=c.prev!=null&&c.prev!==c.cnt?c.cnt-c.prev:0;const mm=[c.note,c.memo].filter(Boolean).join(' / ');
     return `<div class="tt-c st-${S_[1]}${c.hide?' hid':''}${mini?' mini':''}" style="--c:${S_[2]}" data-ttpick="${c._d}|${c.i}" title="${esc(c.name+(mm?' · '+mm:''))}"><b class="tt-nm">${esc(c.name)}</b>${ttLow(c)?`<span class="tt-lowt">모집저조 ${Math.round((+c.cnt||0)/(+c.cap)*100)}%</span>`:''}
-      <div class="tt-l tt-as"><span class="tt-cap">정원 ${c.cap} /</span> 배정 ${c.cnt}${ttExtraHtml(c.extra)}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
+      <div class="tt-l tt-as"><span class="tt-cap">정원 ${c.cap} /</span> 배정 ${c.cnt}${ttExtraHtml(c.extra,c.wait)}${dif?` <span class="tt-d ${dif>0?'up':'dn'}">${dif>0?'+':''}${dif}</span>`:''}</div>
       <div class="tt-l tt-x">${esc(c.teacher||'-')} · ${esc(c.days)}</div>${c.time?`<div class="tt-l tt-x"><b>${esc(c.time)}~${esc(c.tend||fm(tm(c.time)>=1140?1320:tm(c.time)+120))}</b></div>`:''}<div class="tt-l tt-sm tt-x">${esc(String(c.start||'').slice(2).replace(/-/g,'.'))} ~ ${esc(String(c.end||'').slice(2).replace(/-/g,'.'))}</div>${mm?`<div class="tt-l tt-mm">${esc(mm)}</div>`:''}</div>`};
   const grid=(L,big)=>{if(!L.length)return '<div class="empty-state" style="margin:16px 24px">조건에 맞는 반이 없습니다.</div>';
     const T0=L.filter(c=>c.time),U=L.filter(c=>!c.time);
@@ -4240,6 +4241,8 @@ async function stuSave(items){const out={ok:0,miss:[]};const W=[];for(const it o
       if(add.length||del.length){hist=hist.concat([{at:now,by:who,add,del,n:after.size}]).slice(-60);chg.push(`${c.name}(${c.room}${c.time?' '+c.time:''}): ${[...add.map(x=>'추가 '+x.replace('\t',' · 멘토 ')),...del.map(x=>'빠짐 '+x.replace('\t',' · 멘토 '))].join(', ')}`)}}
     await ref.set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols,rows,wait,hist,at:now,by:who});delete STU[stuKey(c.id)];out.ok++}))}
   out.chg=chg.length;
+  try{const byDoc={};W.forEach(({c,wait})=>{const n=(wait&&wait.rows||[]).length;const k=Object.keys(S.callsAll||{}).find(k=>(S.callsAll[k].classes||[]).some(x=>x.id===c.id));if(!k)return;(byDoc[k]=byDoc[k]||[]).push([c.id,n])});
+    await Promise.all(Object.entries(byDoc).map(([k,L])=>{const d=clone(S.callsAll[k]);let ch=false;L.forEach(([id,n])=>{const x=d.classes.find(y=>y.id===id);if(x&&(x.wait||0)!==n){x.wait=n;ch=true}});return ch?callsWrite(k,{classes:d.classes}):null}))}catch(_){}
   logAdd('tt',[`수강생 목록 최신화: ${out.ok}반${chg.length?` · 인원 바뀐 반 ${chg.length}`:''}${out.miss.length?` · 못 찾은 반 ${out.miss.length}`:''}`,...chg.slice(0,58)]);return out}
 function stuHist(D){const H=(D&&D.hist)||[];if(!H.length)return '<p class="muted stu-hs0">인원 변동 기록: 아직 바뀐 적이 없습니다. 학생 최신화를 할 때마다 지난번 명단과 비교해 여기에 남깁니다.</p>';const nm=x=>{const [a,m]=String(x).split('\t');return esc(a.replace(/\s*\(\d+\)\s*$/,''))+(m?` <small>${esc(m)}</small>`:'')};
   return `<details class="stu-hs"${S.stuHsOpen?' open':''}><summary>인원 변동 기록 ${H.length}번 <span class="muted">최근 ${esc(String(H[H.length-1].at||'').replace('T',' ').slice(5,16))}</span></summary><div class="stu-hl">${H.slice().reverse().map(h=>`<div class="stu-hi"><span class="t">${esc(String(h.at||'').replace('T',' ').slice(5,16))}</span><span class="w">${(h.add||[]).map(x=>`<b class="ad" title="들어옴">${nm(x)}</b>`).join('')}${(h.del||[]).map(x=>`<b class="dl" title="빠짐">${nm(x)}</b>`).join('')}</span></div>`).join('')}</div></details>`}
