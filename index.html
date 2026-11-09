@@ -3318,7 +3318,7 @@ const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${Stri
 const hms=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
 function callRoster(){const t=S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT;return t.split(/\r?\n/).map(l=>l.trim().split(/\s+/)).filter(a=>a.length>=3).map(a=>({team:a[0],rank:a.slice(1,-1).join(' '),name:a[a.length-1]}))}
 function callsSub(){if(S.callsSub||!S.db)return;S.callsSub=true;S.callsAll=S.callsAll||{};
-  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;S.callsLoaded=true;if(S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
+  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;S.callsLoaded=true;if(S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')&&!(S.amOpen&&document.activeElement?.closest?.('#amOvl'))){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
 async function callsWrite(id,patch){
   S.callsAll=S.callsAll||{};const cur=S.callsAll[id]||{};
   const merged={...cur,...patch,rows:{...(cur.rows||{}),...Object.fromEntries(Object.entries(patch.rows||{}).map(([n,v])=>[n,{...(cur.rows?.[n]||{}),...v}]))},updatedAt:new Date().toISOString().slice(0,19)};
@@ -4301,6 +4301,94 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #ttAbs .ab-days{font-weight:700}
 #ttAbs .ab-meta{color:var(--muted,#6b7280);font-size:13px}
 #ttAbs .ab-tag{font-size:12px}
+
+#ttAbs .ab-msel{height:36px;font-size:14px;min-width:170px}
+#ttAbs details.ab-back{margin-top:22px}
+#ttAbs details.ab-back summary{cursor:pointer;font-weight:700;font-size:15px;padding:10px 4px;color:var(--ink2,#334)}
+#ttAbs details.ab-back table{opacity:.85}
+
+/* ===== 장기결석 관리 새 디자인 ===== */
+#ttAbs{background:#f4f6f9;color:#1f2937;font-size:15px}
+#ttAbs .ax-top{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;padding:16px 24px;background:#fff;border-bottom:1px solid #e5e7eb}
+#ttAbs .ax-tt{display:flex;flex-direction:column;gap:2px}
+#ttAbs .ax-h{font-size:21px;font-weight:800;letter-spacing:-.02em;color:#111827}
+#ttAbs .ax-stat{display:flex;gap:8px}
+#ttAbs .ax-stat span{background:#f3f4f6;border-radius:10px;padding:6px 12px;font-size:13px;color:#4b5563}
+#ttAbs .ax-stat b{font-size:17px;margin-right:2px;color:#111827}#ttAbs .ax-stat b.red{color:#dc2626}#ttAbs .ax-stat b.grn{color:#16a34a}
+#ttAbs .ax-tabs{display:flex;background:#f3f4f6;border-radius:12px;padding:4px;margin-left:auto}
+#ttAbs .ax-tabs button{border:0;background:none;padding:8px 16px;border-radius:9px;font:600 14px inherit;color:#6b7280;cursor:pointer}
+#ttAbs .ax-tabs button.on{background:#fff;color:#111827;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+#ttAbs .ax-fil{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 24px;background:#fff;border-bottom:1px solid #eef0f3}
+#ttAbs .ax-fil label,#ttAbs .ax-lopt label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#ttAbs .ax-fil input[type=checkbox],#ttAbs .ax-lopt input[type=checkbox]{width:17px;height:17px}
+#ttAbs .ax-seg{display:inline-flex;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#fff}
+#ttAbs .ax-seg button{border:0;background:none;padding:7px 14px;font:600 13.5px inherit;color:#4b5563;cursor:pointer;border-left:1px solid #e5e7eb}
+#ttAbs .ax-seg button:first-child{border-left:0}#ttAbs .ax-seg button.on{background:#111827;color:#fff}
+#ttAbs .ax-msel{height:36px;min-width:180px;font-size:14px;border-radius:10px}
+#ttAbs .ax-sm{font-size:12.5px;color:#6b7280}
+#ttAbs .ab-body{padding:18px 24px 60px;max-width:1280px;width:100%;margin:0 auto;box-sizing:border-box}
+#ttAbs .ax-grp{background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 0 0 1px #e9ecf1;margin-bottom:16px;overflow:hidden}
+#ttAbs .ax-gh{display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(90deg,var(--tc) 0,var(--tc) 6px,#fafbfc 6px);border-bottom:1px solid #eef0f3}
+#ttAbs .ax-gh b{font-size:16px}
+#ttAbs .ax-cnt{background:#111827;color:#fff;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:700}
+#ttAbs .ax-bar{flex:0 0 120px;height:6px;border-radius:6px;background:#e5e7eb;overflow:hidden;margin-left:auto}#ttAbs .ax-bar i{display:block;height:100%;background:#16a34a}
+#ttAbs .ax-row{display:grid;grid-template-columns:minmax(0,1fr) 120px auto;gap:16px;align-items:center;padding:13px 18px;border-top:1px solid #f1f3f6}
+#ttAbs .ax-row:first-of-type{border-top:0}
+#ttAbs .ax-row.done{background:#f7fdf9}#ttAbs .ax-row.done .ax-nm{color:#4b5563}
+#ttAbs .ax-nm{font-weight:700;font-size:15.5px}
+#ttAbs .ax-sub{font-size:13px;color:#4b5563;margin-top:2px}
+#ttAbs .ax-tel{font-variant-numeric:tabular-nums}
+#ttAbs .ax-tag{display:inline-block;margin-left:6px;padding:0 7px;border-radius:999px;background:#eef2ff;color:#4338ca;font-size:11.5px;font-weight:700;vertical-align:1px}
+#ttAbs .ax-tag.q{background:#fee2e2;color:#b91c1c}
+#ttAbs .ax-memo{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px;padding:6px 10px;background:#f8fafc;border-radius:8px;font-size:13px;color:#374151}
+#ttAbs .ax-memo b{color:#6b7280;font-weight:700;margin-right:3px}
+#ttAbs .ax-md{display:inline-block;font-weight:800;color:#2563eb;font-variant-numeric:tabular-nums;margin-right:4px}
+#ttAbs .ax-dur{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+#ttAbs .ax-days{font-weight:800;font-size:15px;color:#b45309;background:#fef3c7;border-radius:8px;padding:2px 10px}
+#ttAbs .ax-days.hi{color:#b91c1c;background:#fee2e2}
+#ttAbs .ax-act{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+#ttAbs .ax-ic{border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:6px 10px;font:600 13px inherit;color:#374151;cursor:pointer;text-decoration:none}
+#ttAbs .ax-ic:hover{border-color:#9ca3af}
+#ttAbs .ax-ic.memo{border-color:#bfdbfe;color:#1d4ed8;background:#eff6ff}#ttAbs .ax-ic.memo.has{background:#2563eb;color:#fff;border-color:#2563eb}
+#ttAbs .ax-chk{border:0;background:#16a34a;color:#fff;border-radius:8px;padding:7px 14px;font:700 13.5px inherit;cursor:pointer}
+#ttAbs .ax-chk:hover{background:#15803d}
+#ttAbs .ax-ok{color:#16a34a;font-weight:800;font-size:13.5px}
+#ttAbs .ax-lnk{border:0;background:none;color:#6b7280;text-decoration:underline;cursor:pointer;font-size:12.5px;padding:0 2px}
+#ttAbs .ax-back,#ttAbs .ax-tpl{background:#fff;border-radius:14px;box-shadow:0 0 0 1px #e9ecf1;margin-top:18px;overflow:hidden}
+#ttAbs .ax-back summary,#ttAbs .ax-tpl summary{cursor:pointer;padding:12px 18px;font-weight:700}
+#ttAbs .ax-tpl{padding-bottom:12px}#ttAbs .ax-tpl textarea{margin:0 18px 6px;width:calc(100% - 36px)!important}#ttAbs .ax-tpl .ax-sm{padding:0 18px}
+#ttAbs .ax-row.ret{opacity:.75}
+/* 메모 창 */
+#ttAbs .ax-ovl{position:fixed;inset:0;z-index:260;background:rgba(15,23,42,.45);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow:auto}
+#ttAbs .ax-dlg{background:#fff;border-radius:18px;width:min(620px,100%);box-shadow:0 24px 60px rgba(0,0,0,.25);overflow:hidden}
+#ttAbs .ax-dh{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:18px 22px;border-bottom:1px solid #eef0f3}
+#ttAbs .ax-dh b{font-size:18px}
+#ttAbs .ax-x{border:0;background:#f3f4f6;width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer;line-height:1}
+#ttAbs .ax-form{display:flex;flex-direction:column;gap:12px;padding:18px 22px;border-bottom:1px solid #eef0f3;background:#fbfcfe}
+#ttAbs .ax-form label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;color:#374151}
+#ttAbs .ax-form .in{font-size:14.5px;border-radius:10px}#ttAbs .ax-form input[type=date]{max-width:200px;height:38px}
+#ttAbs .ax-fb{display:flex;gap:8px;align-items:center}
+#ttAbs .ax-hist{padding:16px 22px 22px;display:flex;flex-direction:column;gap:10px;max-height:40vh;overflow:auto}
+#ttAbs .ax-hi{border:1px solid #eef0f3;border-radius:12px;padding:10px 14px;font-size:14px;display:flex;flex-direction:column;gap:4px}
+#ttAbs .ax-hi b{color:#6b7280;margin-right:4px}
+#ttAbs .ax-hd{display:flex;gap:10px;align-items:center}
+/* 작성 목록 */
+#ttAbs .ax-lhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}
+#ttAbs .ax-ttl{font-size:19px;font-weight:800}
+#ttAbs .ax-range{display:flex;align-items:center;gap:8px;flex-wrap:wrap}#ttAbs .ax-range input{height:38px;border-radius:10px}
+#ttAbs .ax-lopt{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:16px}
+#ttAbs .ax-tm{background:#fff;border-radius:16px;box-shadow:0 0 0 1px #e9ecf1;margin-bottom:14px;overflow:hidden}
+#ttAbs .ax-th{display:flex;align-items:center;gap:10px;padding:11px 18px;background:var(--tc)}
+#ttAbs .ax-th b{font-size:16px}
+#ttAbs .ax-rt{width:100%;border-collapse:collapse;font-size:14px}
+#ttAbs .ax-rt th{position:static;background:#fafbfc;font-size:12.5px;color:#6b7280;padding:9px 16px;text-align:left;border-bottom:1px solid #eef0f3}
+#ttAbs .ax-rt td{padding:11px 16px;border-bottom:1px solid #f1f3f6;vertical-align:top;line-height:1.5}
+#ttAbs .ax-empty{color:#c0c5cc}
+@media (max-width:760px){#ttAbs .ax-row{grid-template-columns:1fr;gap:8px}#ttAbs .ax-act{justify-content:flex-start}#ttAbs .ax-tabs{margin-left:0}#ttAbs .ax-top,#ttAbs .ax-fil,#ttAbs .ab-body{padding-left:14px;padding-right:14px}}
+
+#ttAbs .ax-rt{table-layout:fixed}
+
+#ttAbs .sp{flex:1}
 </style>`);
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-abs-push')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
   if(!/(^|\.)koreagroupware\.com$/.test(h))return;const reply=m=>{try{e.source&&e.source.postMessage({type:'ops-abs-ack',id:d.id,...m},e.origin)}catch(_){}};
@@ -4335,36 +4423,122 @@ function absScope(){const me=absPure(A.prof?.name);const all=typeof isOwnerA==='
   const opts=[['me','나']];
   if(team&&/팀장|부장|실장|원장/.test(rank))opts.push(['team',team]);
   if(dept&&/부장|선임팀장|실장|원장/.test(rank))opts.push(['dept',dept]);
-  if(all||A.prof?.absAll)opts.push(['all','전체']);
+  if(all||A.prof?.absAll||ABS_ALL.includes(me))opts.push(['all','전체']);
   const names=k=>k==='all'?null:k==='dept'?people.filter(p=>p.dept===dept).map(p=>p.name).concat(me):k==='team'?people.filter(p=>p.team===team).map(p=>p.name).concat(me):[me];
-  return {me,opts,names,def:opts[opts.length-1][0]}}
+  return {me,opts,names,people,def:opts[opts.length-1][0]}}
+const ABS_ALL=['김태욱','박지오'];
+function absTeamOf(m,sc){const n=absPure(m);const p=(sc||absScope()).people.find(x=>x.name===n);return p&&p.team?p.team:'팀 미확인'}
 function absRows(){const D=ABS&&ABS!=='loading'?ABS:{classes:[]};const F=S.absF||(S.absF={noquit:true,on:false,by:'class'});
   const sc=absScope();if(!sc.opts.some(o=>o[0]===F.scope))F.scope=sc.def;const allow=sc.names(F.scope);const ok=allow&&new Set(allow);
-  const rows=[];(D.classes||[]).forEach(c=>(c.hits||[]).forEach(h=>{if(F.noquit&&absQuit(h))return;if(F.on&&!h.ongoing)return;if(ok&&!ok.has(absPure(h.mentor)))return;if(F.unsent&&ABS_SENT[h.id])return;rows.push({...h,cls:c.title,teacher:c.teacher})}));return rows}
-function absText(){const F=S.absF;const rows=absRows();const D=ABS||{};const by=F.by==='mentor';const g={};
-  rows.forEach(r=>{const k=by?(r.mentor||'멘토 미확인'):`${r.cls} (${r.teacher})`;(g[k]=g[k]||[]).push(r)});
-  const L=[`[장기결석 ${D.need||3}일 이상] ${rows.length}명 · ${String(D.at||'').replace('T',' ')} 기준`];
-  Object.keys(g).sort().forEach(k=>{L.push(`■ ${k}`);g[k].sort((a,b)=>b.days-a.days).forEach(r=>L.push(`  - ${r.name}(${r.id})${r.tags?.length?' ['+r.tags.join('·')+']':''}${by?' · '+r.cls:' · 멘토 '+(r.mentor||'-')} · ${r.from}~${r.to} ${r.days}일${r.ongoing?' 진행 중':''}${ABS_SENT[r.id]?' · 체크완료':''}`))});
+  const rows=[];(D.classes||[]).forEach(c=>(c.hits||[]).forEach(h=>{if(F.noquit&&absQuit(h))return;if(ok&&!ok.has(absPure(h.mentor)))return;if(F.unsent&&ABS_SENT[h.id])return;rows.push({...h,cls:c.title,teacher:c.teacher})}));return rows}
+function absText(){const F=S.absF;const sc=absScope();const all=absRows();const rows=all.filter(r=>r.ongoing);const D=ABS||{};const by=F.by==='mentor';const g={};
+  rows.filter(r=>!by||!F.mentor||absPure(r.mentor)===F.mentor).forEach(r=>{const k=by?(r.mentor||'멘토 미확인'):absTeamOf(r.mentor,sc);(g[k]=g[k]||[]).push(r)});
+  const n=Object.values(g).reduce((a,x)=>a+x.length,0);
+  const L=[`[장기결석 ${D.need||3}일 이상 · 지금도 결석 중] ${n}명 · ${String(D.at||'').replace('T',' ')} 기준`];
+  Object.keys(g).sort().forEach(k=>{L.push(`■ ${k}`);g[k].sort((a,b)=>String(a.mentor).localeCompare(String(b.mentor))||b.days-a.days).forEach(r=>L.push(`  - ${r.name}(${r.id})${r.tags?.length?' ['+r.tags.join('·')+']':''} · ${r.cls}${by?'':' · 멘토 '+(r.mentor||'-')} · ${r.from}~ ${r.days}일${ABS_SENT[r.id]?' · 체크완료':''}`))});
   return L.join('\n')}
+/* ===== 장기결석 관리 (명단 · 메모 · 작성 목록 · 엑셀) ===== */
+const AM_DOC='_absmemo';
+document.addEventListener('input',function(e){const k={amDate:'date',amReason:'reason',amAction:'action'}[e.target?.id];if(k&&S.amEdit)S.amEdit[k]=e.target.value});
+const amAll=()=>S.callsAll?.[AM_DOC]?.memos||{};
+const amOf=id=>(amAll()[String(id)]||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.at).localeCompare(String(a.at)));
+const amToday=()=>kstNow().slice(0,10);
+function amWeek(){const d=new Date(amToday()+'T00:00:00');const w=(d.getDay()+6)%7;const a=new Date(d);a.setDate(d.getDate()-w);const b=new Date(a);b.setDate(a.getDate()+4);const f=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;return [f(a),f(b)]}
+function amSave(id,arr){id=String(id);S.callsAll=S.callsAll||{};const cur=S.callsAll[AM_DOC]||{memos:{}};S.callsAll[AM_DOC]={...cur,memos:{...(cur.memos||{}),[id]:arr}};S.keepScroll=true;render();
+  return A.fdb.collection('ops_calls').doc(AM_DOC).set({memos:{[id]:arr},updatedAt:new Date().toISOString()},{merge:true})}
+const amMd=d=>{const [,m,dd]=String(d||'').split('-');return m?`${+m}.${+dd}`:''};
+const amTeamRank=t=>{const m=String(t).match(/(\d+)\D+(\d+)/);return m?(+m[1])*100+(+m[2]):9999};
+function amTeams(sc){const P=sc.people||[];const T={};P.forEach(p=>{if(!p.team)return;const t=T[p.team]||(T[p.team]={team:p.team,lead:null});const lv=/부장/.test(p.rank)?3:/선임/.test(p.rank)?2:/팀장/.test(p.rank)?1:0;if(lv&&(!t.lead||lv>t.lead.lv))t.lead={name:p.name,rank:p.rank,lv}});
+  return Object.values(T).sort((a,b)=>amTeamRank(a.team)-amTeamRank(b.team)||a.team.localeCompare(b.team))}
+const amTeamColor=t=>({1:'#DCE9F7',2:'#FCE1D6',3:'#FFF0C7',4:'#E1EFD8'})[String(t).match(/\d/)?.[0]]||'#EEF0F3';
+/* 보고서 줄: 지금 결석 중인 장기결석자 + 기간 안에 메모가 있는 학생 */
+function amReport(){const F=S.absF;const sc=absScope();const [a,b]=[F.ra||amWeek()[0],F.rb||amWeek()[1]];
+  const rows=absRows();const M=amAll();const seen=new Set();const out=[];
+  const push=(r,meta)=>{const id=String(r.id);if(seen.has(id))return;seen.add(id);const ms=(M[id]||[]).filter(x=>x.date>=a&&x.date<=b).sort((x,y)=>String(x.date).localeCompare(String(y.date)));
+    if(F.unchk&&ABS_SENT[id])return;out.push({id,name:r.name||meta?.name,mentor:absPure(r.mentor||meta?.mentor),team:absTeamOf(r.mentor||meta?.mentor,sc),cls:r.cls||meta?.cls||'',days:r.days,ms})};
+  rows.filter(r=>r.ongoing).forEach(r=>push(r));
+  const allow=sc.names(F.scope);const ok=allow&&new Set(allow);
+  Object.entries(M).forEach(([id,arr])=>{const ins=(arr||[]).filter(x=>x.date>=a&&x.date<=b);if(!ins.length)return;const m=ins[ins.length-1];if(ok&&!ok.has(absPure(m.mentor)))return;push({id,name:m.name,mentor:m.mentor,cls:m.cls},m)});
+  return {a,b,rows:out,teams:amTeams(sc)}}
+const amTitle=(a,b)=>`${+a.slice(5,7)}월 ${+a.slice(8)}일 ~ ${+b.slice(5,7)}월 ${+b.slice(8)}일 미확인 장기결석 수강생`;
+function amJoin(ms,k){return ms.filter(x=>x[k]).map(x=>`${amMd(x.date)} ${x[k]}`).join('\n')}
+async function amExcel(){const R=amReport();
+  if(!window.ExcelJS){toast('엑셀 도구를 불러오는 중…');await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)}).catch(()=>null);if(!window.ExcelJS){toast('엑셀 도구를 불러오지 못했습니다');return}}
+  const wb=new ExcelJS.Workbook();const ws=wb.addWorksheet('장기결석');ws.columns=[{width:22},{width:24},{width:62},{width:62}];ws.pageSetup={paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,printTitlesRow:'2:2',margins:{left:0.3,right:0.3,top:0.4,bottom:0.4,header:0.2,footer:0.2}};
+  const thin={style:'thin',color:{argb:'FF000000'}},dot={style:'dotted',color:{argb:'FF9CA3AF'}},med={style:'medium',color:{argb:'FF000000'}};
+  ws.mergeCells('A1:D1');const t=ws.getCell('A1');t.value=amTitle(R.a,R.b);t.font={bold:true,size:14};t.alignment={horizontal:'center',vertical:'middle'};ws.getRow(1).height=28;
+  const h=ws.getRow(2);['팀','멘토명 / 수강생명','사유','조치사항'].forEach((v,i)=>{const c=h.getCell(i+1);c.value=v;c.font={bold:true,size:12};c.alignment={horizontal:'center',vertical:'middle'};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}};c.border={top:med,bottom:med,left:thin,right:thin}});h.height=22;
+  let r=3;const teams=R.teams.length?R.teams:[...new Set(R.rows.map(x=>x.team))].map(team=>({team}));
+  const extra=[...new Set(R.rows.map(x=>x.team))].filter(x=>!teams.some(t=>t.team===x)).map(team=>({team}));
+  [...teams,...extra].forEach(T=>{const L=R.rows.filter(x=>x.team===T.team).sort((a,b)=>a.mentor.localeCompare(b.mentor,'ko'));const n=Math.max(5,L.length);const top=r;
+    for(let i=0;i<n;i++){const x=L[i];const row=ws.getRow(r);row.getCell(2).value=x?`${x.mentor} / ${x.name}`:'';row.getCell(3).value=x?amJoin(x.ms,'reason'):'';row.getCell(4).value=x?amJoin(x.ms,'action'):'';
+      const lines=x?Math.max(1,amJoin(x.ms,'reason').split('\n').length,amJoin(x.ms,'action').split('\n').length):1;row.height=Math.max(20,lines*16);
+      [1,2,3,4].forEach(ci=>{const c=row.getCell(ci);c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+amTeamColor(T.team).slice(1)}};c.alignment={vertical:'middle',horizontal:ci===2?'center':'left',wrapText:true};c.font={size:11};
+        c.border={left:thin,right:thin,top:i===0?med:dot,bottom:i===n-1?med:dot}});r++}
+    ws.mergeCells(top,1,r-1,1);const tc=ws.getCell(top,1);tc.value=T.lead?`${T.team}\n(${T.lead.name} ${T.lead.rank})`:T.team;tc.alignment={horizontal:'center',vertical:'middle',wrapText:true};tc.font={size:11}});
+  const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const u=URL.createObjectURL(blob);const lk=document.createElement('a');lk.href=u;lk.download=`장기결석_${R.a}_${R.b}.xlsx`;document.body.appendChild(lk);lk.click();setTimeout(()=>{URL.revokeObjectURL(u);lk.remove()},800);toast('엑셀 파일을 내려받았습니다')}
+function amText(){const R=amReport();const L=[amTitle(R.a,R.b)];[...new Set(R.rows.map(x=>x.team))].sort((a,b)=>amTeamRank(a)-amTeamRank(b)).forEach(t=>{L.push(`■ ${t}`);R.rows.filter(x=>x.team===t).forEach(x=>L.push(`  - ${x.mentor} / ${x.name} · 사유: ${amJoin(x.ms,'reason').replace(/\n/g,' / ')||'-'} · 조치: ${amJoin(x.ms,'action').replace(/\n/g,' / ')||'-'}`))});return L.join('\n')}
+function absTr(r,ret){const tag=(r.tags||[]).map(t=>`<span class="ax-tag${t==='퇴'||t==='퇴원'?' q':''}">${esc(t)}</span>`).join('');const can=absCanCheck(r);const x=ABS_SENT[r.id];const ms=amOf(r.id);const last=ms[0];
+  const chk=x?`<span class="ax-ok">확인완료</span><span class="ax-sm">${esc(String(x.at||'').slice(5,16).replace('T',' '))} · ${esc(x.by||'')}</span>${can?`<button type="button" class="ax-lnk" data-abssent="${esc(r.id)}|0">취소</button>`:''}`
+    :ret?'':can?`<button type="button" class="ax-chk" data-abssent="${esc(r.id)}|1|${esc(r.name)}">확인완료</button>`:'<span class="ax-sm">확인 전</span>';
+  const tools=!ret&&absFullTel()&&r.phone?`<button type="button" class="ax-ic" data-absmsg="${esc(r.id)}" title="번호와 문자 문구 복사">복사</button><a class="ax-ic" href="sms:${esc(r.phone.replace(/[^\d]/g,''))}?body=${encodeURIComponent(absMsg(r))}" title="휴대폰에서 문자 앱 열기">문자</a>`:'';
+  const memo=last?`<div class="ax-memo"><span class="ax-md">${esc(amMd(last.date))}</span>${last.reason?`<span><b>사유</b> ${esc(last.reason)}</span>`:''}${last.action?`<span><b>조치</b> ${esc(last.action)}</span>`:''}${ms.length>1?`<span class="ax-sm">외 ${ms.length-1}건</span>`:''}</div>`:'';
+  return `<div class="ax-row${x?' done':''}${ret?' ret':''}"><div class="ax-who"><div class="ax-nm">${esc(r.name)} <span class="ax-sm">${esc(r.id)}</span>${tag}</div><div class="ax-sub">${esc(r.cls)} <span class="ax-sm">${esc(r.teacher||'')}</span> · ${esc(absPure(r.mentor)||'-')}${r.phone?` · <span class="ax-tel">${esc(absTel(r))}</span>`:''}</div>${memo}</div>
+    <div class="ax-dur"><span class="ax-days${r.days>=7?' hi':''}">${r.days}일</span><span class="ax-sm">${esc(String(r.from).slice(5))} ~ ${ret?esc(String(r.to).slice(5)):'지금'}</span></div>
+    <div class="ax-act">${tools}${can||ms.length?`<button type="button" class="ax-ic memo${ms.length?' has':''}" data-ammemo="${esc(r.id)}">메모${ms.length?` ${ms.length}`:''}</button>`:''}${chk}</div></div>`}
+function amModal(){const id=S.amOpen;if(!id)return '';const r=absRows().find(x=>String(x.id)===String(id))||{id,name:(amOf(id)[0]||{}).name||id,mentor:(amOf(id)[0]||{}).mentor,cls:(amOf(id)[0]||{}).cls};const can=absCanCheck(r);const ms=amOf(id);const E=S.amEdit||(S.amEdit={date:amToday(),reason:'',action:'',idx:-1});
+  return `<div class="ax-ovl" id="amOvl"><div class="ax-dlg" role="dialog" aria-label="장기결석 메모"><div class="ax-dh"><div><b>${esc(r.name)}</b> <span class="ax-sm">${esc(r.id)} · ${esc(r.cls||'')} · 멘토 ${esc(absPure(r.mentor)||'-')}</span></div><button type="button" class="ax-x" data-amclose="1" aria-label="닫기">×</button></div>
+    ${can?`<div class="ax-form"><label>날짜<input type="date" class="in" id="amDate" value="${esc(E.date)}"></label><label>사유<textarea class="in" id="amReason" rows="3" placeholder="예: 개인 사정으로 2주 휴강 요청">${esc(E.reason)}</textarea></label><label>조치사항<textarea class="in" id="amAction" rows="3" placeholder="예: 11/10 통화, 11/17 복귀 약속">${esc(E.action)}</textarea></label>
+      <div class="ax-fb">${E.idx>=0?`<button type="button" class="btn sm ghost" data-amnew="1">새로 쓰기</button>`:''}<span class="sp"></span><button type="button" class="btn sm primary" data-amsave="${esc(id)}">${E.idx>=0?'고친 내용 저장':'메모 저장'}</button></div></div>`:''}
+    <div class="ax-hist"><b>지난 메모 ${ms.length}건</b>${ms.length?ms.map((m,i)=>`<div class="ax-hi"><div class="ax-hd"><span class="ax-md">${esc(m.date)}</span><span class="ax-sm">${esc(m.by||'')}</span>${can?`<button type="button" class="ax-lnk" data-amedit="${i}">고치기</button><button type="button" class="ax-lnk" data-amdel="${i}">지우기</button>`:''}</div>${m.reason?`<div><b>사유</b> ${esc(m.reason)}</div>`:''}${m.action?`<div><b>조치</b> ${esc(m.action)}</div>`:''}</div>`).join(''):'<p class="ax-sm">아직 적은 메모가 없습니다.</p>'}</div></div></div>`}
+function amListView(){const F=S.absF;const R=amReport();const teams=[...R.teams.map(t=>t.team),...[...new Set(R.rows.map(x=>x.team))].filter(t=>!R.teams.some(x=>x.team===t))];
+  const lead=t=>R.teams.find(x=>x.team===t)?.lead;
+  const blocks=teams.map(t=>{const L=R.rows.filter(x=>x.team===t).sort((a,b)=>a.mentor.localeCompare(b.mentor,'ko'));if(!L.length&&!F.allTeams)return '';const ld=lead(t);
+    return `<section class="ax-tm" style="--tc:${amTeamColor(t)}"><div class="ax-th"><b>${esc(t)}</b>${ld?`<span class="ax-sm">${esc(ld.name)} ${esc(ld.rank)}</span>`:''}<span class="ax-cnt">${L.length}명</span></div>
+      ${L.length?`<table class="ax-rt"><colgroup><col style="width:24%"><col style="width:38%"><col style="width:38%"></colgroup><thead><tr><th>멘토 / 수강생</th><th>사유</th><th>조치사항</th></tr></thead><tbody>${L.map(x=>`<tr><td><b>${esc(x.mentor)}</b> / ${esc(x.name)}<div class="ax-sm">${esc(x.cls)}${x.days?` · ${x.days}일`:''}</div></td><td>${x.ms.filter(m=>m.reason).map(m=>`<div><span class="ax-md">${esc(amMd(m.date))}</span> ${esc(m.reason)}</div>`).join('')||'<span class="ax-empty">아직 없음</span>'}</td><td>${x.ms.filter(m=>m.action).map(m=>`<div><span class="ax-md">${esc(amMd(m.date))}</span> ${esc(m.action)}</div>`).join('')||'<span class="ax-empty">아직 없음</span>'}</td></tr>`).join('')}</tbody></table>`:'<p class="ax-sm" style="padding:10px 16px">해당 학생 없음</p>'}</section>`}).join('');
+  const nMemo=R.rows.filter(x=>x.ms.length).length;
+  return `<div class="ax-lhead"><div><b class="ax-ttl">${esc(amTitle(R.a,R.b))}</b><div class="ax-sm">학생 ${R.rows.length}명 · 메모 쓴 학생 ${nMemo}명 · 이 기간 안에 쓴 메모만 모읍니다</div></div>
+    <div class="ax-range"><input type="date" class="in" data-amr="ra" value="${esc(R.a)}"><span>~</span><input type="date" class="in" data-amr="rb" value="${esc(R.b)}"><button type="button" class="btn sm ghost" data-amwk="0">이번 주</button><button type="button" class="btn sm ghost" data-amwk="-7">지난 주</button></div></div>
+    <div class="ax-lopt"><label class="ax-sm"><input type="checkbox" data-absf="unchk" ${F.unchk?'checked':''}> 확인완료 학생 빼기 (미확인만)</label><label class="ax-sm"><input type="checkbox" data-absf="allTeams" ${F.allTeams?'checked':''}> 학생 없는 팀도 보기</label><span class="sp"></span><button type="button" class="btn sm" data-amcopy="1">글로 복사</button><button type="button" class="btn sm primary" data-amxls="1">엑셀로 내려받기</button></div>
+    ${blocks||'<div class="empty-state">이 기간에 해당하는 학생이 없습니다.</div>'}`}
 function absOverlay(){if(!S.ttAbs)return '';
-  if(!stuView())return `<div id="ttAbs"><div class="tb-bar"><b>장기결석 명단</b><span class="sp"></span><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body"><div class="empty-state">장기결석 명단은 수강생 목록을 볼 수 있는 계정만 볼 수 있습니다.</div></div></div>`;
-  absLoad();const F=S.absF||(S.absF={noquit:true,on:false,by:'class'});const D=ABS&&ABS!=='loading'?ABS:null;const rows=absRows();const by=F.by==='mentor';
-  const g={};rows.forEach(r=>{const k=by?(r.mentor||'멘토 미확인'):`${r.cls}§${r.teacher}`;(g[k]=g[k]||[]).push(r)});
-  const keys=Object.keys(g).sort((a,b)=>g[b].length-g[a].length||a.localeCompare(b));
-  const tag=h=>(h.tags||[]).map(t=>`<span class="ab-tag${t==='퇴'||t==='퇴원'?' q':''}">${esc(t)}</span>`).join('');
-  const body=ABS==='loading'?'<div class="empty-state">불러오는 중…</div>':D?.err?`<div class="empty-state">명단을 불러오지 못했습니다 (${esc(D.err)})</div>`:!rows.length?`<div class="empty-state">${(D?.classes||[]).length?'조건에 맞는 학생이 없습니다.':'아직 받은 명단이 없습니다. 그룹웨어 시간표에서 연속결석 확인 뒤 「운영계획표로 보내기」를 눌러 주세요.'}</div>`
-    :`<table><thead><tr><th>${by?'담당 멘토':'반'}</th><th>학생</th><th>${by?'반':'담당 멘토'}</th><th>연락처</th><th>결석 기간</th><th>일수</th><th>상태</th><th>장기학생체크</th></tr></thead><tbody>${keys.map(k=>{const L=g[k].sort((a,b)=>b.ongoing-a.ongoing||b.days-a.days);const [t1,t2]=by?[k,'']:k.split('§');
-      return `<tr class="ab-grp"><td colspan="8">${esc(t1)}${t2?` <span class="ab-meta">${esc(t2)}</span>`:''} · ${L.length}명</td></tr>`+L.map(r=>`<tr><td></td><td>${esc(r.name)} <span class="ab-meta">(${esc(r.id)})</span>${tag(r)}</td><td>${by?`${esc(r.cls)} <span class="ab-meta">${esc(r.teacher)}</span>`:esc(r.mentor||'-')}</td><td class="nw">${r.phone?esc(absTel(r)):'<span class="ab-meta">-</span>'}</td><td>${esc(r.from)} ~ ${esc(r.to)}</td><td class="ab-days">${r.days}일</td><td>${r.ongoing?'<span class="ab-on">지금도 결석 중</span>':'<span class="ab-meta">다시 나옴</span>'}</td><td>${(()=>{const x=ABS_SENT[r.id];const can=absCanCheck(r);
-        if(x)return `<span class="ab-sent">✓ 체크완료</span> <span class="ab-meta">${esc(String(x.at||'').slice(5).replace('T',' '))} ${esc(x.by||'')}</span>${can?` <button type="button" class="lnk" data-abssent="${esc(r.id)}|0">취소</button>`:''}`;
-        const tools=absFullTel()&&r.phone?`<button type="button" class="btn sm" data-absmsg="${esc(r.id)}">번호·문구 복사</button> <a class="btn sm" href="sms:${esc(r.phone.replace(/[^\d]/g,''))}?body=${encodeURIComponent(absMsg(r))}" title="휴대폰에서 누르면 문자 앱이 문구가 채워진 채로 열립니다">문자 앱</a> `:'';
-        return can?`${tools}<button type="button" class="btn sm" data-abssent="${esc(r.id)}|1|${esc(r.name)}" style="background:#15803d;border-color:#15803d;color:#fff">체크완료</button>`:'<span class="ab-meta">체크 전</span>'})()}</td></tr>`).join('')}).join('')}</tbody></table>`;
-  return `<div id="ttAbs"><div class="tb-bar"><b>장기결석 명단 ${rows.length}명</b><span class="ab-meta">${D&&D.at?`${esc(String(D.at).replace('T',' '))} · ${esc(D.by||'')} 받음 · ${D.need||3}일 이상 연속결석`:''}</span>
-    ${(()=>{const sc=absScope();return sc.opts.length>1?`<div class="seg">${sc.opts.map(([k,l])=>`<button type="button" class="${F.scope===k?'on':''}" data-absscope="${k}">${esc(l)}</button>`).join('')}</div>`:`<span class="ab-meta">${esc(sc.me||'')} 담당 학생만</span>`})()}
-    <div class="seg"><button type="button" class="${!by?'on':''}" data-absby="class">반별</button><button type="button" class="${by?'on':''}" data-absby="mentor">멘토별</button></div>
-    <label class="ab-meta"><input type="checkbox" data-absf="noquit" ${F.noquit?'checked':''}> '퇴' 학생 빼기</label><label class="ab-meta"><input type="checkbox" data-absf="on" ${F.on?'checked':''}> 지금도 결석 중만</label><label class="ab-meta"><input type="checkbox" data-absf="unsent" ${F.unsent?'checked':''}> 체크 안 된 학생만</label>
-    <span class="sp"></span><button type="button" class="btn sm" data-abscopy="1">명단 복사</button><button type="button" class="btn sm" data-ttabs="r">새로 불러오기</button><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body">${body}
-    ${absFullTel()?`<div style="margin-top:16px"><label class="ab-meta">학생 문자 문구 ({이름} {반} {기간} {일수} {멘토})</label><textarea id="absMsgTpl" class="in" style="width:100%;height:70px;font-size:14px">${esc(absMsgTpl())}</textarea></div>`:''}</div></div>`}
+  if(!stuView())return `<div id="ttAbs"><div class="ax-top"><b class="ax-h">장기결석 관리</b><span class="sp"></span><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body"><div class="empty-state">장기결석 명단은 수강생 목록을 볼 수 있는 계정만 볼 수 있습니다.</div></div></div>`;
+  absLoad();callsSub();const F=S.absF||(S.absF={noquit:true,by:'team',unchk:true});if(F.by!=='mentor')F.by='team';if(F.unchk==null)F.unchk=true;const view=S.absView||'list';const D=ABS&&ABS!=='loading'?ABS:null;const sc=absScope();const all=absRows();
+  const mentors=[...new Set(all.map(r=>absPure(r.mentor)).filter(Boolean))].sort();if(F.mentor&&!mentors.includes(F.mentor))F.mentor='';
+  const pick=r=>F.by!=='mentor'||!F.mentor||absPure(r.mentor)===F.mentor;
+  const rows=all.filter(r=>r.ongoing&&pick(r)),back=all.filter(r=>!r.ongoing&&pick(r));
+  const byM=F.by==='mentor';const kOf=r=>byM?(absPure(r.mentor)||'멘토 미확인'):absTeamOf(r.mentor,sc);
+  const g={};rows.forEach(r=>{const k=kOf(r);(g[k]=g[k]||[]).push(r)});
+  const keys=Object.keys(g).sort((a,b)=>byM?a.localeCompare(b,'ko'):amTeamRank(a)-amTeamRank(b));
+  const sortR=L=>L.sort((a,b)=>(+!!ABS_SENT[a.id])-(+!!ABS_SENT[b.id])||b.days-a.days);
+  const done=x=>x.filter(r=>ABS_SENT[r.id]).length;const nDone=done(rows);
+  const listBody=ABS==='loading'?'<div class="empty-state">불러오는 중…</div>':D?.err?`<div class="empty-state">명단을 불러오지 못했습니다 (${esc(D.err)})</div>`:!rows.length?`<div class="empty-state">${(D?.classes||[]).length?'지금 장기결석 중인 학생이 없습니다.':'아직 받은 명단이 없습니다. 그룹웨어 시간표에서 연속결석 확인 뒤 「운영계획표로 보내기」를 눌러 주세요.'}</div>`
+    :keys.map(k=>{const L=sortR(g[k]);const dn=done(L);return `<section class="ax-grp" style="--tc:${byM?'#EEF0F3':amTeamColor(k)}"><div class="ax-gh"><b>${esc(k)}</b><span class="ax-cnt">${L.length}명</span><span class="ax-bar"><i style="width:${Math.round(dn/L.length*100)}%"></i></span><span class="ax-sm">확인 ${dn}/${L.length}</span></div>${L.map(r=>absTr(r)).join('')}</section>`}).join('')
+      +(back.length?`<details class="ax-back"><summary>다시 나온 학생 ${back.length}명 <span class="ax-sm">지금은 출석 중이라 따로 뺐습니다</span></summary>${back.map(r=>absTr(r,1)).join('')}</details>`:'');
+  const scopeH=sc.opts.length>1?`<div class="ax-seg">${sc.opts.map(([k,l])=>`<button type="button" class="${F.scope===k?'on':''}" data-absscope="${k}">${esc(l)}</button>`).join('')}</div>`:`<span class="ax-sm">${esc(sc.me||'')} 담당 학생만</span>`;
+  const filt=view==='list'?`<div class="ax-fil">${scopeH}<div class="ax-seg"><button type="button" class="${!byM?'on':''}" data-absby="team">부서관리</button><button type="button" class="${byM?'on':''}" data-absby="mentor">멘토별</button></div>
+      ${byM?`<select class="in ax-msel" data-absmentor="1"><option value="">멘토 전체 (${mentors.length}명)</option>${mentors.map(m=>`<option value="${esc(m)}"${F.mentor===m?' selected':''}>${esc(m)} · ${all.filter(r=>r.ongoing&&absPure(r.mentor)===m).length}명</option>`).join('')}</select>`:''}
+      <label class="ax-sm"><input type="checkbox" data-absf="noquit" ${F.noquit?'checked':''}> '퇴' 학생 빼기</label><label class="ax-sm"><input type="checkbox" data-absf="unsent" ${F.unsent?'checked':''}> 확인 안 된 학생만</label><span class="sp"></span><button type="button" class="btn sm ghost" data-abscopy="1">명단 복사</button><button type="button" class="btn sm ghost" data-ttabs="r">새로 불러오기</button></div>`
+    :`<div class="ax-fil">${scopeH}</div>`;
+  return `<div id="ttAbs"><div class="ax-top"><div class="ax-tt"><b class="ax-h">장기결석 관리</b><span class="ax-sm">${D&&D.at?`${esc(String(D.at).replace('T',' ').slice(0,16))} 받은 명단 · ${D.need||3}일 이상 연속결석`:''}</span></div>
+      <div class="ax-stat"><span><b class="red">${rows.length}</b>명 결석 중</span><span><b class="grn">${nDone}</b>명 확인완료</span><span><b>${rows.length-nDone}</b>명 미확인</span></div>
+      <div class="ax-tabs"><button type="button" class="${view==='list'?'on':''}" data-absview="list">명단</button><button type="button" class="${view==='memo'?'on':''}" data-absview="memo">작성 목록 · 엑셀</button></div><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div>
+    ${filt}<div class="ab-body">${view==='list'?listBody:amListView()}
+    ${view==='list'&&absFullTel()?`<details class="ax-tpl"><summary>학생 문자 문구 고치기</summary><textarea id="absMsgTpl" class="in" style="width:100%;height:70px;font-size:14px">${esc(absMsgTpl())}</textarea><div class="ax-sm">{이름} {반} {기간} {일수} {멘토} 자리에 학생 정보가 들어갑니다</div></details>`:''}</div>${amModal()}</div>`}
 function absAct(d){
+  if(d.absview){S.absView=d.absview;S.keepScroll=true;render();return true}
+  if(d.ammemo){S.amOpen=d.ammemo;S.amEdit={date:amToday(),reason:'',action:'',idx:-1};render();return true}
+  if(d.amclose){S.amOpen=null;S.amEdit=null;render();return true}
+  if(d.amnew){S.amEdit={date:amToday(),reason:'',action:'',idx:-1};render();return true}
+  if(d.amedit!=null){const m=amOf(S.amOpen)[+d.amedit];if(m)S.amEdit={date:m.date,reason:m.reason||'',action:m.action||'',idx:+d.amedit,at:m.at};render();return true}
+  if(d.amdel!=null){const id=S.amOpen;const L=amOf(id);const m=L[+d.amdel];if(!m||!confirm('이 메모를 지울까요?'))return true;const raw=(amAll()[id]||[]).filter(x=>!(x.at===m.at&&x.date===m.date));amSave(id,raw).then(()=>toast('메모를 지웠습니다')).catch(e=>toast('지우지 못했습니다 ('+(e?.code||'오류')+')'));return true}
+  if(d.amsave){const id=String(d.amsave);const E=S.amEdit||{};const date=$('#amDate')?.value||E.date||amToday();const reason=($('#amReason')?.value||'').trim(),action=($('#amAction')?.value||'').trim();if(!reason&&!action){toast('사유나 조치사항을 적어 주세요');return true}
+    const r=absRows().find(x=>String(x.id)===id)||amOf(id)[0]||{};const sc=absScope();const ent={date,reason,action,at:new Date().toISOString(),by:logWho(),name:r.name||'',mentor:absPure(r.mentor),team:absTeamOf(r.mentor,sc),cls:r.cls||''};
+    let raw=(amAll()[id]||[]).slice();if(E.idx>=0&&E.at){raw=raw.map(x=>x.at===E.at?{...ent,at:x.at,editedAt:ent.at}:x)}else raw.push(ent);
+    S.amEdit={date:amToday(),reason:'',action:'',idx:-1};amSave(id,raw).then(()=>toast('메모를 저장했습니다')).catch(e=>toast(e?.code==='permission-denied'?'저장 권한이 없습니다':'저장하지 못했습니다 ('+(e?.code||'오류')+')'));return true}
+  if(d.amwk!=null){const [a,b]=amWeek();const sh=(x,n)=>{const t=new Date(x+'T00:00:00');t.setDate(t.getDate()+n);return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`};S.absF.ra=sh(a,+d.amwk);S.absF.rb=sh(b,+d.amwk);S.keepScroll=true;render();return true}
+  if(d.amxls){amExcel();return true}
+  if(d.amcopy){(navigator.clipboard?.writeText(amText())||Promise.reject()).then(()=>toast('작성 목록을 복사했습니다'),()=>toast('복사하지 못했습니다'));return true}
   if(d.ttabs!=null){if(d.ttabs==='r'){absLoad(true);return true}S.ttAbs=d.ttabs==='1';if(S.ttAbs)absLoad(true);S.keepScroll=true;render();return true}
   if(d.absby){S.absF.by=d.absby;S.keepScroll=true;render();return true}
   if(d.absscope){S.absF.scope=d.absscope;S.keepScroll=true;render();return true}
@@ -4372,7 +4546,7 @@ function absAct(d){
   if(d.absmsg){const r=absRows().find(x=>x.id===d.absmsg);if(!r)return true;const v=`${r.phone}\n${absMsg(r)}`;(navigator.clipboard?.writeText(v)||Promise.reject()).then(()=>toast(`${r.name} 번호와 문구를 복사했습니다`),()=>toast('복사하지 못했습니다'));return true}
   if(d.abscopy){const v=absText();(navigator.clipboard?.writeText(v)||Promise.reject()).then(()=>toast('장기결석 명단을 복사했습니다'),()=>toast('복사하지 못했습니다'));return true}
   return false}
-document.addEventListener('change',e=>{if(e.target?.id==='absMsgTpl'){try{ls.set('absMsg',e.target.value)}catch(_){}toast('문구를 저장했습니다');return}const k=e.target?.dataset?.absf;if(!k)return;S.absF[k]=e.target.checked;S.keepScroll=true;render()});
+document.addEventListener('change',e=>{if(e.target?.id==='absMsgTpl'){try{ls.set('absMsg',e.target.value)}catch(_){}toast('문구를 저장했습니다');return}if(e.target?.dataset?.amr){S.absF[e.target.dataset.amr]=e.target.value;S.keepScroll=true;render();return}if(['amDate','amReason','amAction'].includes(e.target?.id)&&S.amEdit){S.amEdit[{amDate:'date',amReason:'reason',amAction:'action'}[e.target.id]]=e.target.value;return}if(e.target?.dataset?.absmentor){S.absF.mentor=e.target.value;S.keepScroll=true;render();return}const k=e.target?.dataset?.absf;if(!k)return;S.absF[k]=e.target.checked;S.keepScroll=true;render()});
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
@@ -4517,6 +4691,7 @@ document.addEventListener('keydown',e=>{
   if(asgActive()&&!inField&&e.key!=='Escape'&&!(mod&&['c','x','v','z','y','s'].includes(e.key.toLowerCase()))){if(asgKey(e)){e.preventDefault();return}}
   if(e.key==='Escape'&&S.navAll){S.navAll=false;renderNav();return}
   if(e.key==='Escape'&&S.ttPick!=null){S.ttPick=null;S.keepScroll=true;render();return}
+  if(e.key==='Escape'&&S.amOpen){S.amOpen=null;S.amEdit=null;render();return}
   if(e.key==='Escape'&&S.ttAbs){S.ttAbs=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.ttBig){S.ttBig=false;S.keepScroll=true;render();return}
   if(e.key==='Escape'&&S.printOpen){S.printOpen=false;S.keepScroll=true;render();return}
