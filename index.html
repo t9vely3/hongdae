@@ -4483,22 +4483,26 @@ function amReport(){const F=S.absF;const sc=absScope();const [a,b]=[F.ra||amWeek
   const allow=sc.names(F.scope);const ok=allow&&new Set(allow);
   Object.entries(M).forEach(([id,arr])=>{const ins=(arr||[]).filter(x=>x.date>=a&&x.date<=b);if(!ins.length)return;const m=ins[ins.length-1];if(ok&&!ok.has(absPure(m.mentor)))return;push({id,name:m.name,mentor:m.mentor,cls:m.cls},m)});
   return {a,b,rows:out,teams:amTeams(sc)}}
-const amTitle=(a,b)=>`${+a.slice(5,7)}월 ${+a.slice(8)}일 ~ ${+b.slice(5,7)}월 ${+b.slice(8)}일 미확인 장기결석 수강생`;
+const amTitle=(a,b)=>`${+a.slice(5,7)}월 ${+a.slice(8)}일 ~ ${+b.slice(5,7)}월 ${+b.slice(8)}일 ${S.absF?.unchk?'미확인 ':''}장기결석 수강생`;
 function amJoin(ms,k){return ms.filter(x=>x[k]).map(x=>`${amMd(x.date)} ${x[k]}`).join('\n')}
 async function amExcel(){const R=amReport();R.rows=R.rows.filter(x=>x.ms.length);if(!R.rows.length){toast('이 기간에 메모를 쓴 학생이 없습니다');return}
   if(!window.ExcelJS){toast('엑셀 도구를 불러오는 중…');await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)}).catch(()=>null);if(!window.ExcelJS){toast('엑셀 도구를 불러오지 못했습니다');return}}
-  const wb=new ExcelJS.Workbook();const ws=wb.addWorksheet('장기결석');ws.columns=[{width:22},{width:24},{width:62},{width:62}];ws.pageSetup={paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,printTitlesRow:'2:2',margins:{left:0.3,right:0.3,top:0.4,bottom:0.4,header:0.2,footer:0.2}};
-  const thin={style:'thin',color:{argb:'FF000000'}},dot={style:'dotted',color:{argb:'FF9CA3AF'}},med={style:'medium',color:{argb:'FF000000'}};
-  ws.mergeCells('A1:D1');const t=ws.getCell('A1');t.value=amTitle(R.a,R.b);t.font={bold:true,size:14};t.alignment={horizontal:'center',vertical:'middle'};ws.getRow(1).height=28;
-  const h=ws.getRow(2);['팀','멘토명 / 수강생명','사유','조치사항'].forEach((v,i)=>{const c=h.getCell(i+1);c.value=v;c.font={bold:true,size:12};c.alignment={horizontal:'center',vertical:'middle'};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}};c.border={top:med,bottom:med,left:thin,right:thin}});h.height=22;
-  let r=3;const teams=R.teams.length?R.teams:[...new Set(R.rows.map(x=>x.team))].map(team=>({team}));
-  const extra=[...new Set(R.rows.map(x=>x.team))].filter(x=>!teams.some(t=>t.team===x)).map(team=>({team}));
-  [...teams,...extra].forEach(T=>{const L=R.rows.filter(x=>x.team===T.team).sort((a,b)=>a.mentor.localeCompare(b.mentor,'ko'));const n=Math.max(5,L.length);const top=r;
-    for(let i=0;i<n;i++){const x=L[i];const row=ws.getRow(r);row.getCell(2).value=x?`${x.mentor} / ${x.name}`:'';row.getCell(3).value=x?amJoin(x.ms,'reason'):'';row.getCell(4).value=x?amJoin(x.ms,'action'):'';
-      const lines=x?Math.max(1,amJoin(x.ms,'reason').split('\n').length,amJoin(x.ms,'action').split('\n').length):1;row.height=Math.max(20,lines*16);
-      [1,2,3,4].forEach(ci=>{const c=row.getCell(ci);c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+amTeamColor(T.team).slice(1)}};c.alignment={vertical:'middle',horizontal:ci===2?'center':'left',wrapText:true};c.font={size:11};
-        c.border={left:thin,right:thin,top:i===0?med:dot,bottom:i===n-1?med:dot}});r++}
-    ws.mergeCells(top,1,r-1,1);const tc=ws.getCell(top,1);tc.value=T.lead?`${T.team}\n(${T.lead.name} ${T.lead.rank})`:T.team;tc.alignment={horizontal:'center',vertical:'middle',wrapText:true};tc.font={size:11}});
+  const FONT='맑은 고딕';const wb=new ExcelJS.Workbook();const ws=wb.addWorksheet('장기결석',{views:[{state:'frozen',ySplit:3,showGridLines:false}]});
+  ws.columns=[{width:17},{width:24},{width:58},{width:58}];
+  ws.pageSetup={paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,printTitlesRow:'3:3',horizontalCentered:true,margins:{left:0.3,right:0.3,top:0.45,bottom:0.45,header:0.2,footer:0.2}};
+  const line=c=>({style:'thin',color:{argb:c}});const G='FFD5DAE1',GD='FFB8C0CC',INK='FF1F2937';
+  ws.mergeCells('A1:D1');const t=ws.getCell('A1');t.value=amTitle(R.a,R.b);t.font={name:FONT,bold:true,size:16,color:{argb:'FFFFFFFF'}};t.alignment={horizontal:'center',vertical:'middle'};t.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1F2937'}};ws.getRow(1).height=36;
+  ws.mergeCells('A2:D2');const st=ws.getCell('A2');st.value=`작성된 학생 ${R.rows.length}명 · ${kstNow().slice(0,16).replace('T',' ')} 기준 · SBS아카데미 홍대지점`;st.font={name:FONT,size:9.5,color:{argb:'FF6B7280'}};st.alignment={horizontal:'right',vertical:'middle'};ws.getRow(2).height=20;
+  const h=ws.getRow(3);['팀','멘토 / 수강생','사유','조치사항'].forEach((v,i)=>{const c=h.getCell(i+1);c.value=v;c.font={name:FONT,bold:true,size:11,color:{argb:INK}};c.alignment={horizontal:'center',vertical:'middle'};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFE58A'}};c.border={top:line('FF1F2937'),bottom:line('FF1F2937'),left:line(GD),right:line(GD)}});h.height=26;
+  let r=4;const teams=R.teams.length?R.teams:[];const extra=[...new Set(R.rows.map(x=>x.team))].filter(x=>!teams.some(t=>t.team===x)).map(team=>({team}));
+  [...teams,...extra].forEach(T=>{const L=R.rows.filter(x=>x.team===T.team).sort((a,b)=>a.mentor.localeCompare(b.mentor,'ko'));const n=Math.max(5,L.length);const top=r;const col=amTeamColor(T.team).slice(1);
+    for(let i=0;i<n;i++){const x=L[i];const row=ws.getRow(r);const rs=x?amJoin(x.ms,'reason'):'',ac=x?amJoin(x.ms,'action'):'';
+      row.getCell(2).value=x?{richText:[{text:x.mentor,font:{name:FONT,bold:true,size:10.5,color:{argb:INK}}},{text:' / '+x.name,font:{name:FONT,size:10.5,color:{argb:INK}}}]}:'';row.getCell(3).value=rs;row.getCell(4).value=ac;
+      const lines=Math.max(1,...[rs,ac].map(v=>v.split('\n').reduce((a,l)=>a+Math.max(1,Math.ceil(l.length/34)),0)));row.height=Math.max(22,lines*16+6);
+      [2,3,4].forEach(ci=>{const c=row.getCell(ci);c.fill={type:'pattern',pattern:'solid',fgColor:{argb:i%2?'FFFAFBFC':'FFFFFFFF'}};c.alignment={vertical:'middle',horizontal:ci===2?'center':'left',wrapText:true,indent:ci===2?0:1};if(ci!==2)c.font={name:FONT,size:10.5,color:{argb:INK}};
+        c.border={left:line(G),right:line(G),top:i===0?line('FF9CA3AF'):{style:'hair',color:{argb:G}},bottom:i===n-1?line('FF9CA3AF'):{style:'hair',color:{argb:G}}}});r++}
+    ws.mergeCells(top,1,r-1,1);const tc=ws.getCell(top,1);tc.value=T.lead?{richText:[{text:T.team+'\n',font:{name:FONT,bold:true,size:13,color:{argb:INK}}},{text:`${T.lead.name} ${T.lead.rank}`,font:{name:FONT,size:9.5,color:{argb:'FF4B5563'}}}]}:{richText:[{text:T.team,font:{name:FONT,bold:true,size:13,color:{argb:INK}}}]};
+    tc.alignment={horizontal:'center',vertical:'middle',wrapText:true};tc.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+col}};tc.border={top:line('FF9CA3AF'),bottom:line('FF9CA3AF'),left:line('FF9CA3AF'),right:line(GD)}});
   const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const u=URL.createObjectURL(blob);const lk=document.createElement('a');lk.href=u;lk.download=`장기결석_${R.a}_${R.b}.xlsx`;document.body.appendChild(lk);lk.click();setTimeout(()=>{URL.revokeObjectURL(u);lk.remove()},800);toast('엑셀 파일을 내려받았습니다')}
 function amText(){const R=amReport();R.rows=R.rows.filter(x=>x.ms.length);const L=[amTitle(R.a,R.b)];[...new Set(R.rows.map(x=>x.team))].sort((a,b)=>amTeamRank(a)-amTeamRank(b)).forEach(t=>{L.push(`■ ${t}`);R.rows.filter(x=>x.team===t).forEach(x=>L.push(`  - ${x.mentor} / ${x.name} · 사유: ${amJoin(x.ms,'reason').replace(/\n/g,' / ')||'-'} · 조치: ${amJoin(x.ms,'action').replace(/\n/g,' / ')||'-'}`))});return L.join('\n')}
 function absTr(r,ret){const tag=(r.tags||[]).map(t=>`<span class="ax-tag${t==='퇴'||t==='퇴원'?' q':''}">${esc(t)}</span>`).join('');const can=absCanCheck(r);const x=ABS_SENT[r.id];const ms=amOf(r.id);const last=ms[0];
@@ -4526,9 +4530,10 @@ function amListView(){const F=S.absF;const R=amReport();const teams=[...R.teams.
     ${blocks||'<div class="empty-state">이 기간에 해당하는 학생이 없습니다.</div>'}`}
 function absOverlay(){if(!S.ttAbs)return '';
   if(!stuView())return `<div id="ttAbs"><div class="ax-top"><b class="ax-h">장기결석 관리</b><span class="sp"></span><button type="button" class="btn sm primary" data-ttabs="0">닫기 (Esc)</button></div><div class="ab-body"><div class="empty-state">장기결석 명단은 수강생 목록을 볼 수 있는 계정만 볼 수 있습니다.</div></div></div>`;
-  absLoad();callsSub();const F=S.absF||(S.absF={noquit:true,by:'team',unchk:true});if(F.by!=='mentor')F.by='team';if(F.unchk==null)F.unchk=true;const view=S.absView||'list';const D=ABS&&ABS!=='loading'?ABS:null;const sc=absScope();const all=absRows();
+  absLoad();callsSub();const F=S.absF||(S.absF={noquit:true,by:'team',unchk:false});if(F.by!=='mentor')F.by='team';if(F.unchk==null)F.unchk=false;const view=S.absView||'list';const D=ABS&&ABS!=='loading'?ABS:null;const sc=absScope();const all=absRows();
   const mentors=[...new Set(all.map(r=>absPure(r.mentor)).filter(Boolean))].sort();if(F.mentor&&!mentors.includes(F.mentor))F.mentor='';
-  const pick=r=>F.by!=='mentor'||!F.mentor||absPure(r.mentor)===F.mentor;
+  const teamsAll=[...new Set(all.map(r=>absTeamOf(r.mentor,sc)))].sort((a,b)=>amTeamRank(a)-amTeamRank(b));if(F.team&&!teamsAll.includes(F.team))F.team='';
+  const pick=r=>F.by==='mentor'?(!F.mentor||absPure(r.mentor)===F.mentor):(!F.team||absTeamOf(r.mentor,sc)===F.team);
   const rows=all.filter(r=>r.ongoing&&pick(r)),back=all.filter(r=>!r.ongoing&&pick(r));
   const byM=F.by==='mentor';const kOf=r=>byM?(absPure(r.mentor)||'멘토 미확인'):absTeamOf(r.mentor,sc);
   const g={};rows.forEach(r=>{const k=kOf(r);(g[k]=g[k]||[]).push(r)});
@@ -4540,6 +4545,7 @@ function absOverlay(){if(!S.ttAbs)return '';
       +(back.length?`<details class="ax-back"><summary>다시 나온 학생 ${back.length}명 <span class="ax-sm">지금은 출석 중이라 따로 뺐습니다</span></summary>${back.map(r=>absTr(r,1)).join('')}</details>`:'');
   const scopeH=sc.opts.length>1?`<div class="ax-seg">${sc.opts.map(([k,l])=>`<button type="button" class="${F.scope===k?'on':''}" data-absscope="${k}">${esc(l)}</button>`).join('')}</div>`:`<span class="ax-sm">${esc(sc.me||'')} 담당 학생만</span>`;
   const filt=view==='list'?`<div class="ax-fil">${scopeH}<div class="ax-seg"><button type="button" class="${!byM?'on':''}" data-absby="team">부서관리</button><button type="button" class="${byM?'on':''}" data-absby="mentor">멘토별</button></div>
+      ${!byM?`<select class="in ax-msel" data-absteam="1"><option value="">팀 전체 (${teamsAll.length}팀)</option>${teamsAll.map(t=>`<option value="${esc(t)}"${F.team===t?' selected':''}>${esc(t)} · ${all.filter(r=>r.ongoing&&absTeamOf(r.mentor,sc)===t).length}명</option>`).join('')}</select>`:''}
       ${byM?`<select class="in ax-msel" data-absmentor="1"><option value="">멘토 전체 (${mentors.length}명)</option>${mentors.map(m=>`<option value="${esc(m)}"${F.mentor===m?' selected':''}>${esc(m)} · ${all.filter(r=>r.ongoing&&absPure(r.mentor)===m).length}명</option>`).join('')}</select>`:''}
       <label class="ax-sm"><input type="checkbox" data-absf="noquit" ${F.noquit?'checked':''}> '퇴' 학생 빼기</label><label class="ax-sm"><input type="checkbox" data-absf="unsent" ${F.unsent?'checked':''}> 확인 안 된 학생만</label><span class="sp"></span><button type="button" class="btn sm ghost" data-abscopy="1">명단 복사</button><button type="button" class="btn sm ghost" data-ttabs="r">새로 불러오기</button></div>`
     :`<div class="ax-fil">${scopeH}</div>`;
@@ -4569,7 +4575,7 @@ function absAct(d){
   if(d.absmsg){const r=absRows().find(x=>x.id===d.absmsg);if(!r)return true;const v=`${r.phone}\n${absMsg(r)}`;(navigator.clipboard?.writeText(v)||Promise.reject()).then(()=>toast(`${r.name} 번호와 문구를 복사했습니다`),()=>toast('복사하지 못했습니다'));return true}
   if(d.abscopy){const v=absText();(navigator.clipboard?.writeText(v)||Promise.reject()).then(()=>toast('장기결석 명단을 복사했습니다'),()=>toast('복사하지 못했습니다'));return true}
   return false}
-document.addEventListener('change',e=>{if(e.target?.id==='absMsgTpl'){try{ls.set('absMsg',e.target.value)}catch(_){}toast('문구를 저장했습니다');return}if(e.target?.dataset?.amr){S.absF[e.target.dataset.amr]=e.target.value;S.keepScroll=true;render();return}if(['amDate','amReason','amAction'].includes(e.target?.id)&&S.amEdit){S.amEdit[{amDate:'date',amReason:'reason',amAction:'action'}[e.target.id]]=e.target.value;return}if(e.target?.dataset?.absmentor){S.absF.mentor=e.target.value;S.keepScroll=true;render();return}const k=e.target?.dataset?.absf;if(!k)return;S.absF[k]=e.target.checked;S.keepScroll=true;render()});
+document.addEventListener('change',e=>{if(e.target?.id==='absMsgTpl'){try{ls.set('absMsg',e.target.value)}catch(_){}toast('문구를 저장했습니다');return}if(e.target?.dataset?.amr){S.absF[e.target.dataset.amr]=e.target.value;S.keepScroll=true;render();return}if(['amDate','amReason','amAction'].includes(e.target?.id)&&S.amEdit){S.amEdit[{amDate:'date',amReason:'reason',amAction:'action'}[e.target.id]]=e.target.value;return}if(e.target?.dataset?.absteam){S.absF.team=e.target.value;S.keepScroll=true;render();return}if(e.target?.dataset?.absmentor){S.absF.mentor=e.target.value;S.keepScroll=true;render();return}const k=e.target?.dataset?.absf;if(!k)return;S.absF[k]=e.target.checked;S.keepScroll=true;render()});
 /* ================= drag & drop ================= */
 let D=null,suppressClick=false;
 function canDrop(src,dst){
