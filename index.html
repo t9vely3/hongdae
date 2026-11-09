@@ -4052,8 +4052,10 @@ function ttParse(text){const L=String(text||'').split(/\r?\n/).map(x=>x.trim());
       if(/^개강일/.test(l))c.start=val();else if(/^종강일/.test(l))c.end=val();else if(/^요일/.test(l))c.days=val();
       else if(/^정원\/배정인원/.test(l)){const v=val();const m=v.match(/(\d+)\s*\/\s*(\d+)\s*(?:\(([^)]*)\))?\s*(.*)$/);if(m){c.cap=+m[1];c.cnt=+m[2];c.st=(m[3]||'').trim();c.extra=(m[4]||'').trim()}}
       else if(/^(강의)?메모/.test(l)){c.memo=val()}
+      else if(/^(대기|초과)\s*\d+/.test(l)){c.extra=(c.extra?c.extra+' ':'')+l.replace(/\s+/g,' ')}
       else if(/^강의일/.test(l)){}
       else if(!l||/^(TMS|📊)/.test(l))break}
+    if(!/대기\s*\d+/.test(c.extra)){const w=L.slice(i,j).join(' ').match(/대기\s*:?\s*(\d+)/);if(w&&+w[1]>0)c.extra=(c.extra?c.extra+' ':'')+'대기 '+w[1]}
     i=j-1;out.push(c)}
   const seen={};out.forEach(c=>{const b=[c.name,c.room,c.teacher,c.days].join('|');seen[b]=(seen[b]||0)+1;c.k2=b+'#'+seen[b];c.id=c.k2+'|'+c.start});
   return {period,list:out}}
