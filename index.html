@@ -4218,17 +4218,19 @@ function stuFind(it){const docs=ttDocs();const L=[];docs.forEach(k=>(S.callsAll[
   if(cand.length>1){const t=it.card?.time||it.head?.time||'';const byT=cand.filter(c=>c.time===t);if(byT.length)cand=byT}
   return cand[0]||null}
 async function stuSave(items){const out={ok:0,miss:[]};const W=[];for(const it of items){const c=stuFind(it);if(!c){out.miss.push(it.head?.name||(it.card?.text||'').split('\n')[0]);continue}
-    const rows=(it.rows||[]).map(r=>({c:r.map(x=>String(x??''))}));W.push({c,rows,cols:(it.cols||[]).map(String)})}
+    const rows=(it.rows||[]).map(r=>({c:r.map(x=>String(x??''))}));
+    const wait={cols:(it.waitCols||[]).map(String),rows:(it.waitRows||[]).map(r=>({c:r.map(x=>String(x??''))}))};
+    W.push({c,rows,cols:(it.cols||[]).map(String),wait})}
   const now=kstNow(),who=logWho(),chg=[];
   const keyOf=(cols,r)=>{const i=Math.max(0,cols.findIndex(h=>/수강생|이름|성명/.test(h)));return String(r.c[i]||'').trim()};
-  for(let i=0;i<W.length;i+=10){await Promise.all(W.slice(i,i+10).map(async({c,rows,cols})=>{const ref=A.fdb.collection('ops_students').doc(stuKey(c.id));
+  for(let i=0;i<W.length;i+=10){await Promise.all(W.slice(i,i+10).map(async({c,rows,cols,wait})=>{const ref=A.fdb.collection('ops_students').doc(stuKey(c.id));
     let old=null;try{const g=await ref.get();old=g.exists?g.data():null}catch(_){}
     let hist=(old&&old.hist)||[];
     if(old&&(old.rows||old.cols)){const oc=old.cols||cols;const mtOf=(cs,r)=>{const i=cs.findIndex(h=>/멘토/.test(h));return i<0?'':String(r.c[i]||'').split('|')[0].trim()};
       const bm=new Map((old.rows||[]).map(r=>[keyOf(oc,r),mtOf(oc,r)]).filter(x=>x[0])),am=new Map(rows.map(r=>[keyOf(cols,r),mtOf(cols,r)]).filter(x=>x[0]));const before=new Set(bm.keys()),after=new Set(am.keys());
       const add=[...after].filter(x=>!before.has(x)).map(x=>x+(am.get(x)?'\t'+am.get(x):'')),del=[...before].filter(x=>!after.has(x)).map(x=>x+(bm.get(x)?'\t'+bm.get(x):''));
       if(add.length||del.length){hist=hist.concat([{at:now,by:who,add,del,n:after.size}]).slice(-60);chg.push(`${c.name}(${c.room}${c.time?' '+c.time:''}): ${[...add.map(x=>'추가 '+x.replace('\t',' · 멘토 ')),...del.map(x=>'빠짐 '+x.replace('\t',' · 멘토 '))].join(', ')}`)}}
-    await ref.set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols,rows,hist,at:now,by:who});delete STU[stuKey(c.id)];out.ok++}))}
+    await ref.set({cls:{id:c.id,name:c.name,room:c.room,teacher:c.teacher,start:c.start,time:c.time||''},cols,rows,wait,hist,at:now,by:who});delete STU[stuKey(c.id)];out.ok++}))}
   out.chg=chg.length;
   logAdd('tt',[`수강생 목록 최신화: ${out.ok}반${chg.length?` · 인원 바뀐 반 ${chg.length}`:''}${out.miss.length?` · 못 찾은 반 ${out.miss.length}`:''}`,...chg.slice(0,58)]);return out}
 function stuHist(D){const H=(D&&D.hist)||[];if(!H.length)return '<p class="muted stu-hs0">인원 변동 기록: 아직 바뀐 적이 없습니다. 학생 최신화를 할 때마다 지난번 명단과 비교해 여기에 남깁니다.</p>';const nm=x=>{const [a,m]=String(x).split('\t');return esc(a.replace(/\s*\(\d+\)\s*$/,''))+(m?` <small>${esc(m)}</small>`:'')};
@@ -4242,7 +4244,13 @@ function stuHtml(pk){if(!stuView())return '';const full=ttCan();const k=stuKey(p
   const skip=/^(No\.?|선택|)$/i;cols.forEach((h,i)=>{if(!order.includes(i)&&!skip.test(String(h).trim()))order.push(i)});
   const q=(S.stuQ||'').trim();const cap=+pk.cap||0;const all=(D.rows||[]).map((r,n)=>({c:r.c||[],n}));const ovN=cap?Math.max(0,all.length-cap):0;const rows=all.filter(r=>!q||r.c.join(' ').includes(q));
   return `<div class="stu"><div class="stu-h"><b>수강생 ${(D.rows||[]).length}명${cap?` <small class="muted">정원 ${cap}</small>`:''}${ovN?` <span class="stu-ov">초과 ${ovN}명</span>`:''}</b><span class="muted">${esc(D.by||'')} · ${esc(String(D.at||'').replace('T',' ').slice(5))} 최신화</span><input class="in sm" id="stuQ" placeholder="이름 찾기" value="${esc(q)}"></div>
-    <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map(R=>{const r=R.c,ov=cap&&R.n>=cap;return `<tr${ov?' class="ov"':''}><td>${R.n+1}${ov?'<span class="stu-ov">초과</span>':''}</td>${order.map(i=>`<td>${esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel(r[i]||''):(r[i]||''))}</td>`).join('')}</tr>`}).join('')||`<tr><td colspan="${order.length+1}" class="muted">배정된 수강생이 없습니다.</td></tr>`}</tbody></table></div>${stuHist(D)}</div>`}
+    <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map(R=>{const r=R.c,ov=cap&&R.n>=cap;return `<tr${ov?' class="ov"':''}><td>${R.n+1}${ov?'<span class="stu-ov">초과</span>':''}</td>${order.map(i=>`<td>${esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel(r[i]||''):(r[i]||''))}</td>`).join('')}</tr>`}).join('')||`<tr><td colspan="${order.length+1}" class="muted">배정된 수강생이 없습니다.</td></tr>`}</tbody></table></div>${stuWaitHtml(D,full,q)}${stuHist(D)}</div>`}
+function stuWaitHtml(D,full,q){const W=D&&D.wait;const L=(W&&W.rows)||[];if(!L.length)return '';const cols=W.cols||[];
+  const want=[/구분/,/수강생|이름|성명/,/멘토/,/연락처|휴대|전화|핸드폰/,/상태/];const order=[];want.forEach(r=>cols.forEach((h,i)=>{if(r.test(h)&&!order.includes(i))order.push(i)}));cols.forEach((h,i)=>{if(!order.includes(i)&&!/^(No\.?|선택|)$/i.test(String(h).trim()))order.push(i)});
+  const rows=L.filter(r=>!q||(r.c||[]).join(' ').includes(q));
+  return `<div class="stu-wait"><div class="stu-h"><b style="color:#7c3aed">대기 ${L.length}명</b><span class="muted">배정 대기 학생 · 배정 인원에는 들어가지 않습니다</span></div>
+    <div class="stu-tw"><table class="stu-t"><thead><tr><th>#</th>${order.map(i=>`<th>${esc(cols[i])}</th>`).join('')}</tr></thead><tbody>${rows.map((R,n)=>`<tr><td>${n+1}</td>${order.map(i=>`<td>${/구분/.test(cols[i])?`<span class="stu-wt">${esc((R.c||[])[i]||'')}</span>`:esc(!full&&/연락처|휴대|전화|핸드폰/.test(cols[i])?maskTel((R.c||[])[i]||''):((R.c||[])[i]||''))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`}
+document.head.insertAdjacentHTML('beforeend','<style>.stu-wait{margin-top:14px;padding-top:10px;border-top:2px dashed #ddd6fe}.stu-wt{display:inline-block;padding:1px 7px;border-radius:5px;border:1px solid #a78bfa;color:#6d28d9;background:#f5f3ff;font-size:12px;font-weight:700}</style>');
 document.addEventListener('change',function(e){if(e.target.id==='stuQ'){S.stuQ=e.target.value;S.keepScroll=true;render()}});
 /* 확장 프로그램 연결 확인 */
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='ops-ping')return;let h='';try{h=new URL(e.origin).hostname}catch(_){}
