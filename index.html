@@ -12,7 +12,7 @@
    Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 내 앱 > 웹 앱 > firebaseConfig 의 값을
    아래 따옴표 안에 그대로 붙여 넣으면 됩니다.
    ============================================================ */
-window.OPS_BUILD = '20261103-153000';
+window.OPS_BUILD = '20261110-133000';
 window.OPS_FIREBASE = {
   apiKey: "AIzaSyAY0UqcUw0zgsOWvhZHK7lTB65RFB1rLPE",
   authDomain: "hongdae-ops.firebaseapp.com",
@@ -4840,18 +4840,19 @@ function rcParse(text){
     if(h){cur={team:h[1].trim(),slot:h[2].padStart(5,'0'),sales:null,consult:null,fixed:null};out.push(cur);continue}
     if(l.startsWith('[')||/^-{3,}/.test(l)){cur=null;continue}
     if(!cur)continue;let m;
-    if((m=l.match(/^확정\s*매출\s*:?\s*(-|[\d,.]+)?/)))cur.fixed=m[1]===undefined?null:rcNum(m[1]);
+    if((m=l.match(/^확정\s*매출\s*:?\s*(.*)$/)))cur.fixed=rcFixed(m[1]);
     else if((m=l.match(/^매출\s*:?\s*(.+)$/)))cur.sales=rcTriple(m[1]);
     else if((m=l.match(/^상담(?:건|완료)?\s*:?\s*(.+)$/)))cur.consult=rcTriple(m[1]);
   }
   return out;
 }
+function rcFixed(t){t=String(t||'').trim();if(!t)return null;t=t.replace(/(\d),(\d{3})(?!\d)/g,'$1$2');const v=(t.match(/\d+(?:\.\d+)?/g)||[]).map(Number).filter(x=>x!==0);return v}
 function rcCollect(list,slot){
   const by=new Map(),dup=new Set();
   list.forEach(r=>{if(r.slot!==slot)return;if(by.has(r.team))dup.add(r.team);by.set(r.team,r)});
   const rows=[...by.values()].sort((a,b)=>a.team.localeCompare(b.team,'ko',{numeric:true}));
   const sum=k=>[0,1,2].map(i=>rcRound(rows.reduce((t,r)=>t+(r[k]?r[k][i]:0),0)));
-  const fx=rows.map(r=>r.fixed||0).filter(v=>v!==0);
+  const fx=rows.flatMap(r=>r.fixed||[]);
   return {rows,dup:[...dup],sales:sum('sales'),consult:sum('consult'),fixedTotal:rcRound(fx.reduce((a,b)=>a+b,0)),fx};
 }
 function rcTitle(){const v=ls.get('rcTitle');return v==null?'AIX홍대':String(v)}
@@ -4866,7 +4867,7 @@ function rcResult(){
   if(R.src.trim()){const have=new Set(c.rows.map(r=>r.team.replace(/\s|팀/g,'')));const miss=RC_TEAMS.filter(t=>!have.has(t));notes.push(miss.length?`미보고팀 ${miss.length}개: ${miss.join(', ')}`:'미보고팀 없음. 전체 팀이 보고했습니다.')}
   if(R.src.trim()&&!list.length)notes.push('보고를 찾지 못했습니다. ‘[1-2팀 09:30 보고]’ 같은 제목 줄이 있어야 합니다.');
   const three=v=>(v||[null,null,null]).map(x=>x===null?'<td class="rc-chk">확인</td>':`<td>${x}</td>`).join('');
-  const table=c.rows.length?`<div class="tw"><table class="rc-tb"><thead><tr><th>팀</th><th>입금매출</th><th>예정매출</th><th>총매출</th><th>상담완료</th><th>익일매출</th><th>모레매출</th><th>확정매출</th></tr></thead><tbody>${c.rows.map(r=>`<tr><td>${esc(r.team)}</td>${three(r.sales)}${three(r.consult)}${r.fixed===null?'<td class="rc-chk">확인</td>':`<td>${r.fixed}</td>`}</tr>`).join('')}</tbody><tfoot><tr><td>합계</td>${[...c.sales,...c.consult,c.fixedTotal].map(v=>`<td>${v}</td>`).join('')}</tr></tfoot></table></div>`:'<div class="empty-cell" style="padding:18px;text-align:center;color:var(--muted)">보고를 붙여넣으면 팀별 숫자가 여기에 나옵니다.</div>';
+  const table=c.rows.length?`<div class="tw"><table class="rc-tb"><thead><tr><th>팀</th><th>입금매출</th><th>예정매출</th><th>총매출</th><th>상담완료</th><th>익일매출</th><th>모레매출</th><th>확정매출</th></tr></thead><tbody>${c.rows.map(r=>`<tr><td>${esc(r.team)}</td>${three(r.sales)}${three(r.consult)}${r.fixed===null?'<td class="rc-chk">확인</td>':`<td>${r.fixed.length?r.fixed.join(' + '):0}</td>`}</tr>`).join('')}</tbody><tfoot><tr><td>합계</td>${[...c.sales,...c.consult,c.fixedTotal].map(v=>`<td>${v}</td>`).join('')}</tr></tfoot></table></div>`:'<div class="empty-cell" style="padding:18px;text-align:center;color:var(--muted)">보고를 붙여넣으면 팀별 숫자가 여기에 나옵니다.</div>';
   return {text:c.rows.length?rcText(c):'',count:c.rows.length,
     slots:slots.map(x=>`<button type="button" class="btn sm${x===R.slot?' primary':''}" data-rcslot="${x}">${x} 보고</button>`).join(''),
     notes:notes.map(n=>`<div class="rc-note">${esc(n)}</div>`).join(''),table};
