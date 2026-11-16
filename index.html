@@ -1649,7 +1649,7 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 .ev2 small{margin-top:3px}
 .ev2 b em{font-style:normal;color:var(--muted);font-weight:600}
 
-.cl-in.m{max-width:80px}.cl-amt small{display:block;font-size:10.5px;color:var(--muted)}.cl-tab th small{font-size:10px;font-weight:500;color:var(--muted)}
+.cl-in.m{max-width:80px}.cl-need small.cl-ded{display:block;font-size:10px;font-weight:500;color:var(--muted);white-space:nowrap}.cl-amt small{display:block;font-size:10.5px;color:var(--muted)}.cl-tab th small{font-size:10px;font-weight:500;color:var(--muted)}
 .cl-need{font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted)}.cl-need.cut{color:var(--ink)}td.cl-sum small{display:block;font-size:10.5px;font-weight:600}
 .cl-vip{display:inline-block;padding:1px 8px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:11.5px;font-weight:700}
 
@@ -2308,7 +2308,7 @@ const PAGES={
   judge:{label:'디비턴 판독',g:'m',desc:'문의과목이나 학과를 적으면 어느 턴으로 배정할지 바로 알려 줍니다.'},
   tt:{label:'시간표',g:'m',desc:'그룹웨어 강의시간표를 붙여넣으면 강의실·시간대별로 정리하고 배정인원을 최신으로 맞춥니다. 평일·주말을 나눠 봅니다.'},
   rc:{label:'보고 취합',g:'m',desc:'카톡 팀 보고를 붙여넣으면 숫자를 더해 줄 끝 공백 없는 취합 보고문으로 만듭니다. 팀장급 이상만 볼 수 있습니다.'},
-  calls:{label:'통화량',g:'m',desc:'매일 퇴근 전까지 개인·내선 통화량을 적습니다. 합산 60분에서 상담·등록·하루 매출만큼 기준이 줄어듭니다.'},
+  calls:{label:'통화량',g:'m',desc:'매일 퇴근 전까지 개인·내선 통화량을 적습니다. 합산 60분에서 상담·등록·블로그·면담·하루 매출만큼 기준이 줄어듭니다.'},
   rules:{label:'DB 규정',g:'c',subs:[['turn','디비턴·배정'],['rights','권한 기간·규정'],['visit','방문·더블 처리'],['reassign','재배정'],['penalty','패널티·메모'],['duty','당직·배정조 운영'],['group','계열사 지침']],desc:'주제별로 나눴습니다. 검색하면 모든 주제에서 찾아 줍니다.'},
   tuition:{label:'수강료',g:'c',subs:[['weekday','평일'],['weekend','주말'],['vacation','방학특강']],desc:'청소년가는 총 수업시간(분) × 163원에서 천 원 아래를 버린 금액입니다.'},
   org:{label:'조직도',g:'c',subs:[['dept','사업부'],['staff','운영부·강사진'],['seat','자리배치도']],desc:''},
@@ -3311,6 +3311,7 @@ function salesDedC(r,c){const a=+r.amt||0;if(c.m2&&a>=c.m2)return c.cd2;if(c.m1&
 function callNeedC(r){const c=callSet();return c.cbase||0}
 function callBonusC(r){const c=callSet();return ((+r.s1||0)+(+r.s2||0))*c.csc+(+r.rg||0)*c.crg+Math.min(1,+r.bl||0)*c.cbl+Math.min(1,+r.iv||0)*c.civ+salesDedC(r,c)}
 function salesDed(r,c){const a=+r.amt||0;if(c.m2&&a>=c.m2)return c.d2;if(c.m1&&a>=c.m1)return c.d1;return 0}
+function callDedTxt(r,c){const s=(+r.s1||0)+(+r.s2||0),g=+r.rg||0,L=[s&&c.sc?`상담 −${s*c.sc}`:'',g&&c.rg?`등록 −${g*c.rg}`:'',(+r.bl||0)&&c.bl?`블로그 −${c.bl}`:'',(+r.iv||0)&&c.iv?`면담 −${c.iv}`:'',salesDed(r,c)?`매출 −${salesDed(r,c)}`:''].filter(Boolean);return L.length?`<small class="cl-ded">${L.join(' · ')}</small>`:''}
 function callNeed(r){const c=callSet();return Math.max(c.min*60,(c.base-((+r.s1||0)+(+r.s2||0))*c.sc-(+r.rg||0)*c.rg-Math.min(1,+r.bl||0)*c.bl-Math.min(1,+r.iv||0)*c.iv-salesDed(r,c))*60)}
 const manOf=v=>{const n=+String(v||'').replace(/[^\d.]/g,'');if(!n)return '';return String(n>=10000?Math.round(n/10000):Math.round(n))};
 const secOf=v=>{v=String(v??'').trim();if(!v)return 0;if(/^\d+$/.test(v)){if(v.length<=2)return +v*60;if(v.length<=4){v=v.padStart(4,'0');return (+v.slice(0,2))*60+(+v.slice(2))}v=v.slice(-6).padStart(6,'0');return (+v.slice(0,2))*3600+(+v.slice(2,4))*60+(+v.slice(4))}const m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);if(m)return m[3]!=null?(+m[1])*3600+(+m[2])*60+(+m[3]):(+m[1])*60+(+m[2]);const k=v.match(/(?:(\d+)\s*시간)?\s*(?:(\d+)\s*분)?\s*(?:(\d+)\s*초)?/);return k?(+(k[1]||0))*3600+(+(k[2]||0))*60+(+(k[3]||0)):0};
@@ -3344,7 +3345,7 @@ function viewCalls(){
       <td class="ctr">${inp('s1',r.s1,'n')}</td><td class="ctr">${inp('s2',r.s2,'n')}</td><td class="ctr">${inp('rg',r.rg,'n')}</td><td class="ctr">${inp('bl',r.bl,'n')}</td><td class="ctr">${inp('iv',r.iv,'n')}</td><td class="ctr cl-amt">${inp('amt',r.amt?(+r.amt).toLocaleString():'','m','')}${r.amt&&salesDed(r,CS)?`<small>-${salesDed(r,CS)}분</small>`:''}</td>
       <td class="ctr cl-p">${inp('pt',r.pt?hms(pt):'','t','0:00:00')}</td><td class="ctr cl-p">${inp('pc',r.pc,'n')}</td>
       <td class="ctr cl-e">${inp('et',r.et?hms(et):'','t','0:00:00')}</td><td class="ctr cl-e">${inp('ec',r.ec,'n')}</td>
-      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||yx||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&!yx&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}<td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td><td class="cl-memo${fx&&!r.nt?' fxd':''}">${can?`<span class="cl-ntw"><input class="cl-in cl-nt" data-cl="${esc(p.name)}|nt"${fx&&!r.nt?' data-fx="1"':''} value="${esc(r.nt||fx||'')}" aria-label="비고"><button type="button" class="cl-fxb${fx?' on':''}" ${fx?`data-clfxdel="${esc(p.name)}" title="고정 풀기 (다음 날부터 안 보임)"`:`data-clfx="${esc(p.name)}" title="이 비고를 고정합니다. 다음 날에도 계속 보입니다."`}>${fx?'고정됨':'고정'}</button></span>`:esc(r.nt||fx||'')}</td></tr>`}).join('');
+      <td class="ctr cl-need${need<CS.base*60&&!ex&&!vip?' cut':''}">${ex?'-':mmss(need)}${ex?'':callDedTxt(r,CS)}</td>${CS.cbase?`<td class="ctr cl-cc${ex||vip||yx||pc_==='g'?' ok':cBad?' bad':' ok'}"><b>${gotC}</b> / ${needC}${bonC?`<small>실제 ${cnt} + 인정 ${bonC}</small>`:''}${!ex&&!vip&&!yx&&pc_!=='g'&&cBad?`<small>${needC-gotC}콜 부족</small>`:''}</td>`:''}<td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}"><b>${hms(tot)}</b>${bad?`<small>${mmss(need-tot)} 부족</small>`:''}</td><td class="ctr cl-sum${bad?' bad':filled||vip?' ok':''}">${cnt}</td><td class="cl-memo${fx&&!r.nt?' fxd':''}">${can?`<span class="cl-ntw"><input class="cl-in cl-nt" data-cl="${esc(p.name)}|nt"${fx&&!r.nt?' data-fx="1"':''} value="${esc(r.nt||fx||'')}" aria-label="비고"><button type="button" class="cl-fxb${fx?' on':''}" ${fx?`data-clfxdel="${esc(p.name)}" title="고정 풀기 (다음 날부터 안 보임)"`:`data-clfx="${esc(p.name)}" title="이 비고를 고정합니다. 다음 날에도 계속 보입니다."`}>${fx?'고정됨':'고정'}</button></span>`:esc(r.nt||fx||'')}</td></tr>`}).join('');
   const dl=parse(d);const head=pageHead('calls','통화량');
   const bar=`<div class="cl-bar"><div class="cl-date"><button type="button" class="btn sm" data-cstep="-1">${icx('left')}전날</button><input type="date" id="cDate" value="${d}"><button type="button" class="btn sm" data-cstep="1">다음날${icx('right')}</button>${d!==todayIso()?`<button type="button" class="btn sm primary" data-cstep="0">오늘</button>`:''}</div>
     <div class="cl-stat"><span class="cs-p"><b>${dl.getMonth()+1}/${dl.getDate()} (${WD[dl.getDay()]})</b></span><span class="cs-p">입력 <b>${done}/${R.length}명</b></span><span class="cs-p${fail&&!ex?' red':''}">미달 <b>${ex?'-':fail+'명'}</b></span>${can&&CAN()?`<label class="chk"><input type="checkbox" id="cEx" ${ex?'checked':''}>지점매출 달성 · 오늘 전원 제외</label>`:''}</div></div>`;
