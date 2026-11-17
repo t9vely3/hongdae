@@ -2590,7 +2590,7 @@ const TN_GAP={대표:18e6,공식:13e6,올턴제한:13e6};
 function parseSales(text){
   const out=[];const seen=new Set();
   String(text||'').split(/\r?\n/).forEach(raw=>{let c=raw.includes('\t')?raw.split('\t'):raw.trim().split(/\s+/);c=c.map(x=>x.trim());
-    if(c.length<3)return;const ni=c.findIndex(x=>/[가-힣]/.test(x));if(ni<0||/담당|이름|NO/i.test(c[ni])||/[()]/.test(c[ni]))return;
+    if(c.length<3)return;if(c.some(x=>/^(담당자?|이름|NO)$/i.test(x)))return;/* 지점 칸(컴퓨터홍대 등)은 건너뛰고 사람 이름 칸을 찾음 */const BR=/^(컴퓨터|디자인|아트|뷰티|게임)|홍대|지점|본점|[가-힣]+점$/;const ni=c.findIndex(x=>/[가-힣]/.test(x)&&!BR.test(x));if(ni<0||/담당|이름|NO/i.test(c[ni])||/[()]/.test(c[ni]))return;
     if(!/^[가-힣]{2,5}\d*$/.test(c[ni]))return;let last='';for(let i=c.length-1;i>ni;i--){if(c[i]!==''){last=c[i];break}}
     if(!/^-?[\d,]+$/.test(last))return;const amt=Number(last.replace(/,/g,''));const nm=c[ni];if(seen.has(nm))return;seen.add(nm);out.push({name:nm,amt})});
   return out;
