@@ -2860,6 +2860,7 @@ function popRoster(k,x){
     <div class="pp-sec"><div class="pp-l">직접 입력<small>조 대신 원하는 글을 적을 수 있습니다</small></div><div class="pp-add"><input type="text" id="rtxt" value="${esc(v&&!g&&!cfg.opts.includes(v)?v:'')}" placeholder="예: A조+B조, 대체근무"><button type="button" class="btn sm" data-rtxt="${k}|${x}">적용</button></div></div>`;
   if(g||e.list.length)h+=`<div class="pp-sec"><div class="pp-l">이 날 인원</div><div class="pp-ppl">${e.list.map(n=>`<span class="pn">${esc(n)}<button type="button" class="px" aria-label="${esc(n)} 빼기" data-mrem="${k}|${x}|${esc(n)}">${icx('x')}</button></span>`).join('')}</div>
     <div class="pp-add"><input type="text" id="radd" list="peopleList" placeholder="이름을 적어 추가"><button type="button" class="btn sm" data-madd="${k}|${x}">추가</button></div>${e.override?`<button type="button" class="lnk" data-mreset="${k}|${x}">조 기본 인원으로 되돌리기</button>`:''}</div>`;
+  h+=`<div class="pp-sec"><div class="pp-l">메모<small>휴일·특이사항, 모든 달력에 표시 · 지우면 사라집니다</small></div><textarea class="in sm" data-cal="memo" data-d="${x}" placeholder="예: 한글날">${esc(S.doc.cal.memo?.[x]||'')}</textarea></div>`;
   return h;
 }
 
