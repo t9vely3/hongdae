@@ -1787,8 +1787,19 @@ tr.clc-r td.cl-nm,tr.clc-r td.cl-rank{background:#fecaca!important}
 .pr-sun{color:#e00}.pr-sat{color:#1f63d6}
 .pr-out{background:#d9d9d9}
 .pr-g{font-weight:600}
-.pr-t td.pr-g.pr-on{outline:3px solid #e00000;outline-offset:-3px;color:#c00000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.pr-dt{margin-left:4px;font-size:.85em;font-weight:800;color:#e00000}
+.pr-t td.pr-g.pr-on{padding:3px!important;background:#fff!important}
+.pr-onb{height:100%;min-height:46px;display:flex;align-items:center;justify-content:center;gap:6px;border:3px solid #e00000;background:#ffe3e3;color:#c00000;font-size:16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pr-onb b{font-weight:900}.pr-onb span{font-size:12px;font-weight:800;padding:1px 6px;background:#e00000;color:#fff;border-radius:3px}
+.pr-t td.pr-g.pr-dim{background:#fff!important;color:#b0b0b0;font-weight:500}
+#prSheet.pm-left{width:1156px;grid-template-columns:1fr}
+#prSheet.pm-right{width:auto;max-width:1400px;grid-template-columns:1fr}#prSheet.pm-right.pr-n1{width:720px}#prSheet.pr-n1 .pr-r{grid-template-columns:1fr}#prSheet.pm-right.pr-n2{width:1400px}
+#prSheet.pm-both.pr-n1{width:1700px;grid-template-columns:1120px 1fr}#prSheet.pm-both.pr-n1 .pr-r{grid-template-columns:1fr}
+#prSheet.pr-empty{display:block;width:600px;padding:60px;text-align:center;font-size:16px;color:#666}
+.pr-ps{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%}.pr-ps .muted{flex:0 0 auto}
+.pr-pc{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-size:12.5px;cursor:pointer;background:var(--surface);user-select:none}
+.pr-pc.on{border-color:var(--ink);font-weight:700}.pr-pc input{margin:0;accent-color:var(--ink)}
+.pr-zm{margin-left:8px;font-size:12.5px;padding:4px 10px;border-radius:999px;background:#fee2e2;color:#b91c1c}
+.pr-hint{flex:1 1 100%!important}
 .pr-g.g-A{background:#e2efda}.pr-g.g-B{background:#d9e1f2}.pr-g.g-C{background:#fff2cc}.pr-g.g-D{background:#fce4d6}.pr-g.g-E{background:#ddebf7}
 .pr-hl{background:#ffff00}
 .pr-txt{font-weight:600}
@@ -4045,7 +4056,7 @@ function viewLog(){callsSub();const head=pageHead('log','수정 기록');
   const more=L.length>lim?`<div class="lgv-more"><button type="button" class="btn sm" data-logmore="1">더 보기 (${L.length-lim}건 남음)</button></div>`:'';
   return head+card('logv',`기록 ${L.length}건`,'화면 이름을 누르면 그 화면으로 넘어갑니다. 통화량 입력은 1분 동안 모아서 한 번에 남깁니다.',tools+body+more,{cls:'wide'});
 }
-document.addEventListener('change',function(e){const t=e.target;if(t.id==='logBy'){S.logF.by=t.value;S.keepScroll=true;render()}else if(t.id==='logQ'){S.logF.q=t.value;S.keepScroll=true;render()}});
+document.addEventListener('change',function(e){const t=e.target;if(t.dataset&&t.dataset.prp){const P=prParts();P[t.dataset.prp]=t.checked;ls.set('prParts',JSON.stringify(P));S.keepScroll=true;render();return}if(t.id==='logBy'){S.logF.by=t.value;S.keepScroll=true;render()}else if(t.id==='logQ'){S.logF.q=t.value;S.keepScroll=true;render()}});
 
 /* ================= 출력용 영업활동 일정표 (엑셀 양식) ================= */
 function prRed(t){return esc(t).replace(/&quot;순매출&quot;|"순매출"/g,'<b class="pr-red">"순매출"</b>').replace(/(월화 ?:? ?\d+명 ?\/ ?수~금 ?:? ?\d+명)/g,'<span class="pr-red">$1</span>')}
@@ -4054,7 +4065,10 @@ function prAsg(doc,title,fallbackId){let D=null;try{if(doc)D=asgData(doc)}catch(
   if(!D)return '';const n=Math.max(D.off.length,D.rep?.length||0,D.nae?.length||0);let rows='';
   for(let i=0;i<n;i++){rows+='<tr>'+ACOL.map(([k])=>{const x=(D[k]||[])[i];return x?`<td>${i+1}</td><td class="${x.c?'pc-'+x.c:''}">${esc(x.n)}</td>`:'<td class="pr-na"></td><td class="pr-na"></td>'}).join('')+'</tr>'}
   return `<table class="pr-t pr-asg"><colgroup>${ACOL.map(()=>'<col style="width:9%"><col style="width:24.33%">').join('')}</colgroup><thead><tr><th colspan="6" class="pr-h1">${esc(title)}</th></tr><tr>${ACOL.map(([,l])=>`<th>연번</th><th>${l}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`}
-function printSheet(){
+/* 인쇄할 부분 고르기 (사람마다 이 컴퓨터에 기억) */
+const PR_PARTS=[['cal','영업활동 일정표'],['memo','비고'],['team','각 팀 자율 작성'],['rule','당직디비규정'],['asg','이번 달 배정표'],['prev','지난달 배정표']];
+function prParts(){if(!S.prP){let o={};try{o=JSON.parse(ls.get('prParts')||'{}')||{}}catch(_){o={}}S.prP={};PR_PARTS.forEach(([k])=>S.prP[k]=o[k]!==false)}return S.prP}
+function printSheet(){const P=prParts();
   const [a,z]=periodDays();const cal=S.doc.cal;const mo=+S.id.slice(5);const yr=+S.id.slice(0,4);const PG=S.prG&&S.prG.length&&S.prG.length<5?S.prG:null;
   const start=addDays(a,-parse(a).getDay());const end=addDays(z,6-parse(z).getDay());
   let weeks='';for(let w=start;w<=end;w=addDays(w,7)){const ds=[0,1,2,3,4,5,6].map(i=>addDays(w,i));
@@ -4063,7 +4077,7 @@ function printSheet(){
     const cells=ds.map(x=>{if(x<a||x>z)return {out:1};const v=String(cal.duty?.[x]||'').trim();const g=groupOf(v);return {v,g,on:!!(g&&((PG&&PG.includes(g))||cal.dutyMark?.[x]))}});
     let row='';for(let i=0;i<7;){const c=cells[i];if(c.out){let j=i;while(j<7&&cells[j].out)j++;row+=`<td class="pr-out" colspan="${j-i}"></td>`;i=j;continue}
       if(!c.g&&c.v){let j=i+1;while(j<7&&!cells[j].out&&!cells[j].g&&cells[j].v===c.v&&!/^지원$/.test(c.v))j++;const sp=/^지원$/.test(c.v)?'':(/연휴|휴일|휴무/.test(c.v)?'':' pr-hl');row+=`<td colspan="${j-i}" class="pr-txt${sp}">${esc(c.v).replace(/\n/g,'<br>')}</td>`;i=j;continue}
-      row+=`<td class="${c.g?'pr-g g-'+c.g:''}${c.on?' pr-on':''}">${c.g||''}${c.on?'<span class="pr-dt">당직</span>':''}</td>`;i++}
+      row+=`<td class="${c.g?'pr-g g-'+c.g:''}${c.on?' pr-on':PG&&c.g?' pr-dim':''}">${c.on?`<div class="pr-onb"><b>${c.g}조</b><span>당직</span></div>`:c.g||''}</td>`;i++}
     weeks+=`<tr class="pr-cr">${row}</tr>`}
   const mgr=staffOf().filter(x=>x.r==='관리').map(x=>x.n);
   const R=blk('dutyRule');const items=R?.items||[];const groups=rosterAt('duty',z).groups||{};
@@ -4074,14 +4088,20 @@ function printSheet(){
   const ruleT=items.length?`<table class="pr-t pr-rule"><colgroup><col style="width:152px"><col style="width:84px"><col></colgroup><thead><tr><th colspan="3" class="pr-h2">당직디비규정</th></tr></thead><tbody>${sect('평일','wk')}${sect('주말','we')}</tbody></table>`:'';
   const pd=prevMonthDoc();const pm=mo===1?12:mo-1;const py=mo===1?yr-1:yr;
   const noteBox=note?`<div class="pr-note">${esc(note).replace(/\n/g,'<br>')}</div>`:'';
-  return `<div id="prSheet"><div class="pr-l"><table class="pr-t pr-cal"><colgroup>${WD.map(()=>'<col style="width:14.2857%">').join('')}</colgroup><thead><tr><th colspan="7" class="pr-h1">컴퓨터 홍대 ${mo}월 영업 영업활동 일정표${PG?` <small>(${PG.map(g=>g+'조').join('·')})</small>`:''}</th></tr><tr>${WD.map((w,i)=>`<th class="${i===0||i===6?'pr-we':''}">${w}</th>`).join('')}</tr></thead><tbody>${weeks}
-      <tr class="pr-cr"><th class="pr-bg">비고</th><td colspan="6">하단 당직디비규정 참조</td></tr></tbody></table>
-    <table class="pr-t pr-team"><tbody><tr><th rowspan="2" class="pr-bg">각 팀 자율 작성</th>${mgr.map(n=>`<td class="pr-nm">${esc(n)}</td>`).join('')}</tr><tr>${mgr.map(()=>'<td class="pr-blank"></td>').join('')}</tr></tbody></table>${ruleT}</div>
-    <div class="pr-r"><div>${prAsg(S.doc,`${yr}년 ${mo}월 디비 배정표`,'dbAssign')}${noteBox}</div><div>${prAsg(pd,`${py}년 ${pm}월 디비 배정표`,pd?null:'dbAssignPrev')}${noteBox}</div></div></div>`;
+  const calT=P.cal?`<table class="pr-t pr-cal"><colgroup>${WD.map(()=>'<col style="width:14.2857%">').join('')}</colgroup><thead><tr><th colspan="7" class="pr-h1">컴퓨터 홍대 ${mo}월 영업 영업활동 일정표${PG?` <small>(${PG.map(g=>g+'조').join('·')} 당직)</small>`:''}</th></tr><tr>${WD.map((w,i)=>`<th class="${i===0||i===6?'pr-we':''}">${w}</th>`).join('')}</tr></thead><tbody>${weeks}
+      ${P.memo?`<tr class="pr-cr"><th class="pr-bg">비고</th><td colspan="6">하단 당직디비규정 참조</td></tr>`:''}</tbody></table>`:'';
+  const teamT=P.team&&mgr.length?`<table class="pr-t pr-team"><tbody><tr><th rowspan="2" class="pr-bg">각 팀 자율 작성</th>${mgr.map(n=>`<td class="pr-nm">${esc(n)}</td>`).join('')}</tr><tr>${mgr.map(()=>'<td class="pr-blank"></td>').join('')}</tr></tbody></table>`:'';
+  const L=calT+teamT+(P.rule?ruleT:'');
+  const a1=P.asg?`<div>${prAsg(S.doc,`${yr}년 ${mo}월 디비 배정표`,'dbAssign')}${noteBox}</div>`:'';
+  const a2=P.prev?`<div>${prAsg(pd,`${py}년 ${pm}월 디비 배정표`,pd?null:'dbAssignPrev')}${noteBox}</div>`:'';
+  const RR=a1+a2;const nR=(a1?1:0)+(a2?1:0);
+  if(!L&&!RR)return '<div id="prSheet" class="pr-empty">인쇄할 부분을 하나 이상 골라 주세요.</div>';
+  const mode=L&&RR?'both':L?'left':'right';
+  return `<div id="prSheet" class="pm-${mode} pr-n${nR}">${L?`<div class="pr-l">${L}</div>`:''}${RR?`<div class="pr-r">${RR}</div>`:''}</div>`;
 }
-function prFit(){const el=document.getElementById('prSheet');if(!el)return;const w=el.scrollWidth,h=el.scrollHeight;el.style.setProperty('--pz',String(Math.min(1060/w,735/h)))}
+function prFit(){const el=document.getElementById('prSheet');if(!el)return;el.style.zoom='';const w=el.scrollWidth,h=el.scrollHeight;const z=Math.min(1060/w,735/h);el.style.setProperty('--pz',String(z));const t=document.getElementById('prZoom');if(t)t.textContent=`용지 배율 ${Math.round(z*100)}%`}
 addEventListener('beforeprint',prFit);
-function printOvl(){if(!S.printOpen||!S.doc)return '';return `<div id="prOvl"><div class="pr-bar"><b>출력용 영업활동 일정표</b><span class="pr-gs"><span class="muted">조를 누르면 그 조 당직일에 빨간 테두리</span><button type="button" class="${!(S.prG&&S.prG.length&&S.prG.length<5)?'on':''}" data-prg="all">전체</button>${GROUPS.map(g=>`<button type="button" class="g-${g}${S.prG&&S.prG.length<5&&S.prG.includes(g)?' on':''}" data-prg="${g}">${g}조</button>`).join('')}</span><span class="muted">가로 방향으로 인쇄됩니다. PDF로 저장하려면 인쇄 창에서 대상을 'PDF로 저장'으로 고르세요.</span><button type="button" class="btn primary" data-printgo="1">${icx('check')}인쇄 · PDF 저장</button><button type="button" class="btn" data-printx="1">닫기</button></div><div class="pr-wrap">${printSheet()}</div></div>`}
+function printOvl(){if(!S.printOpen||!S.doc)return '';return `<div id="prOvl"><div class="pr-bar"><b>출력용 영업활동 일정표</b><span class="pr-gs"><span class="muted">조를 누르면 그 조 당직일에 빨간 테두리</span><button type="button" class="${!(S.prG&&S.prG.length&&S.prG.length<5)?'on':''}" data-prg="all">전체</button>${GROUPS.map(g=>`<button type="button" class="g-${g}${S.prG&&S.prG.length<5&&S.prG.includes(g)?' on':''}" data-prg="${g}">${g}조</button>`).join('')}</span><span class="pr-ps"><span class="muted">인쇄할 부분</span>${PR_PARTS.map(([k,l])=>`<label class="pr-pc${prParts()[k]?' on':''}"><input type="checkbox" data-prp="${k}" ${prParts()[k]?'checked':''}>${l}</label>`).join('')}<b id="prZoom" class="pr-zm"></b></span><span class="muted pr-hint">뺄수록 남은 부분이 A4 가로 한 장에 더 크게 인쇄됩니다. PDF는 인쇄 창에서 'PDF로 저장'을 고르세요.</span><button type="button" class="btn primary" data-printgo="1">${icx('check')}인쇄 · PDF 저장</button><button type="button" class="btn" data-printx="1">닫기</button></div><div class="pr-wrap">${printSheet()}</div></div>${(setTimeout(prFit,0),'')}`}
 
 /* ================= 시간표 (그룹웨어 강의시간표 붙여넣기) ================= */
 const TT_ST=[['정원미달','under','#eab308'],['정원마감','full','#4b5563'],['정원초과','over','#ef4444'],['폐강','closed','#cbd5e1'],['재직/계좌마감','jfull','#2563eb'],['재직/계좌초과','jover','#9333ea'],['정원 미입력','none','#94a3b8']];
