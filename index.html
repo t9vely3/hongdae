@@ -1649,7 +1649,7 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 .ev2 small{margin-top:3px}
 .ev2 b em{font-style:normal;color:var(--muted);font-weight:600}
 
-.cl-in.m{max-width:80px}.cl-need small.cl-ded{display:block;font-size:10px;font-weight:500;color:var(--muted);white-space:nowrap}.cl-amt small{display:block;font-size:10.5px;color:var(--muted)}.cl-tab th small{font-size:10px;font-weight:500;color:var(--muted)}
+.ao-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.ao-col{display:flex;flex-direction:column;gap:4px}.ao-col small{color:var(--muted);font-size:11.5px}.ao-col textarea{min-height:260px;font-size:14px;line-height:1.6}.ao-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.ao-note{margin:8px 0 0;font-size:12px}.ao-w{margin:0 0 8px;padding:8px 12px;border-radius:8px;background:#fff7d6;font-size:13px}.ao-g{margin:0 0 8px;font-size:12px}@media(max-width:700px){.ao-grid{grid-template-columns:1fr}}.cl-in.m{max-width:80px}.cl-need small.cl-ded{display:block;font-size:10px;font-weight:500;color:var(--muted);white-space:nowrap}.cl-amt small{display:block;font-size:10.5px;color:var(--muted)}.cl-tab th small{font-size:10px;font-weight:500;color:var(--muted)}
 .cl-need{font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted)}.cl-need.cut{color:var(--ink)}td.cl-sum small{display:block;font-size:10.5px;font-weight:600}
 .cl-vip{display:inline-block;padding:1px 8px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:11.5px;font-weight:700}
 
@@ -2615,15 +2615,36 @@ function turnsOf(doc){doc=doc||S.doc;if(!doc)return [];return Array.isArray(doc.
 function ensureTurns(){if(!Array.isArray(S.doc.turnList))S.doc.turnList=legacyTurns(S.doc).map(x=>({...x}));return S.doc.turnList}
 function turnRowsOf(doc){return turnsOf(doc).map((x,i)=>{const amt=num(x.amt),add=num(x.add),eff=amt+add*1e6;const t=TN_ORDER.includes(x.adj)?x.adj:tnTierOf(eff);return {i,name:x.name,amt,add,eff,tier:t,adj:!!x.adj&&x.adj!==tnTierOf(eff)}})}
 function turnTierMap(){const m={};turnRowsOf().forEach(x=>m[nmKey(x.name)]=x.tier);return m}
+/* 공식·대표 순번표 (직접 정하는 고정 순번) : ops_calls/_order {off:[],rep:[],from:'YYYY-MM',at,by} */
+function asgFix(){const o=S.callsAll?.['_order'];if(!o)return null;const f=a=>(Array.isArray(a)?a:[]).map(nmKey).filter(Boolean);return {off:f(o.off),rep:f(o.rep),from:o.from||'',raw:o}}
+function asgFixFor(doc){const F=asgFix();if(!F||(!F.off.length&&!F.rep.length))return null;const id=docIdOf(doc);if(F.from&&id&&id<F.from)return null;return F}
+function asgOrderCard(){
+  if(!CAN())return '';const F=asgFix();const o=F?.raw||{};const open=S.aoOpen??!(F&&F.off.length);
+  const dOff=S.aoDraft?.off??(o.off||[]).join('\n'),dRep=S.aoDraft?.rep??(o.rep||[]).join('\n');
+  const T=turnRowsOf(S.doc);const inT=new Set(T.map(x=>nmKey(x.name)));const offK=new Set((F?.off)||[]);
+  const miss=F&&F.off.length?T.filter(x=>!offK.has(nmKey(x.name))).map(x=>x.name):[];
+  const gone=F&&F.off.length&&T.length?F.off.filter(n=>!inT.has(n)):[];
+  const stat=F&&F.off.length?`공식 ${F.off.length}명 · 대표 ${F.rep.length}명${o.at?` · ${fmtAt(o.at)} ${esc(o.by||'')} 저장`:''}`:'아직 순번표가 없습니다. 지금은 지난달 순번을 따릅니다.';
+  const body=open?`<div class="ao-grid"><label class="ao-col"><b>공식 순번</b><small>한 줄에 한 명 · 위에서부터 1번</small><textarea id="aoOff" class="in" rows="14" placeholder="최봉경&#10;양희원&#10;이세영">${esc(dOff)}</textarea></label>
+    <label class="ao-col"><b>대표 순번</b><small>비워 두면 공식 순번 순서를 따릅니다</small><textarea id="aoRep" class="in" rows="14" placeholder="최봉경&#10;양희원">${esc(dRep)}</textarea></label></div>
+    <div class="ao-act"><button type="button" class="btn sm primary" data-aosave="1">순번표 저장</button><button type="button" class="btn sm" data-aopull="1">지금 배정표 순서 불러오기</button>${F&&F.off.length?`<button type="button" class="btn sm ghost" data-aoclose="1">접기</button>`:''}</div>
+    <p class="muted ao-note">저장하면 ${esc(S.doc.label||'이번 달')}부터 배정표가 이 순번을 따릅니다. 순번표에 없는 사람(신규)은 매출순으로 맨 뒤에 붙고, 이번 달 디비턴 현황에 없는 사람은 자동으로 건너뜁니다. 대표 칸에는 실매출 1,300만 이상인 사람만 들어갑니다.</p>`
+    :`<div class="ao-act"><button type="button" class="btn sm" data-aoopen="1">순번표 고치기</button></div>`;
+  const warn=(miss.length?`<p class="ao-w">순번표에 없어 맨 뒤에 붙은 사람: <b>${miss.map(esc).join(', ')}</b></p>`:'')+(gone.length?`<p class="muted ao-g">이번 달 디비턴에 없어 건너뛴 사람: ${gone.map(esc).join(', ')}</p>`:'');
+  return card('asgorder','공식·대표 순번표',stat,`<div class="ao">${warn}${body}</div>`);
+}
 function legacyOrder(doc){const b=(doc.blocks||[]).find(x=>x.id==='dbAssign');return b?b.rows.map(r=>nmKey(r[1])).filter(Boolean):[]}
 function assignOf(doc){
   const T=turnRowsOf(doc);const byKey={};T.forEach(x=>byKey[nmKey(x.name)]=x);
   const own=d=>d&&(d.offOrder&&d.offOrder.length?d.offOrder:legacyOrder(d));let base=own(doc)||[];
-  if(!base.length&&doc===S.doc){const pd=prevMonthDoc();base=own(pd)||[]}
+  if(doc===S.doc){const pd=prevMonthDoc();base=base.concat(own(pd)||[])}
+  const FX=asgFixFor(doc);if(FX&&FX.off.length)base=FX.off.concat(base);
   base=base.map(nmKey);
   const order=[];base.forEach(n=>{if(byKey[n]&&!order.includes(n))order.push(n)});
   T.slice().sort((a,b)=>b.amt-a.amt).forEach(x=>{const k=nmKey(x.name);if(!order.includes(k))order.push(k)});
-  return {T,byKey,off:order,rep:order.filter(n=>['내사','대표'].includes(byKey[n].tier)),nae:T.filter(x=>x.tier==='내사').sort((a,b)=>b.amt-a.amt).map(x=>x.name)};
+  const isRep=n=>['내사','대표'].includes(byKey[n]?.tier);let repL=order.filter(isRep);
+  if(FX&&FX.rep.length){const r=[];FX.rep.forEach(n=>{if(isRep(n)&&!r.includes(n))r.push(n)});repL.forEach(n=>{if(!r.includes(n))r.push(n)});repL=r}
+  return {T,byKey,off:order,rep:repL,nae:T.filter(x=>x.tier==='내사').sort((a,b)=>b.amt-a.amt).map(x=>x.name)};
 }
 function turnsTable(){
   const L=turnRowsOf();
@@ -2694,19 +2715,20 @@ function assignTable(doc,title,live){
   return card(live?'asgv':'asgp',title,sub,`${can?asgToolbar(D):''}<div class="tw"><table class="stk asgtab"><thead><tr>${ACOL.map(([k,l])=>`<th class="ctr">연번</th><th>${can?`<button type="button" class="lnk thsel" data-acolsel="${k}" title="이 줄 전체 선택">${l}</button>`:l}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`,{cls:'asgcard'});
 }
 function assignPage(){
+  callsSub();const ord=asgOrderCard();
   const cur=assignTable(S.doc,`${S.doc.label||''} 디비 배정표`,true);
   const pd=prevMonthDoc();const prev=pd?assignTable(pd,`${pd.label||'전월'} 디비 배정표`,false):null;
   const legacyPrev=!prev?[...blocksOf('sales','assign'),...blocksOf('dbturn','assign')].filter(b=>b.id==='dbAssignPrev').map(b=>blockHtml(b,{})).join(''):'';
   const legacyCur=!cur?[...blocksOf('sales','assign'),...blocksOf('dbturn','assign')].filter(b=>b.id==='dbAssign').map(b=>blockHtml(b,{})).join(''):'';
   const bar=`<div class="asg-bar"><span class="asg-k"><i></i>노란 칸 = 공식 제한(실매출 1,000만 미만)</span><span class="muted">디비턴 현황을 넣으면 자동으로 만들어집니다. 공식 순번은 고정, 대표는 그 순서에서 1,300만 이상만, 내사는 1,800만 이상을 매출 순으로 넣습니다.${CAN()?' 칸을 누르면 이름·색을 고치고, 칸을 끌면 순서가 바뀝니다.':''}</span></div>`;
-  return bar+`<div class="asg-two">${cur||legacyCur||`<div class="empty-state">디비턴 현황을 먼저 넣으면 배정표가 자동으로 만들어집니다.</div>`}${prev||legacyPrev}</div>`;
+  return bar+ord+`<div class="asg-two">${cur||legacyCur||`<div class="empty-state">디비턴 현황을 먼저 넣으면 배정표가 자동으로 만들어집니다.</div>`}${prev||legacyPrev}</div>`;
 }
 function tnApply(){
   const R=S.tn?.rows;if(!R)return;
   const tierOf=r=>S.tn.over?.[r.name]||(r.amt>0?tnTierOf(r.amt):'제외');const old={};turnsOf().forEach(x=>old[nmKey(x.name)]=x.add||'');
   const L=R.filter(r=>tierOf(r)!=='제외').sort((a,b)=>b.amt-a.amt);
   const list=L.map(r=>{const add=old[nmKey(r.name)]||'';const auto=tnTierOf(r.amt+num(add)*1e6),t=S.tn.over?.[r.name];return {name:r.name,amt:r.amt,add:add?String(add):'',adj:t&&t!==auto&&t!=='제외'?t:''}});
-  S.edit=true;mutate(()=>{S.doc.turnList=list;delete S.doc.asgManual;S.doc.offOrder=assignOf(S.doc).off},`디비턴 현황 ${list.length}명 · 배정표도 자동으로 바뀌었습니다 · 저장을 눌러 확정`);
+  S.edit=true;mutate(()=>{S.doc.turnList=list;delete S.doc.asgManual;const pd=prevMonthDoc();const po=pd?(pd.offOrder&&pd.offOrder.length?pd.offOrder:legacyOrder(pd)):[];if(po.length)S.doc.offOrder=po.slice();S.doc.offOrder=assignOf(S.doc).off},`디비턴 현황 ${list.length}명 · 배정표도 자동으로 바뀌었습니다 · 저장을 눌러 확정`);
 }
 function secPage(tab){
   const sec=curSub(tab);const counts={};PAGES[tab].subs.forEach(([k])=>counts[k]=blocksOf(tab,k).length);
@@ -3320,7 +3342,7 @@ const mmss=s=>{s=Math.max(0,Math.round(s||0));return `${Math.floor(s/60)}:${Stri
 const hms=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`};
 function callRoster(){const t=S.callsAll?.['_roster']?.text||CALL_ROSTER_DEFAULT;return t.split(/\r?\n/).map(l=>l.trim().split(/\s+/)).filter(a=>a.length>=3).map(a=>({team:a[0],rank:a.slice(1,-1).join(' '),name:a[a.length-1]}))}
 function callsSub(){if(S.callsSub||!S.db)return;S.callsSub=true;S.callsAll=S.callsAll||{};
-  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;S.callsLoaded=true;if(S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')&&!(S.amOpen&&document.activeElement?.closest?.('#amOvl'))){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
+  try{S.db.collection('calls').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});const oldN=JSON.stringify(S.callsAll?.['_notice']||null);S.callsAll=n;S.callsLoaded=true;if(S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||S.tab==='dbturn'||JSON.stringify(n['_notice']||null)!==oldN){if(!(S.ntEdit&&document.activeElement?.id==='ntText')&&!(S.amOpen&&document.activeElement?.closest?.('#amOvl'))){S.keepScroll=true;render()}}},e=>{S.callsErr=e?.code||'오류';if(S.tab==='calls')render()})}catch(e){S.callsErr='오류'}}
 async function callsWrite(id,patch){
   S.callsAll=S.callsAll||{};const cur=S.callsAll[id]||{};
   const merged={...cur,...patch,rows:{...(cur.rows||{}),...Object.fromEntries(Object.entries(patch.rows||{}).map(([n,v])=>[n,{...(cur.rows?.[n]||{}),...v}]))},updatedAt:new Date().toISOString().slice(0,19)};
@@ -3487,7 +3509,7 @@ function render0(){
 }
 function buildToc(){
   if(['today','duty','assign','edu','ops'].includes(S.tab))return;
-  if(S.tab==='dbturn'||S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||S.tab==='rc')return;
+  if(S.tab==='dbturn'||S.tab==='calls'||S.tab==='judge'||S.tab==='log'||S.tab==='tt'||S.tab==='dbturn'||S.tab==='rc')return;
   const cards=[...document.querySelectorAll('#page main .card[id^="b-"]')].filter(c=>c.querySelector('h2'));
   if(cards.length<3)return;
   const nav=document.createElement('nav');nav.className='toc';nav.setAttribute('aria-label','이 화면 바로가기');
@@ -3618,6 +3640,14 @@ function act(t){
   if(d.adel&&S.asel&&S.asel.size>1){const keys=[...S.asel].map(sp).sort((a,b)=>+b[1]-+a[1]);S.asel=null;S.acell=null;asgEdit(M=>{keys.forEach(([c,i])=>M[c].splice(+i,1));S.doc.offOrder=M.off.map(y=>nmKey(y.n))},`${keys.length}칸 삭제`);return true}
   if(d.adel){const {col,i}=S.acell||{};if(col==null)return true;const nm=asgData(S.doc)[col][i]?.n;S.acell=null;S.asel=null;asgEdit(M=>{M[col].splice(i,1);if(col==='off')S.doc.offOrder=M.off.map(y=>nmKey(y.n))},`${nm||'빈 칸'} 삭제`);return true}
   if(d.adone){S.acell=null;S.asel=null;S.keepScroll=true;render();return true}
+  if(d.aoopen){S.aoOpen=true;S.keepScroll=true;render();return true}
+  if(d.aoclose){S.aoOpen=false;S.aoDraft=null;S.keepScroll=true;render();return true}
+  if(d.aopull){const D=asgData(S.doc);S.aoDraft={off:D.off.map(x=>x.n).filter(Boolean).join('\n'),rep:D.rep.map(x=>x.n).filter(Boolean).join('\n')};S.aoOpen=true;S.keepScroll=true;render();toast('지금 배정표 순서를 불러왔습니다. 고친 뒤 저장을 누르세요');return true}
+  if(d.aosave){const rd=id=>[...new Set(($('#'+id)?.value||'').split(/[\r\n,]+/).map(x=>x.replace(/^\s*\d+[.)\s]+/,'').trim()).filter(Boolean))];const off=rd('aoOff'),rp=rd('aoRep');
+    if(!off.length){toast('공식 순번에 이름을 한 명 이상 적어 주세요');return true}
+    const by=A.prof?.name||A.user?.email||'';logAdd('dbturn',[`공식·대표 순번표 저장 (공식 ${off.length}명 · 대표 ${rp.length}명)`]);
+    callsWrite('_order',{off,rep:rp,from:S.id||'',at:new Date().toISOString(),by}).then(()=>{S.aoDraft=null;S.aoOpen=false;
+      if(S.doc.asgManual){S.edit=true;mutate(()=>{delete S.doc.asgManual},'순번표를 저장했습니다 · 직접 고친 배정표를 순번표대로 다시 만들었습니다 · 저장을 눌러 확정')}else{toast('순번표를 저장했습니다. 배정표가 이 순번으로 바뀌었습니다');S.keepScroll=true;render()}});return true}
   if(d.areset){S.acell=null;S.edit=true;mutate(()=>{delete S.doc.asgManual},'디비턴 현황 기준으로 다시 만들었습니다');return true}
   if(d.tvnew){S.edit=true;mutate(()=>{ensureTurns().push({name:'',amt:0,add:'',adj:''})});setTimeout(()=>{const L=document.querySelectorAll('.tv-nm');L[L.length-1]?.focus()},30);return true}
   if(d.tvdel!=null){const i=+d.tvdel;const n=turnsOf()[i]?.name;S.edit=true;mutate(()=>{ensureTurns().splice(i,1)},`${n} 뺌`);return true}
