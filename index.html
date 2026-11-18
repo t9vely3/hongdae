@@ -1649,7 +1649,7 @@ tr.cl-empty .cl-sum.bad{background:#fee2e2!important}
 .ev2 small{margin-top:3px}
 .ev2 b em{font-style:normal;color:var(--muted);font-weight:600}
 
-.ao-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.ao-col{display:flex;flex-direction:column;gap:4px}.ao-col small{color:var(--muted);font-size:11.5px}.ao-col textarea{min-height:260px;font-size:14px;line-height:1.6}.ao-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.ao-note{margin:8px 0 0;font-size:12px}.ao-w{margin:0 0 8px;padding:8px 12px;border-radius:8px;background:#fff7d6;font-size:13px}.ao-g{margin:0 0 8px;font-size:12px}@media(max-width:700px){.ao-grid{grid-template-columns:1fr}}.cl-in.m{max-width:80px}.cl-need small.cl-ded{display:block;font-size:10px;font-weight:500;color:var(--muted);white-space:nowrap}.cl-amt small{display:block;font-size:10.5px;color:var(--muted)}.cl-tab th small{font-size:10px;font-weight:500;color:var(--muted)}
+.ao-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.ao-col{display:flex;flex-direction:column;gap:4px}.ao-col small{color:var(--muted);font-size:11.5px}.ao-col textarea{min-height:260px;font-size:14px;line-height:1.6}.ao-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.ao-note{margin:8px 0 0;font-size:12px}.ao-w{margin:0 0 8px;padding:8px 12px;border-radius:8px;background:#fff7d6;font-size:13px}.ao-g{margin:0 0 8px;font-size:12px}@media(max-width:700px){.ao-grid{grid-template-columns:1fr}}.ev.ev-dmark{box-shadow:inset 0 0 0 2.5px #dc2626,0 0 0 1px #dc2626}.ev .ev-dt{display:inline-block;margin-left:6px;padding:0 5px;border-radius:4px;background:#fff;color:#dc2626;font-style:normal;font-size:10.5px;font-weight:800;line-height:16px;vertical-align:1px}.gb.gb-dmark{border-color:#dc2626;color:#dc2626}.gb.gb-dmark.on{background:#dc2626;color:#fff}.chip.dmk{margin-left:6px;background:#fee2e2;color:#b91c1c;border-color:#fca5a5}.cl-in.m{max-width:80px}.cl-need small.cl-ded{display:block;font-size:10px;font-weight:500;color:var(--muted);white-space:nowrap}.cl-amt small{display:block;font-size:10.5px;color:var(--muted)}.cl-tab th small{font-size:10px;font-weight:500;color:var(--muted)}
 .cl-need{font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted)}.cl-need.cut{color:var(--ink)}td.cl-sum small{display:block;font-size:10.5px;font-weight:600}
 .cl-vip{display:inline-block;padding:1px 8px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:11.5px;font-weight:700}
 
@@ -2839,18 +2839,24 @@ function monthCal(key,o){
 }
 
 /* ----- duty / assign ----- */
+/* 당직 표시: 조가 들어간 날에 당직을 겹쳐 표시 (빨간 테두리) · cal.dutyMark / cal.assignMark = {날짜:true} */
+const MARKV={duty:'당직근무',assign:'당직'};
+const isMark=(k,x)=>!!S.doc?.cal?.[k+'Mark']?.[x];
+function toggleMark(k,x,on){const c=S.doc.cal;const m=c[k+'Mark']=c[k+'Mark']||{};const v=on==null?!m[x]:on;if(v)m[x]=true;else delete m[x];return v}
+const markTag='<i class="ev-dt">당직</i>';
 function rosterCal(k){
   const cfg=GK[k],cal=S.doc.cal,[a,z]=periodDays();
   const cell=x=>{const v=cal[k]?.[x];if(!v)return S.edit?'<div class="ev-empty">'+icx('plus')+'조 넣기</div>':'';
     const g=groupOf(v),e=effMembers(k,x);
-    return `<div class="ev ${g?'g-'+g:'plain'}"${S.edit?` data-drag="day|${k}|${x}"`:''}>${esc(String(v).split('\n')[0])}${e.override?'<i class="ev-mk">인원 변경</i>':''}</div>${e.list.length?`<div class="ev-ppl">${e.list.map(n=>CAN()?`<span class="pm" data-drag="dmem|${k}|${x}|${esc(n)}" title="끌어서 다른 날로 옮기기">${esc(n)}</span>`:esc(n)).join(' ')}</div>`:''}`};
+    const mk=g&&isMark(k,x);
+    return `<div class="ev ${g?'g-'+g:'plain'}${mk?' ev-dmark':''}"${S.edit?` data-drag="day|${k}|${x}"`:''}>${esc(String(v).split('\n')[0])}${mk?markTag:''}${e.override?'<i class="ev-mk">인원 변경</i>':''}</div>${e.list.length?`<div class="ev-ppl">${e.list.map(n=>CAN()?`<span class="pm" data-drag="dmem|${k}|${x}|${esc(n)}" title="끌어서 다른 날로 옮기기">${esc(n)}</span>`:esc(n)).join(' ')}</div>`:''}`};
   let filled=0,total=0;for(let x=a;x<=z;x=addDays(x,1))if(cfg.days.includes(parse(x).getDay())){total++;if(cal[k]?.[x])filled++}
   const view=(S.cview||{})[k]||'cal';
   const seg=`<div class="vseg" role="tablist"><button type="button" data-cview="${k}|cal" aria-selected="${view==='cal'}">${icx('calcheck')}달력</button><button type="button" data-cview="${k}|list" aria-selected="${view==='list'}">${icx('list')}표</button></div>`;
   const right=`<span class="mc-cnt">${filled}/${total}일 채움</span>${seg}${CAN()?`<button type="button" class="btn primary" data-rand="${k}">${SHUF}랜덤 배치</button>`:''}`;
   const br=S.brush&&S.brush.k===k?S.brush.v:null;
-  const pal=CAN()?`<div class="brushbar${br!=null?' on':''}"><span class="bb-l">${icx('pencil')}빠른 입력</span>${GROUPS.map(G=>`<button type="button" class="gb g-${G}${br===G+'조'?' on':''}" data-brush="${k}|${G}조">${G}조</button>`).join('')}${cfg.opts.slice(0,2).map(o=>`<button type="button" class="gb${br===o?' on':''}" data-brush="${k}|${esc(o)}">${esc(o)}</button>`).join('')}<button type="button" class="gb ghost${br===''?' on':''}" data-brush="${k}|">${icx('x')}비우기</button>
-    <span class="bb-h">${br!=null?`<b>${br||'비우기'}</b> 선택됨 · 날짜를 누르거나 끌어서 칠하세요 <button type="button" class="lnk" data-brushoff="1">끝내기 (Esc)</button>`:'조를 고른 뒤 날짜를 누르거나 쭉 끌면 한 번에 들어갑니다'}</span></div>`:'';
+  const pal=CAN()?`<div class="brushbar${br!=null?' on':''}"><span class="bb-l">${icx('pencil')}빠른 입력</span>${GROUPS.map(G=>`<button type="button" class="gb g-${G}${br===G+'조'?' on':''}" data-brush="${k}|${G}조">${G}조</button>`).join('')}${cfg.opts.slice(0,2).map(o=>`<button type="button" class="gb${o===MARKV[k]?' gb-dmark':''}${br===o?' on':''}" data-brush="${k}|${esc(o)}">${esc(o)}</button>`).join('')}${cfg.opts.includes(MARKV[k])?'':`<button type="button" class="gb gb-dmark${br===MARKV[k]?' on':''}" data-brush="${k}|${MARKV[k]}">${MARKV[k]}</button>`}<button type="button" class="gb ghost${br===''?' on':''}" data-brush="${k}|">${icx('x')}비우기</button>
+    <span class="bb-h">${br!=null?`<b>${br||'비우기'}</b> 선택됨 · ${br===MARKV[k]?'조가 있는 날을 누르면 그 조에 당직 표시(빨간 테두리)가 붙고, 한 번 더 누르면 빠집니다':'날짜를 누르거나 끌어서 칠하세요'} <button type="button" class="lnk" data-brushoff="1">끝내기 (Esc)</button>`:'조를 고른 뒤 날짜를 누르거나 쭉 끌면 한 번에 들어갑니다'}</span></div>`:'';
   if(view==='list')return peopleList()+rosterList(k,right,'');
   return peopleList()+monthCal(k,{days:cfg.days,cell,right,drop:x=>`rday|${k}|${x}`,pre:pal});
 }
@@ -2860,7 +2866,7 @@ function rosterList(k,right,pal){
     const v=cal[k]?.[x]||'',g=groupOf(v),e=effMembers(k,x),memo=cal.memo?.[x],hol=memo&&HOL.test(memo);
     const btns=CAN()?`<div class="lgs">${GROUPS.map(G=>`<button type="button" class="gb g-${G}${g===G?' on':''}" data-rset="${k}|${x}|${G}조">${G}</button>`).join('')}${cfg.opts.slice(0,2).map(o=>`<button type="button" class="gb sm${v===o?' on':''}" data-rset="${k}|${x}|${esc(o)}">${esc(o)}</button>`).join('')}${v?`<button type="button" class="gb ghost" data-rset="${k}|${x}|" aria-label="비우기">${icx('x')}</button>`:''}</div>`
       :(v?`<span class="ev ${g?'g-'+g:'plain'} inl">${esc(v)}</span>`:'<span class="muted">-</span>');
-    rows+=`<tr class="${x===todayIso()?'today':''}"><td class="nw" data-l="날짜"><b class="${dw===0||hol?'red':dw===6?'blue':''}">${md(x)} (${WD[dw]})</b>${memo?`<small class="lmemo${hol?' red':''}">${esc(memo)}</small>`:''}</td><td data-l="${cfg.label}">${btns}${v&&!g&&!cfg.opts.includes(v)&&CAN()?`<span class="ev plain inl">${esc(v)}</span>`:''}</td><td data-l="인원" class="lppl">${e.list.map(esc).join(' ')}${e.override?' <span class="chip warn">변경</span>':''}</td></tr>`}
+    rows+=`<tr class="${x===todayIso()?'today':''}"><td class="nw" data-l="날짜"><b class="${dw===0||hol?'red':dw===6?'blue':''}">${md(x)} (${WD[dw]})</b>${memo?`<small class="lmemo${hol?' red':''}">${esc(memo)}</small>`:''}</td><td data-l="${cfg.label}">${btns}${g&&isMark(k,x)?`<span class="chip dmk">당직</span>`:''}${v&&!g&&!cfg.opts.includes(v)&&CAN()?`<span class="ev plain inl">${esc(v)}</span>`:''}</td><td data-l="인원" class="lppl">${e.list.map(esc).join(' ')}${e.override?' <span class="chip warn">변경</span>':''}</td></tr>`}
   const label=esc(String(S.doc.label||'').replace(/\s*영업$/,''));
   return `<section class="mc" id="mc-${k}"><div class="mc-bar"><div class="mc-t"><h2>${label}</h2><span class="mc-cnt">${md(a)} ~ ${md(z)}</span></div><div class="mc-r">${right}</div></div>${pal}
     <div class="tw"><table class="stk ltab"><thead><tr><th>날짜</th><th>${cfg.label}조</th><th>인원</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
@@ -2873,11 +2879,12 @@ function popHead(key,x){
 function popRoster(k,x){
   const cfg=GK[k],v=S.doc.cal[k]?.[x]||'',g=groupOf(v),e=effMembers(k,x);
   let h=popHead(k,x);
-  h+=v?`<div class="pp-main"><span class="ev big ${g?'g-'+g:'plain'}">${esc(v)}</span>${e.override?'<span class="chip warn">이 날만 인원 변경</span>':''}</div>`:`<p class="pp-empty">아직 ${cfg.label}조가 없습니다.</p>`;
+  h+=v?`<div class="pp-main"><span class="ev big ${g?'g-'+g:'plain'}${g&&isMark(k,x)?' ev-dmark':''}">${esc(v)}${g&&isMark(k,x)?markTag:''}</span>${e.override?'<span class="chip warn">이 날만 인원 변경</span>':''}</div>`:`<p class="pp-empty">아직 ${cfg.label}조가 없습니다.</p>`;
   if(!S.edit){
     h+=e.list.length?`<div class="pp-ppl">${e.list.map(n=>`<span class="pn">${esc(n)}</span>`).join('')}</div>`:'';
     return h+(CAN()?`<div class="pp-foot"><button type="button" class="btn sm" data-editon="1">이 날 바꾸기</button></div>`:'');
   }
+  if(g)h+=`<div class="pp-sec"><button type="button" class="btn sm${isMark(k,x)?' primary':''} btn-dmark" data-rmark="${k}|${x}">${isMark(k,x)?'당직 표시 빼기':'이 날 '+g+'조에 당직 표시'}</button></div>`;
   h+=`<div class="pp-sec"><div class="pp-l">조 고르기<small>키보드 A~E 또는 1~5 · ←→ 날짜 이동</small></div><div class="pp-gs">${GROUPS.map(G=>`<button type="button" class="gb g-${G}${g===G?' on':''}" data-rset="${k}|${x}|${G}조">${G}조</button>`).join('')}${cfg.opts.map(o=>`<button type="button" class="gb${v===o?' on':''}" data-rset="${k}|${x}|${esc(o)}">${esc(o)}</button>`).join('')}${v?`<button type="button" class="gb ghost" data-rset="${k}|${x}|">비우기</button>`:''}</div></div>
     <div class="pp-sec"><div class="pp-l">직접 입력<small>조 대신 원하는 글을 적을 수 있습니다</small></div><div class="pp-add"><input type="text" id="rtxt" value="${esc(v&&!g&&!cfg.opts.includes(v)?v:'')}" placeholder="예: A조+B조, 대체근무"><button type="button" class="btn sm" data-rtxt="${k}|${x}">적용</button></div></div>`;
   if(g||e.list.length)h+=`<div class="pp-sec"><div class="pp-l">이 날 인원</div><div class="pp-ppl">${e.list.map(n=>`<span class="pn">${esc(n)}<button type="button" class="px" aria-label="${esc(n)} 빼기" data-mrem="${k}|${x}|${esc(n)}">${icx('x')}</button></span>`).join('')}</div>
@@ -3671,6 +3678,7 @@ function act(t){
   if(d.gsw){const [k,vi,g]=sp(d.gsw);if(S.gswap&&S.gswap.k===k&&S.gswap.vi===+vi){if(S.gswap.g===g){S.gswap=null;S.keepScroll=true;render()}else swapGroups(k,+vi,S.gswap.g,g)}else{S.gswap={k,vi:+vi,g};S.keepScroll=true;render()}return true}
   if(d.month){$('#mMenu').hidden=true;$('#mBtn').setAttribute('aria-expanded','false');switchMonth(d.month);return true}
   if(d.brush!=null){const [k,v]=sp(d.brush);if(S.brush&&S.brush.k===k&&S.brush.v===v)S.brush=null;else{S.brush={k,v};S.edit=true;S.pop=null}S.keepScroll=true;render();return true}
+  if(d.rmark){const [k,x]=sp(d.rmark);S.edit=true;let on;mutate(()=>{on=toggleMark(k,x)},'');toast(on?'당직 표시를 붙였습니다 · 저장을 눌러 확정':'당직 표시를 뺐습니다 · 저장을 눌러 확정');return true}
   if(d.brushoff){S.brush=null;S.keepScroll=true;render();return true}
   if(d.cview){const [k,v]=sp(d.cview);S.cview=S.cview||{};S.cview[k]=v;S.pop=null;S.keepScroll=true;render();return true}
   if(d.saveyes){S.saveAsk=false;save();return true}
@@ -3718,7 +3726,7 @@ function act(t){
   if(d.aumode){S.auto.mode=d.aumode;readAuto();S.keepScroll=true;render();return true}
   if(d.autogo){const k=d.autogo;readAuto();const o=S.auto;if(!o.days.length||!o.groups.length){toast('요일과 조를 하나 이상 고르세요');return true}let r;mutate(()=>{r=autoFill(k,o)});S.autoOpen=null;S.keepScroll=true;render();toast(`${r.n}일 배치 · 조별 ${r.min}~${r.max}회${r.wk?` · 주말 ${r.wk}일 지원`:''} · Ctrl+Z로 되돌리기`);return true}
   if(d.rv){const [k,i]=sp(d.rv);S.rv[k]=+i;S.keepScroll=true;render();return true}
-  if(d.rset!=null){const [k,x,v]=sp(d.rset);mutate(()=>{setCal(k,x,v);delete S.doc.cal[GK[k].mem][x]});return true}
+  if(d.rset!=null){const [k,x,v]=sp(d.rset);if(v===MARKV[k]&&groupOf(S.doc.cal[k]?.[x]||'')){let on;mutate(()=>{on=toggleMark(k,x)});toast(on?'당직 표시를 붙였습니다':'당직 표시를 뺐습니다');return true}mutate(()=>{setCal(k,x,v);if(!v)toggleMark(k,x,false);delete S.doc.cal[GK[k].mem][x]});return true}
   if(d.rtxt){const [k,x]=sp(d.rtxt);mutate(()=>setCal(k,x,$('#rtxt').value.trim()));return true}
   if(d.mrem){const [k,x,n]=sp(d.mrem);mutate(()=>setOverride(k,x,effMembers(k,x).list.filter(y=>y!==n)));return true}
   if(d.madd){const [k,x]=sp(d.madd);const n=$('#radd').value.trim();if(!n)return true;mutate(()=>{const l=effMembers(k,x).list;if(!l.includes(n))setOverride(k,x,[...l,n])},`${n} 추가`);return true}
@@ -4697,7 +4705,7 @@ function ghostFor(el,src){
 }
 function clearMarks(){document.querySelectorAll('.drop-ok,.drop-before,.drop-after').forEach(e=>e.classList.remove('drop-ok','drop-before','drop-after'))}
 let PAINT=null;
-function paintAt(cx,cy){const c=document.elementFromPoint(cx,cy)?.closest('.mc-c[data-pop]');if(!c||!S.brush)return;const [k,x]=sp(c.dataset.pop);if(k!==S.brush.k||PAINT.done.has(x))return;PAINT.done.add(x);
+function paintAt(cx,cy){const c=document.elementFromPoint(cx,cy)?.closest('.mc-c[data-pop]');if(!c||!S.brush)return;const [k,x]=sp(c.dataset.pop);if(k!==S.brush.k||PAINT.done.has(x))return;PAINT.done.add(x);if(S.brush.v===MARKV[k]&&groupOf(S.doc.cal[k]?.[x]||'')){if(PAINT.mk==null)PAINT.mk=!isMark(k,x);toggleMark(k,x,PAINT.mk);PAINT.marks=(PAINT.marks||0)+1;const ev=c.querySelector('.ev');if(ev){ev.classList.toggle('ev-dmark',PAINT.mk);ev.querySelector('.ev-dt')?.remove();if(PAINT.mk)ev.insertAdjacentHTML('beforeend',markTag)}c.classList.add('painted');return}if(S.brush.v===MARKV[k]&&k==='assign'){PAINT.skip=(PAINT.skip||0)+1;return}if(!S.brush.v)toggleMark(k,x,false);
   setCal(k,x,S.brush.v);delete S.doc.cal[GK[k].mem][x];c.classList.add('painted');const ev=c.querySelector('.ev,.ev-empty');const g=groupOf(S.brush.v);const html=S.brush.v?`<div class="ev ${g?'g-'+g:'plain'}">${esc(S.brush.v)}</div>`:'';
   c.querySelectorAll('.ev,.ev-empty,.ev-ppl').forEach(n=>n.remove());c.insertAdjacentHTML('beforeend',html)}
 let LASTMOD={ctrl:false,shift:false},ASD=null;
@@ -4730,7 +4738,7 @@ function endDrag(ok){
   suppressClick=true;setTimeout(()=>suppressClick=false,0);
   if(ok&&d.tgt)doDrop(d.src,d.tgt,d.pos);
 }
-document.addEventListener('pointerup',()=>{if(ASD){const a=ASD;ASD=null;if(a.on&&a.keys){S.asel=a.keys;S.acell=null;if(a.keys.size===1){const [c,i]=sp([...a.keys][0]);S.acell={col:c,i:+i}}suppressClick=true;setTimeout(()=>suppressClick=false,0);S.keepScroll=true;render()}return}if(PAINT){const p=PAINT;PAINT=null;suppressClick=true;setTimeout(()=>suppressClick=false,0);if(p.done.size){pushHist(p.h);changed();toast(`${p.done.size}일에 ${S.brush?.v||'비우기'} 넣음 · Ctrl+Z로 되돌리기`)}S.keepScroll=true;render();return}endDrag(true)});
+document.addEventListener('pointerup',()=>{if(ASD){const a=ASD;ASD=null;if(a.on&&a.keys){S.asel=a.keys;S.acell=null;if(a.keys.size===1){const [c,i]=sp([...a.keys][0]);S.acell={col:c,i:+i}}suppressClick=true;setTimeout(()=>suppressClick=false,0);S.keepScroll=true;render()}return}if(PAINT){const p=PAINT;PAINT=null;suppressClick=true;setTimeout(()=>suppressClick=false,0);if(p.done.size){pushHist(p.h);changed();toast(p.marks?`${p.marks}일 당직 표시 ${p.mk?'붙임':'뺌'} · Ctrl+Z로 되돌리기`:p.skip&&p.done.size===p.skip?'조가 들어간 날에만 당직 표시를 붙일 수 있습니다':`${p.done.size}일에 ${S.brush?.v||'비우기'} 넣음 · Ctrl+Z로 되돌리기`)}S.keepScroll=true;render();return}endDrag(true)});
 document.addEventListener('pointercancel',()=>endDrag(false));
 document.addEventListener('dragstart',e=>{if(e.target.closest?.('[data-drag]'))e.preventDefault()});
 
