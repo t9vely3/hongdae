@@ -4165,7 +4165,9 @@ async function ttImportList(r,src){
   const byId=Object.fromEntries([...otherAll,...old].map(c=>[c.id,c])),byK2=Object.fromEntries(prevAll.map(c=>[c.k2,c]));
   let ch=0,nw=0;const classes=r.list.map(c=>{const o=byId[c.id];if(c.xl&&!c.ext&&o&&o.cnt===c.cnt&&o.st){c.st=o.st;c.extra=o.extra||''}ttStCalc(c);delete c.xl;delete c.ext;if(o){if(o.cnt!==c.cnt)ch++;return {...c,time:c.time||o.time||'',tend:c.end2||o.tend||'',note:o.note||'',prev:o.cnt!==c.cnt?o.cnt:(o.prev??null),hide:!!o.hide,wait:o.wait??null}}nw++;const pv=byK2[c.k2];return {...c,time:c.time||pv?.time||'',tend:c.end2||pv?.tend||'',note:'',prev:null,hide:false}});classes.forEach(c=>delete c.end2);
   /* 이번에 보낸 화면의 개강일 범위 안에서만 '없어진 반'을 지움. 범위 밖(기간을 바꿔서 안 보인 반)은 그대로 둠 */
-  const kinds=new Set(classes.map(ttWeekend));const ss=classes.map(c=>c.start).filter(Boolean).sort();const lo=ss[0]||'',hi=ss[ss.length-1]||'';
+  const kinds=new Set(classes.map(ttWeekend));const ss=classes.map(c=>c.start).filter(Boolean).sort();let lo=ss[0]||'',hi=ss[ss.length-1]||'';
+  /* 화면의 단위기간 밖에서 개강한 반(예: 지난달 개강해 아직 수업 중인 반)이 섞여 와도, 지난 기간 반을 지우지 않도록 단위기간 안으로만 좁힘 */
+  if(r.period&&r.period.a&&lo<r.period.a)lo=r.period.a;if(r.period&&r.period.z&&hi>r.period.z)hi=r.period.z;
   const newIds=new Set(classes.map(c=>c.id));const inRange=o=>kinds.has(ttWeekend(o))&&o.start&&o.start>=lo&&o.start<=hi;
   let gone=0;const keep=old.filter(o=>{if(newIds.has(o.id))return false;if(inRange(o)){gone++;return false}return true});classes.push(...keep);
   const fix=[];others.forEach(k=>{const L=S.callsAll[k].classes||[];const L2=L.filter(o=>{if(newIds.has(o.id))return false;if(inRange(o)){gone++;return false}return true});if(L2.length!==L.length)fix.push([k,L2])});
