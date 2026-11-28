@@ -4168,7 +4168,10 @@ async function ttImportList(r,src){
   const kinds=new Set(classes.map(ttWeekend));const ss=classes.map(c=>c.start).filter(Boolean).sort();let lo=ss[0]||'',hi=ss[ss.length-1]||'';
   /* 화면의 단위기간 밖에서 개강한 반(예: 지난달 개강해 아직 수업 중인 반)이 섞여 와도, 지난 기간 반을 지우지 않도록 단위기간 안으로만 좁힘 */
   if(r.period&&r.period.a&&lo<r.period.a)lo=r.period.a;if(r.period&&r.period.z&&hi>r.period.z)hi=r.period.z;
-  const newIds=new Set(classes.map(c=>c.id));const inRange=o=>kinds.has(ttWeekend(o))&&o.start&&o.start>=lo&&o.start<=hi;
+  const newIds=new Set(classes.map(c=>c.id));
+  /* 지나간 달(이번 달 1일 전에 개강했거나 이미 끝난 반)은 평일·주말 모두 고정: 새로 보낸 화면에 없어도 지우지 않음 */
+  const td=todayIso(),m1=td.slice(0,8)+'01';const past=o=>(o.start&&o.start<m1)||(o.end&&o.end<td);
+  const inRange=o=>!past(o)&&kinds.has(ttWeekend(o))&&o.start&&o.start>=lo&&o.start<=hi;
   let gone=0;const keep=old.filter(o=>{if(newIds.has(o.id))return false;if(inRange(o)){gone++;return false}return true});classes.push(...keep);
   const fix=[];others.forEach(k=>{const L=S.callsAll[k].classes||[];const L2=L.filter(o=>{if(newIds.has(o.id))return false;if(inRange(o)){gone++;return false}return true});if(L2.length!==L.length)fix.push([k,L2])});
   logAdd('tt',[`${per.a} ~ ${per.z||''} 시간표 ${src}: ${classes.length}반${old.length?` · 배정인원 바뀐 반 ${ch} · 새 반 ${nw}${gone?` · 없어진 반 ${gone}`:''}`:''}`]);
